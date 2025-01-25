@@ -13,15 +13,12 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as ProjectProjectidLayoutImport } from './routes/project/$projectid/_layout'
-import { Route as ProjectProjectidLayoutIndexImport } from './routes/project/$projectid/_layout.index'
-import { Route as ProjectProjectidLayoutAnaliticsImport } from './routes/project/$projectid/_layout.analitics'
+import { Route as ProjectProjectidIndexImport } from './routes/project/$projectid/index'
 
 // Create Virtual Routes
 
 const TppLazyImport = createFileRoute('/tpp')()
 const IndexLazyImport = createFileRoute('/')()
-const ProjectProjectidImport = createFileRoute('/project/$projectid')()
 
 // Create/Update Routes
 
@@ -37,30 +34,11 @@ const IndexLazyRoute = IndexLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
 
-const ProjectProjectidRoute = ProjectProjectidImport.update({
-  id: '/project/$projectid',
-  path: '/project/$projectid',
+const ProjectProjectidIndexRoute = ProjectProjectidIndexImport.update({
+  id: '/project/$projectid/',
+  path: '/project/$projectid/',
   getParentRoute: () => rootRoute,
 } as any)
-
-const ProjectProjectidLayoutRoute = ProjectProjectidLayoutImport.update({
-  id: '/_layout',
-  getParentRoute: () => ProjectProjectidRoute,
-} as any)
-
-const ProjectProjectidLayoutIndexRoute =
-  ProjectProjectidLayoutIndexImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => ProjectProjectidLayoutRoute,
-  } as any)
-
-const ProjectProjectidLayoutAnaliticsRoute =
-  ProjectProjectidLayoutAnaliticsImport.update({
-    id: '/analitics',
-    path: '/analitics',
-    getParentRoute: () => ProjectProjectidLayoutRoute,
-  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -80,122 +58,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TppLazyImport
       parentRoute: typeof rootRoute
     }
-    '/project/$projectid': {
-      id: '/project/$projectid'
+    '/project/$projectid/': {
+      id: '/project/$projectid/'
       path: '/project/$projectid'
       fullPath: '/project/$projectid'
-      preLoaderRoute: typeof ProjectProjectidImport
+      preLoaderRoute: typeof ProjectProjectidIndexImport
       parentRoute: typeof rootRoute
-    }
-    '/project/$projectid/_layout': {
-      id: '/project/$projectid/_layout'
-      path: '/project/$projectid'
-      fullPath: '/project/$projectid'
-      preLoaderRoute: typeof ProjectProjectidLayoutImport
-      parentRoute: typeof ProjectProjectidRoute
-    }
-    '/project/$projectid/_layout/analitics': {
-      id: '/project/$projectid/_layout/analitics'
-      path: '/analitics'
-      fullPath: '/project/$projectid/analitics'
-      preLoaderRoute: typeof ProjectProjectidLayoutAnaliticsImport
-      parentRoute: typeof ProjectProjectidLayoutImport
-    }
-    '/project/$projectid/_layout/': {
-      id: '/project/$projectid/_layout/'
-      path: '/'
-      fullPath: '/project/$projectid/'
-      preLoaderRoute: typeof ProjectProjectidLayoutIndexImport
-      parentRoute: typeof ProjectProjectidLayoutImport
     }
   }
 }
 
 // Create and export the route tree
 
-interface ProjectProjectidLayoutRouteChildren {
-  ProjectProjectidLayoutAnaliticsRoute: typeof ProjectProjectidLayoutAnaliticsRoute
-  ProjectProjectidLayoutIndexRoute: typeof ProjectProjectidLayoutIndexRoute
-}
-
-const ProjectProjectidLayoutRouteChildren: ProjectProjectidLayoutRouteChildren =
-  {
-    ProjectProjectidLayoutAnaliticsRoute: ProjectProjectidLayoutAnaliticsRoute,
-    ProjectProjectidLayoutIndexRoute: ProjectProjectidLayoutIndexRoute,
-  }
-
-const ProjectProjectidLayoutRouteWithChildren =
-  ProjectProjectidLayoutRoute._addFileChildren(
-    ProjectProjectidLayoutRouteChildren,
-  )
-
-interface ProjectProjectidRouteChildren {
-  ProjectProjectidLayoutRoute: typeof ProjectProjectidLayoutRouteWithChildren
-}
-
-const ProjectProjectidRouteChildren: ProjectProjectidRouteChildren = {
-  ProjectProjectidLayoutRoute: ProjectProjectidLayoutRouteWithChildren,
-}
-
-const ProjectProjectidRouteWithChildren =
-  ProjectProjectidRoute._addFileChildren(ProjectProjectidRouteChildren)
-
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/tpp': typeof TppLazyRoute
-  '/project/$projectid': typeof ProjectProjectidLayoutRouteWithChildren
-  '/project/$projectid/analitics': typeof ProjectProjectidLayoutAnaliticsRoute
-  '/project/$projectid/': typeof ProjectProjectidLayoutIndexRoute
+  '/project/$projectid': typeof ProjectProjectidIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/tpp': typeof TppLazyRoute
-  '/project/$projectid': typeof ProjectProjectidLayoutIndexRoute
-  '/project/$projectid/analitics': typeof ProjectProjectidLayoutAnaliticsRoute
+  '/project/$projectid': typeof ProjectProjectidIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
   '/tpp': typeof TppLazyRoute
-  '/project/$projectid': typeof ProjectProjectidRouteWithChildren
-  '/project/$projectid/_layout': typeof ProjectProjectidLayoutRouteWithChildren
-  '/project/$projectid/_layout/analitics': typeof ProjectProjectidLayoutAnaliticsRoute
-  '/project/$projectid/_layout/': typeof ProjectProjectidLayoutIndexRoute
+  '/project/$projectid/': typeof ProjectProjectidIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/tpp'
-    | '/project/$projectid'
-    | '/project/$projectid/analitics'
-    | '/project/$projectid/'
+  fullPaths: '/' | '/tpp' | '/project/$projectid'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/tpp' | '/project/$projectid' | '/project/$projectid/analitics'
-  id:
-    | '__root__'
-    | '/'
-    | '/tpp'
-    | '/project/$projectid'
-    | '/project/$projectid/_layout'
-    | '/project/$projectid/_layout/analitics'
-    | '/project/$projectid/_layout/'
+  to: '/' | '/tpp' | '/project/$projectid'
+  id: '__root__' | '/' | '/tpp' | '/project/$projectid/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   TppLazyRoute: typeof TppLazyRoute
-  ProjectProjectidRoute: typeof ProjectProjectidRouteWithChildren
+  ProjectProjectidIndexRoute: typeof ProjectProjectidIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   TppLazyRoute: TppLazyRoute,
-  ProjectProjectidRoute: ProjectProjectidRouteWithChildren,
+  ProjectProjectidIndexRoute: ProjectProjectidIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -210,7 +122,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/tpp",
-        "/project/$projectid"
+        "/project/$projectid/"
       ]
     },
     "/": {
@@ -219,27 +131,8 @@ export const routeTree = rootRoute
     "/tpp": {
       "filePath": "tpp.lazy.tsx"
     },
-    "/project/$projectid": {
-      "filePath": "project/$projectid",
-      "children": [
-        "/project/$projectid/_layout"
-      ]
-    },
-    "/project/$projectid/_layout": {
-      "filePath": "project/$projectid/_layout.tsx",
-      "parent": "/project/$projectid",
-      "children": [
-        "/project/$projectid/_layout/analitics",
-        "/project/$projectid/_layout/"
-      ]
-    },
-    "/project/$projectid/_layout/analitics": {
-      "filePath": "project/$projectid/_layout.analitics.tsx",
-      "parent": "/project/$projectid/_layout"
-    },
-    "/project/$projectid/_layout/": {
-      "filePath": "project/$projectid/_layout.index.tsx",
-      "parent": "/project/$projectid/_layout"
+    "/project/$projectid/": {
+      "filePath": "project/$projectid/index.tsx"
     }
   }
 }

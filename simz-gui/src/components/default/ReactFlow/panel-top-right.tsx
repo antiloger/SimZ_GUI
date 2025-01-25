@@ -4,7 +4,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronDown, Component, Play, Plus } from "lucide-react";
+import { FlowState } from "@/states/flowState";
+import { SimDataState } from "@/states/simDataState";
+import { ChevronDown, Play, Plus } from "lucide-react";
+import { useState } from "react";
 
 export default function PanelTopRight() {
   return (
@@ -15,36 +18,30 @@ export default function PanelTopRight() {
   )
 }
 
-interface componetTypes {
-  type: string;
-  name: string;
-  id: string;
-}
-
-interface componentSlots {
-  type: string;
-  slots: componetTypes[];
-}
-
 function AddComponentBtn() {
 
-  const tpp: componentSlots[] = [];
-  for (let i = 0; i < 4; i++) {
-    const types: componetTypes[] = []
-    for (let k = 0; k < 7; k++) {
-      types.push(
-        {
-          type: `sub_type_${k}`,
-          id: `${k}`,
-          name: `name_${k}`,
-        }
-      )
+
+  const { componentRegisterI } = SimDataState(); // Accessing Zustand store
+  const [searchQuery, setSearchQuery] = useState("");
+  const { setNodes } = FlowState();
+
+  // Filter categories and compTypes based on the search query
+  const filteredData = Object.entries(componentRegisterI).reduce((acc, [category, compTypes]) => {
+    const filteredCompTypes = Object.keys(compTypes).filter((compType) =>
+      compType.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    if (filteredCompTypes.length > 0) {
+      acc[category] = filteredCompTypes;
     }
-    tpp.push({
-      type: `type_${i}`,
-      slots: types
-    })
-  }
+    return acc;
+  }, {} as { [category: string]: string[] });
+
+  // const onClickCompType = (cat: string, type: string) => {
+  //   const TypeData = componentRegisterI[cat][type];
+  //   setNodes([{
+  //     type: 
+  //   }])
+  // }
 
   return (
     <Dialog>
@@ -59,42 +56,43 @@ function AddComponentBtn() {
           </DialogDescription>
         </DialogHeader>
         <div>
-          <Input placeholder="Search component" />
+          <Input
+            placeholder="Search component"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
         <ScrollArea className="flex flex-col" >
-          <div className="flex flex-col" >
-            {
-              tpp.map((item) => (
-                <Collapsible className="group/collapsible">
-                  <div className="flex flex-col mb-2">
-                    <CollapsibleTrigger>
-                      <div className="flex flex-row justify-between items-center py-2 gap-x-2 font-semibold" >
-                        <Component className="w-4 h-4" />
-                        {item.type}
-                        <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                      </div>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <div className="w-full flex flex-col" >
-                        {
-                          item.slots.map((itx) => (
-                            <div className="flex flex-row justify-between pl-6 pr-2 items-center py-2 rounded-md hover:bg-secondary hover:font-semibold" >
-                              <div>
-                                {itx.type}
-                              </div>
-                              <div>
-                                <Plus className="w-4 h-4" />
-                              </div>
-                            </div>
-                          ))
-                        }
-                      </div>
-                    </CollapsibleContent>
-                    <hr />
-                  </div>
-                </Collapsible>
-              ))
-            }
+          <div className="flex flex-col">
+            {Object.entries(filteredData).map(([category, compTypes]) => (
+              <Collapsible key={category} className="group/collapsible">
+                <div className="flex flex-col mb-2">
+                  <CollapsibleTrigger>
+                    <div className="flex flex-row justify-between items-center py-2 gap-x-2 font-semibold">
+                      {category}
+                      <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="w-full flex flex-col">
+                      {compTypes.map((compType) => (
+                        <div
+                          key={compType}
+                          className="flex flex-row justify-between pl-6 pr-2 items-center py-2 rounded-md hover:bg-secondary hover:font-semibold"
+                        // onClick={ }
+                        >
+                          <div>{compType}</div>
+                          <div>
+                            <Plus className="w-4 h-4" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CollapsibleContent>
+                  <hr />
+                </div>
+              </Collapsible>
+            ))}
           </div>
         </ScrollArea>
         {/* <DialogFooter> */}
@@ -148,3 +146,39 @@ function RunComponentBtn() {
     </Dialog>
   )
 }
+
+
+{/* <div className="flex flex-col" > */ }
+{/*   { */ }
+{/*     tpp.map((item) => ( */ }
+{/*       <Collapsible className="group/collapsible"> */ }
+{/*         <div className="flex flex-col mb-2"> */ }
+{/*           <CollapsibleTrigger> */ }
+{/*             <div className="flex flex-row justify-between items-center py-2 gap-x-2 font-semibold" > */ }
+{/*               <Component className="w-4 h-4" /> */ }
+{/*               {item.type} */ }
+{/*               <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" /> */ }
+{/*             </div> */ }
+{/*           </CollapsibleTrigger> */ }
+{/*           <CollapsibleContent> */ }
+{/*             <div className="w-full flex flex-col" > */ }
+{/*               { */ }
+{/*                 item.slots.map((itx) => ( */ }
+{/*                   <div className="flex flex-row justify-between pl-6 pr-2 items-center py-2 rounded-md hover:bg-secondary hover:font-semibold" > */ }
+{/*                     <div> */ }
+{/*                       {itx.type} */ }
+{/*                     </div> */ }
+{/*                     <div> */ }
+{/*                       <Plus className="w-4 h-4" /> */ }
+{/*                     </div> */ }
+{/*                   </div> */ }
+{/*                 )) */ }
+{/*               } */ }
+{/*             </div> */ }
+{/*           </CollapsibleContent> */ }
+{/*           <hr /> */ }
+{/*         </div> */ }
+{/*       </Collapsible> */ }
+{/*     )) */ }
+{/*   } */ }
+{/* </div> */ }

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Handle, Node, NodeProps, Position } from "@xyflow/react"
-import { Cylinder, HomeIcon, MoreVertical } from "lucide-react";
+import { HomeIcon, MoreVertical } from "lucide-react";
 
 export interface NodeDisplayContentI {
   type: string;
@@ -48,16 +48,16 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
         <div className="flex flex-col gap-y-2  mx-3 mb-3 " >
           <div className="flex flex-row items-center justify-between py-2 px-4 rounded-lg bg-secondary " >
             <div className="flex flex-row gap-x-2 text-sm">
-              <Cylinder />
-              Capacity :
+              {/* <Cylinder className="w-4 h-4" /> */}
+              Runner :
             </div>
             <div>
-              02
+              {"<N/A>"}
             </div>
           </div>
           <div className="flex flex-row items-center justify-between py-2 px-4 rounded-lg bg-secondary " >
             <div className="flex flex-row gap-x-2 text-sm">
-              <Cylinder />
+              {/* <Sun className="w-4 h-4" /> */}
               Capacity :
             </div>
             <div>
@@ -67,7 +67,7 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
         </div>
       </div>
       <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" >
-        <Handle type="target" id="a" position={Position.Left} isConnectable={true} />
+        <Handle type="target" id="a" position={Position.Right} isConnectable={true} />
         connector
       </div>
 

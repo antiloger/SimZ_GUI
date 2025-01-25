@@ -1,11 +1,6 @@
 import Flow from '@/components/default/ReactFlow/flow'
-import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/project/$projectid/_layout/')({
-  component: RouteComponent,
-})
-
-function RouteComponent() {
+function FlowPage() {
   return (
     <div className='flex flex-col' >
       {/* <div> <MainMenubar /> </div> */}
@@ -15,3 +10,5 @@ function RouteComponent() {
     </div>
   )
 }
+
+export default FlowPage;
