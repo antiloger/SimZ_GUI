@@ -4,6 +4,7 @@ import { HomeIcon, MoreVertical } from "lucide-react";
 
 export interface NodeDisplayContentI {
   type: string;
+  id: string;
   iconName: string;
   lable?: string;
   value?: string | number | string[];

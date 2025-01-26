@@ -1,5 +1,3 @@
-
-
 export default function AnalyticsPage() {
-  return <div>Hello "AnalyticsPage"!</div>
+  return <div>Hello "AnalyticsPage"! </div>
 }

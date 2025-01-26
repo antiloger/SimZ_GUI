@@ -45,8 +45,10 @@ export interface CompDataI {
   typeName: string;
   compName: string;
   id?: string;
+  category: string;
+  color?: string;
   notification?: string[];
-  inputData: { [key: string]: number | string | string[] | number[] }
+  inputData: { [key: string]: number | string | string[] | number[] | null }
   inputConn: ConnectorData[];
   outpuConn: ConnectorData[];
   Runners: RunnerFn[];

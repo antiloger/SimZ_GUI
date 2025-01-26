@@ -4,6 +4,8 @@ import PanelTopRight from "./panel-top-right"
 import { FlowState } from "@/states/flowState";
 import { useShallow } from 'zustand/react/shallow';
 import DynamicComponentNode from "./dynamicComponentNode";
+import { useCallback } from "react";
+import { ViewPortData } from "@/types/flow";
 
 const flowSelector = (state) => ({
   nodes: state.nodes,
@@ -22,10 +24,14 @@ export default function Flow() {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = FlowState(
     useShallow(flowSelector),
   );
+  const { setViewport } = FlowState();
 
   // const defaultEdgeOptions: DefaultEdgeOptions = {
   //   label: 
   // }
+  const handleMove = useCallback((_: any, viewport: ViewPortData) => {
+    setViewport(viewport); // Sync viewport details to Zustand
+  }, []);
 
   return (
     <div style={{ height: '100vh' }} >
@@ -36,6 +42,7 @@ export default function Flow() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={NodeType}
+        onMove={handleMove}
       >
         <Background />
         <Controls />

@@ -33,6 +33,7 @@ function RouteComponent() {
         'u need to save the file in order to exit otherwise your project will be unsave!',
       ),
   })
+
   const getComponentByName = useCallback((name: string) => {
     switch (name) {
       case "FlowPage":

@@ -1,4 +1,5 @@
 import { initialEdges, initialNodes } from '@/mockData/flowState';
+import { ViewPortData } from '@/types/flow';
 import {
   addEdge,
   applyEdgeChanges,
@@ -16,17 +17,20 @@ export type FlowNode = Node;
 export type FlowStateT = {
   nodes: FlowNode[];
   edges: Edge[];
+  viewport: ViewPortData;
   onNodesChange: OnNodesChange<FlowNode>;
   onEdgesChange: OnEdgesChange<Edge>;
   onConnect: OnConnect;
   setNodes: (nodes: FlowNode[]) => void;
   setEdges: (edges: Edge[]) => void;
+  setViewport: (newViewport: any) => void
 }
 
 
 export const FlowState = create<FlowStateT>((set, get) => ({
   nodes: initialNodes,
   edges: initialEdges,
+  viewport: { x: 0, y: 0, zoom: 1 },
   onNodesChange: (changes) => {
     set({
       nodes: applyNodeChanges(changes, get().nodes),
@@ -48,4 +52,5 @@ export const FlowState = create<FlowStateT>((set, get) => ({
   setEdges: (edges) => {
     set({ edges });
   },
+  setViewport: (newViewport) => set({ viewport: newViewport }),
 }))
