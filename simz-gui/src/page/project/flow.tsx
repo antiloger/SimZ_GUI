@@ -1,4 +1,5 @@
 import Flow from '@/components/default/ReactFlow/flow'
+import PropertySheet from '@/components/default/ReactFlow/propertySheet';
 
 function FlowPage() {
   return (
@@ -6,6 +7,7 @@ function FlowPage() {
       {/* <div> <MainMenubar /> </div> */}
       <div>
         <Flow />
+        <PropertySheet />
       </div>
     </div>
   )

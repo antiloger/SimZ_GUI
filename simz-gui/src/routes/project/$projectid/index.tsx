@@ -13,8 +13,9 @@ import { ErrorDialog } from '@/components/default/error/errorDialog'
 export const Route = createFileRoute('/project/$projectid/')({
   component: RouteComponent,
   loader: async ({ params }) => {
-    const { loadRegisterData } = SimDataState.getState();
+    const { loadRegisterData, sync_comp_nodes } = SimDataState.getState();
     await loadRegisterData(params.projectid);
+    await sync_comp_nodes()
     return {
       simulationId: params.projectid,
     }

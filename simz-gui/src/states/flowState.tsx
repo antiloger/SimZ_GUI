@@ -24,6 +24,7 @@ export type FlowStateT = {
   setNodes: (nodes: FlowNode[]) => void;
   setEdges: (edges: Edge[]) => void;
   setViewport: (newViewport: any) => void
+  addNodes: (nodes: FlowNode[]) => void;
 }
 
 
@@ -53,4 +54,9 @@ export const FlowState = create<FlowStateT>((set, get) => ({
     set({ edges });
   },
   setViewport: (newViewport) => set({ viewport: newViewport }),
+  addNodes: (nodes: FlowNode[]) => {
+    set((s) => ({
+      nodes: [...s.nodes, ...nodes]
+    }))
+  }
 }))

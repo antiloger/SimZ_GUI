@@ -4,6 +4,8 @@ import { create } from "zustand"
 import { ErrorState } from "./errorState"
 import { FlowNode, FlowState } from "./flowState"
 import { v4 as uuidv4 } from 'uuid';
+import { componentData, componentRegStore } from "@/mockData/compData"
+import { updateKey } from "@/utils/componentTypeUtil"
 
 // TODO: -
 // - add create_comp fn
@@ -20,12 +22,16 @@ type SimDataStateT = {
   componentData: { [id: string]: CompDataI },
   loadRegisterData: (projectId: string) => Promise<void>,
   loadCompData: (projectId: string) => Promise<void>,
-  create_comp: (name: string, type: string, cat: string) => Promise<void>
+  sync_comp_nodes: () => Promise<void>
+  create_comp: (name: string, type: string, cat: string) => Promise<void>,
+  get_comp_by_id: (id: string) => CompDataI | null
+  change_comp_default_values: (id: string, key: string, values: string) => void | string
 }
 
+
 export const SimDataState = create<SimDataStateT>((set, get) => ({
-  componentRegisterI: {},
-  componentData: {},
+  componentRegisterI: componentRegStore,
+  componentData: componentData,
   loadRegisterData: async (projectId: string) => {
     const { setError } = ErrorState.getState();
     try {
@@ -65,6 +71,36 @@ export const SimDataState = create<SimDataStateT>((set, get) => ({
       console.log(`error from simdatastate: ${err}`)
     }
   },
+  sync_comp_nodes: async () => {
+    const data = get().componentData;
+    if (Object.keys(data).length > 0) {
+      const { viewport, addNodes } = FlowState.getState()
+      const nodeData: FlowNode[] = []
+      // this might change cause i only need id for node not values
+      Object.entries(data).forEach(([id, values]) => {
+
+        const nodeBuild = {
+          id: id,
+          type: 'dynComp',
+          data: {
+            name: values.compName,
+            id: id,
+            type: values.typeName,
+            color: values.color,
+            notify: false,
+            data: []
+          },
+          position: { x: viewport.x, y: viewport.y },
+
+        } as FlowNode;
+        nodeData.push(nodeBuild)
+      })
+      addNodes(nodeData)
+      return
+    }
+
+    return
+  },
   create_comp: async (name: string, type: string, cat: string) => {
     const { setError } = ErrorState();
     const compStruct = get().componentRegisterI[cat][type] ?? null;
@@ -96,7 +132,7 @@ export const SimDataState = create<SimDataStateT>((set, get) => ({
       Runners: []
     };
     // get current center viewport
-    const { viewport, setNodes } = FlowState.getState()
+    const { viewport, addNodes } = FlowState.getState()
     const nodeBuild = {
       id: compId,
       type: 'dynComp',
@@ -117,8 +153,54 @@ export const SimDataState = create<SimDataStateT>((set, get) => ({
         [compId]: compBuild
       }
     }))
-    setNodes([nodeBuild]);
+    addNodes([nodeBuild]);
   },
-  get_comp_by_id: (id: string) {
+  get_comp_by_id: (id: string) => {
+    const component = get().componentData[id] ?? null;
+    if (component === null) {
+      return null
+    }
+    return component
+  },
+  change_comp_default_values: (id: string, key: string, values: string) => {
+    try {
+      set((state) => {
+
+        const comp = get().componentData[id];
+        if (!comp) {
+          throw new Error(`Component with id "${id}" not found`);
+        }
+        const compUpdate = updateKey(comp, key, values)
+        return {
+          componentData: {
+            ...state.componentData,
+            [id]: compUpdate,
+          }
+        }
+      })
+    } catch (e) {
+      console.log(e)
+      return "Internal Error"
+    }
+    return
+  }
+}))
+
+
+type SimPropertyWindowT = {
+  isPropertyWindowOn: boolean,
+  propertyWindowData: CompDataI | null,
+  setPropertyWindowOn: (on: boolean) => void,
+  setPropertyWindowData: (comp: CompDataI | null) => void
+}
+
+export const SimPropertyWindowStore = create<SimPropertyWindowT>((set) => ({
+  isPropertyWindowOn: false,
+  propertyWindowData: null,
+  setPropertyWindowOn: (on: boolean) => {
+    set({ isPropertyWindowOn: on })
+  },
+  setPropertyWindowData: (comp: CompDataI | null) => {
+    set({ propertyWindowData: comp })
   }
 }))

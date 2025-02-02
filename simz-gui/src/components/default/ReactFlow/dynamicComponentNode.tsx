@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { SimDataState, SimPropertyWindowStore } from "@/states/simDataState";
+import { CompDataI } from "@/types/component";
 import { Handle, Node, NodeProps, Position } from "@xyflow/react"
 import { HomeIcon, MoreVertical } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export interface NodeDisplayContentI {
   type: string;
@@ -25,8 +28,21 @@ export type DynamicComponentNodeT = Node<
 >
 
 export default function DynamicComponentNode(props: NodeProps<DynamicComponentNodeT>) {
+  const { get_comp_by_id, componentData } = SimDataState()
+  const { setPropertyWindowOn, setPropertyWindowData } = SimPropertyWindowStore()
+  const [content, setContent] = useState<CompDataI | null>(null);
+  useEffect(() => {
+    const data = get_comp_by_id(props.id)
+    setContent(data)
+  }, [componentData])
+  const onDoubleClick = () => {
+    if (content != null) {
+      setPropertyWindowData(content)
+      setPropertyWindowOn(true)
+    }
+  }
   return (
-    <div className="flex flex-col gap-y-2">
+    <div className="flex flex-col gap-y-2" onDoubleClick={onDoubleClick}>
       <div className="flex flex-col rounded-lg w-[300px] border bg-white drop-shadow-lg " >
         <div className="h-[12px] rounded-t-lg" style={{ backgroundColor: props.data?.color ?? "black" }} ></div>
         <div className="flex flex-col p-3 rounded-lg "  >

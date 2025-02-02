@@ -1,4 +1,4 @@
-type DynArray = (string | number | DynArray)[];
+type DynArray = (object | string | number | DynArray)[];
 
 export type CompRegStore = {
   [category: string]: {
@@ -9,11 +9,12 @@ export type CompRegStore = {
 interface InputFieldFormat {
   inputName: string;
   fieldType: "number" | "text" | "select" | "checkbox" | "multiselect";
-  defaultValue: number | string | string[] | number[];
-  validation: string[];
+  defaultValue: number | string | boolean | string[] | number[] | null;
+  validation: string; // regex
   display: boolean;
-  discription?: string;
+  description?: string;
   required: boolean;
+  options?: string[] | number[]
 }
 
 interface OutputDataFormats {
@@ -22,7 +23,7 @@ interface OutputDataFormats {
 
 export interface CompRegDataI {
   typeName: string;
-  discription?: string;
+  description?: string;
   color?: string;
   category: "generator" | "model" | "distributer";
   InputForm: InputFieldFormat[];
@@ -48,7 +49,7 @@ export interface CompDataI {
   category: string;
   color?: string;
   notification?: string[];
-  inputData: { [key: string]: number | string | string[] | number[] | null }
+  inputData: { [key: string]: number | string | boolean | string[] | number[] | null }
   inputConn: ConnectorData[];
   outpuConn: ConnectorData[];
   Runners: RunnerFn[];
