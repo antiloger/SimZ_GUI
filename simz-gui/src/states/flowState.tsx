@@ -1,4 +1,3 @@
-import { initialEdges, initialNodes } from '@/mockData/flowState';
 import { ViewPortData } from '@/types/flow';
 import {
   addEdge,
@@ -29,8 +28,8 @@ export type FlowStateT = {
 
 
 export const FlowState = create<FlowStateT>((set, get) => ({
-  nodes: initialNodes,
-  edges: initialEdges,
+  nodes: [],
+  edges: [],
   viewport: { x: 0, y: 0, zoom: 1 },
   onNodesChange: (changes) => {
     set({

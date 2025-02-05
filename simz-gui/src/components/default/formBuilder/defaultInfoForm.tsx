@@ -63,7 +63,7 @@ export default function DefaultInfoForm({ compId }: DefaultInfoProp) {
                 </TableCell>
               </TableRow>
               <TableRow className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r">
-                <TableCell className="bg-muted/50 py-2 font-medium">Email</TableCell>
+                <TableCell className="bg-muted/50 py-2 font-medium">Id</TableCell>
                 <TableCell className="py-0 pr-0">
                   <Input
                     name="id"
@@ -74,7 +74,7 @@ export default function DefaultInfoForm({ compId }: DefaultInfoProp) {
                 </TableCell>
               </TableRow>
               <TableRow className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r">
-                <TableCell className="bg-muted/50 py-2 font-medium">Email</TableCell>
+                <TableCell className="bg-muted/50 py-2 font-medium">Component Type</TableCell>
                 <TableCell className="py-0 pr-0">
                   <Input
                     name="typeName"
@@ -85,7 +85,7 @@ export default function DefaultInfoForm({ compId }: DefaultInfoProp) {
                 </TableCell>
               </TableRow>
               <TableRow className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r">
-                <TableCell className="bg-muted/50 py-2 font-medium">Email</TableCell>
+                <TableCell className="bg-muted/50 py-2 font-medium">Category</TableCell>
                 <TableCell className="py-0 pr-0">
                   <Input
                     name="category"
@@ -97,7 +97,7 @@ export default function DefaultInfoForm({ compId }: DefaultInfoProp) {
                 </TableCell>
               </TableRow>
               <TableRow className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r">
-                <TableCell className="bg-muted/50 py-2 font-medium">Email</TableCell>
+                <TableCell className="bg-muted/50 py-2 font-medium">Color</TableCell>
                 <TableCell className="py-0 pr-0">
                   <Input
                     name="color"

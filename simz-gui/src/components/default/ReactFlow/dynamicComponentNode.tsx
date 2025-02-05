@@ -44,21 +44,21 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
   return (
     <div className="flex flex-col gap-y-2" onDoubleClick={onDoubleClick}>
       <div className="flex flex-col rounded-lg w-[300px] border bg-white drop-shadow-lg " >
-        <div className="h-[12px] rounded-t-lg" style={{ backgroundColor: props.data?.color ?? "black" }} ></div>
+        <div className="h-[12px] rounded-t-lg" style={{ backgroundColor: content?.color ?? "black" }} ></div>
         <div className="flex flex-col p-3 rounded-lg "  >
           <div className="flex flex-row justify-between items-center " >
             <div className="flex flex-row gap-x-2 " >
               <div className="flex p-1 rounded-lg w-6 h-6 items-center bg-secondary border border-primary justify-center" >
                 <HomeIcon />
               </div>
-              <h1 className="text-secondary-foreground" > {props.data?.type ?? "N/A"} </h1>
+              <h1 className="text-secondary-foreground" > {content?.typeName ?? "N/A"} </h1>
             </div>
             <div className="flex">
               <Button variant="ghost"><MoreVertical /> </Button>
             </div>
           </div>
           <div className="flex flex-col my-1" >
-            <h3 className="text-2xl font-semibold" style={{ color: props.data?.color ?? "black" }} > {props.data?.name ?? "N/A"} </h3>
+            <h3 className="text-2xl font-semibold" style={{ color: content?.color ?? "black" }} > {content?.compName ?? "N/A"} </h3>
           </div>
           <hr className="mt-2" />
         </div>

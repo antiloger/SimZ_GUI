@@ -6,7 +6,7 @@ export type CompRegStore = {
   }
 }
 
-interface InputFieldFormat {
+export interface InputFieldFormat {
   inputName: string;
   fieldType: "number" | "text" | "select" | "checkbox" | "multiselect";
   defaultValue: number | string | boolean | string[] | number[] | null;

@@ -1,5 +1,5 @@
 import api from "@/lib/axious"
-import { CompDataI, CompRegStore } from "@/types/component"
+import { CompDataI, CompRegDataI, CompRegStore, InputFieldFormat } from "@/types/component"
 import { create } from "zustand"
 import { ErrorState } from "./errorState"
 import { FlowNode, FlowState } from "./flowState"
@@ -25,7 +25,11 @@ type SimDataStateT = {
   sync_comp_nodes: () => Promise<void>
   create_comp: (name: string, type: string, cat: string) => Promise<void>,
   get_comp_by_id: (id: string) => CompDataI | null
+  get_comp_struct_out: (category: string, type: string) => CompRegDataI | null
+  get_comp_input_by_id: (id: string) => { [key: string]: number | string | boolean | string[] | number[] | null } | null
+  get_comp_struct_input_out: (category: string, type: string) => InputFieldFormat[] | null
   change_comp_default_values: (id: string, key: string, values: string) => void | string
+  change_comp_input_values: (id: string, key: string, values: any) => void | string
 }
 
 
@@ -162,6 +166,27 @@ export const SimDataState = create<SimDataStateT>((set, get) => ({
     }
     return component
   },
+  get_comp_struct_out: (category: string, type: string) => {
+    const struct = get().componentRegisterI[category][type];
+    if (!struct) {
+      return null
+    }
+    return struct
+  },
+  get_comp_input_by_id: (id: string) => {
+    const component = get().componentData[id] ?? null;
+    if (component === null) {
+      return null
+    }
+    return component.inputData
+  },
+  get_comp_struct_input_out: (category: string, type: string) => {
+    const struct = get().componentRegisterI[category][type];
+    if (!struct) {
+      return null
+    }
+    return struct.InputForm
+  },
   change_comp_default_values: (id: string, key: string, values: string) => {
     try {
       set((state) => {
@@ -175,6 +200,34 @@ export const SimDataState = create<SimDataStateT>((set, get) => ({
           componentData: {
             ...state.componentData,
             [id]: compUpdate,
+          }
+        }
+      })
+    } catch (e) {
+      console.log(e)
+      return "Internal Error"
+    }
+    return
+  },
+  change_comp_input_values: (id: string, key: string, values: any) => {
+    try {
+      set((state) => {
+
+        let comp = get().componentData[id];
+        if (!comp) {
+          throw new Error(`Component with id "${id}" not found`);
+        }
+
+        if (!(key in comp.inputData)) {
+          throw new Error(`Component with input "${key}" not found`);
+        }
+
+        comp.inputData[key] = values
+
+        return {
+          componentData: {
+            ...state.componentData,
+            [id]: comp,
           }
         }
       })
