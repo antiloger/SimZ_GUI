@@ -1,3 +1,5 @@
+import { TimeStepGenConfig } from "./configGen";
+
 type DynArray = (object | string | number | DynArray)[];
 
 export type CompRegStore = {
@@ -21,6 +23,16 @@ interface OutputDataFormats {
   typeOut: "Chart-Pie" | "Table" | "Card";
 }
 
+export interface ConfigGenerator {
+  genFn: string;
+  config: TimeStepGenConfig;
+}
+
+export interface DataGenerator {
+  config: ConfigGenerator;
+  types: string | null;
+}
+
 export interface CompRegDataI {
   typeName: string;
   description?: string;
@@ -28,6 +40,7 @@ export interface CompRegDataI {
   category: "generator" | "model" | "distributer";
   InputForm: InputFieldFormat[];
   OutputData: OutputDataFormats[];
+  isGenerator?: boolean
 }
 
 interface ConnectorData {
@@ -53,4 +66,5 @@ export interface CompDataI {
   inputConn: ConnectorData[];
   outpuConn: ConnectorData[];
   Runners: RunnerFn[];
+  GenData?: DataGenerator;
 }

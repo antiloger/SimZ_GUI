@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FlowState } from "@/states/flowState";
 import { SimDataState } from "@/states/simDataState";
 import { ChevronDown, Play, Plus } from "lucide-react";
 import { useState } from "react";
@@ -18,12 +17,17 @@ export default function PanelTopRight() {
   )
 }
 
+interface compDataName {
+  category: string;
+  compType: string;
+}
+
 function AddComponentBtn() {
-
-
-  const { componentRegisterI } = SimDataState(); // Accessing Zustand store
+  const { componentRegisterI, create_comp } = SimDataState(); // Accessing Zustand store
   const [searchQuery, setSearchQuery] = useState("");
-  const { setNodes } = FlowState();
+  const [inputState, setInputState] = useState<boolean>(false)
+  const [selectedComp, setSelectComp] = useState<compDataName | null>(null)
+  const [compName, setCompName] = useState<string | null>(null)
 
   // Filter categories and compTypes based on the search query
   const filteredData = Object.entries(componentRegisterI).reduce((acc, [category, compTypes]) => {
@@ -36,19 +40,31 @@ function AddComponentBtn() {
     return acc;
   }, {} as { [category: string]: string[] });
 
-  // const onClickCompType = (cat: string, type: string) => {
-  //   const TypeData = componentRegisterI[cat][type];
-  //   setNodes([{
-  //     type: 
-  //   }])
-  // }
+  const onClickCompType = (cat: string, type: string) => {
+    console.log("RAW", cat, type)
+    setInputState(true)
+    setSelectComp({
+      category: cat,
+      compType: type
+    })
+    console.log("STATE", selectedComp)
+  }
+
+  const onSubmit = () => {
+    if (selectedComp != null && compName != null) {
+      create_comp(compName, selectedComp.compType, selectedComp.category)
+      setCompName(null)
+      setSelectComp(null)
+      setInputState(false)
+    }
+  }
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">Add Component</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] h-2/3">
+      <DialogContent className="sm:max-w-[425px] max-h-2/3">
         <DialogHeader>
           <DialogTitle>Add Component</DialogTitle>
           <DialogDescription>
@@ -79,7 +95,7 @@ function AddComponentBtn() {
                         <div
                           key={compType}
                           className="flex flex-row justify-between pl-6 pr-2 items-center py-2 rounded-md hover:bg-secondary hover:font-semibold"
-                        // onClick={ }
+                          onClick={() => onClickCompType(category, compType)}
                         >
                           <div>{compType}</div>
                           <div>
@@ -95,9 +111,14 @@ function AddComponentBtn() {
             ))}
           </div>
         </ScrollArea>
-        {/* <DialogFooter> */}
-        {/*   <Button type="submit">Add</Button> */}
-        {/* </DialogFooter> */}
+        {
+          inputState && (
+            <DialogFooter>
+              <Input type="text" placeholder="component name" onChange={(e) => setCompName(e.target.value)} />
+              <Button onClick={onSubmit} > <Plus className="w-4 h-4" /> </Button>
+            </DialogFooter>
+          )
+        }
       </DialogContent>
     </Dialog>
   )

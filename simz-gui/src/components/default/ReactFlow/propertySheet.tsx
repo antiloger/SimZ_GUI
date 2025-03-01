@@ -7,6 +7,9 @@ import DefaultInfoForm from "../formBuilder/defaultInfoForm"
 import PropertyBuilderFrom from "../formBuilder/dynPropertyForm"
 import { Button } from "@/components/ui/button"
 import { Info } from "lucide-react"
+import ConnectorForm from "../connectors/connectorForm"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { AddTypesGen, TimeStepGenForm } from "../formBuilder/GenConfigForms"
 
 
 
@@ -41,6 +44,37 @@ export default function PropertySheet() {
     // }
   }
 
+  const ContentGen = () => {
+    if (content?.category === "generator") {
+      return (
+        <>
+          <div>
+            <AddTypesGen />
+          </div>
+          <div>
+            <h1 className="font-semibold text-lg text-primary pb-2" >Inputs</h1>
+            <TimeStepGenForm />
+          </div>
+        </>
+      )
+    } else {
+      return (
+        <>
+          <div>
+            <h1 className="font-semibold text-lg text-primary pb-2" >Inputs</h1>
+            <PropertyBuilderFrom category={content?.category ?? null} compType={content?.typeName ?? null} id={content?.id ?? null} />
+          </div>
+          <div>
+            <ConnectorForm />
+          </div>
+          <div>
+            <ConnectorForm />
+          </div>
+        </>
+      )
+    }
+  }
+
   return (
     <Sheet open={isPropertyWindowOn} onOpenChange={handleSheetOpenChange}>
       <SheetContent className=" w-[70vw] sm:max-w-full" >
@@ -52,17 +86,16 @@ export default function PropertySheet() {
             <Button variant="ghost" size="icon" > <Info /> </Button>
           </SheetTitle>
         </SheetHeader>
-        <div className="mt-5 grid gap-y-4">
-          <Separator className="mb-5" />
-          <div>
-            <h1 className="font-semibold text-lg text-primary pb-2" >Default Config</h1>
-            <DefaultInfoForm compId={propertyWindowData?.id ?? ""} />
+        <Separator className="mt-2" />
+        <ScrollArea className="flex-grow  h-[calc(100vh-120px)]">
+          <div className="mt-5 grid gap-y-4">
+            <div>
+              <h1 className="font-semibold text-lg text-primary pb-2" >Default Config</h1>
+              <DefaultInfoForm compId={propertyWindowData?.id ?? ""} />
+            </div>
+            <ContentGen />
           </div>
-          <div>
-            <h1 className="font-semibold text-lg text-primary pb-2" >Inputs</h1>
-            <PropertyBuilderFrom category={content?.category ?? null} compType={content?.typeName ?? null} id={content?.id ?? null} />
-          </div>
-        </div>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   )
