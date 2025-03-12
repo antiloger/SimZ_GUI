@@ -49,7 +49,7 @@ export default function PropertySheet() {
       return (
         <>
           <div>
-            <AddTypesGen />
+            <AddTypesGen compId={content.id} />
           </div>
           <div>
             <h1 className="font-semibold text-lg text-primary pb-2" >Inputs</h1>
@@ -65,10 +65,10 @@ export default function PropertySheet() {
             <PropertyBuilderFrom category={content?.category ?? null} compType={content?.typeName ?? null} id={content?.id ?? null} />
           </div>
           <div>
-            <ConnectorForm />
+            <ConnectorForm comId={content?.id ?? ""} />
           </div>
           <div>
-            <ConnectorForm />
+            <ConnectorForm comId={content?.id ?? ""} />
           </div>
         </>
       )

@@ -6,6 +6,7 @@ import { useShallow } from 'zustand/react/shallow';
 import DynamicComponentNode from "./dynamicComponentNode";
 import { useCallback } from "react";
 import { ViewPortData } from "@/types/flow";
+import PanelBottomCenter from "./panel-bottom-center";
 
 const flowSelector = (state) => ({
   nodes: state.nodes,
@@ -33,6 +34,8 @@ export default function Flow() {
     setViewport(viewport); // Sync viewport details to Zustand
   }, []);
 
+  console.log(`node - ${JSON.stringify(nodes, null, 2)}\nedges - ${JSON.stringify(edges, null, 2)}`)
+
   return (
     <div style={{ height: '100vh' }} >
       <ReactFlow
@@ -47,6 +50,7 @@ export default function Flow() {
         <Background />
         <Controls />
         <Panel position="top-right"><PanelTopRight /></Panel>
+        <Panel position="bottom-center"> <PanelBottomCenter /> </Panel>
       </ReactFlow>
     </div>
   )

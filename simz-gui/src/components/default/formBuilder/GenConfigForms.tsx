@@ -13,20 +13,23 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2 } from "lucide-react";
-import { GenAttributes, GenTypes } from "@/types/configGen";
-import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SelectItem } from "@radix-ui/react-select";
+import { Code, Eye, Pencil, Plus, Trash } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import ReactCodeMirror from "@uiw/react-codemirror";
+import { json } from "@codemirror/lang-json";
+import { SimDataState } from "@/states/simDataState";
+import { GenTypes, GenTypeState } from "@/types/configGen";
+import { CompDataI } from "@/types/component";
 
 const formSchema = z.object({
   intervalTime: z.number().nonnegative(),
@@ -60,7 +63,7 @@ export function TimeStepGenForm() {
   const watchIsTimePerNoItemRandom = form.watch("isTimePerNoItemRandom");
 
   useEffect(() => {
-    const subscription = form.watch((value, { name, type }) => {
+    const subscription = form.watch((_value, { type }) => {
       if (type === "change") {
         onSubmit(form.getValues());
       }
@@ -337,144 +340,30 @@ export function TimeStepGenForm() {
   );
 }
 
-function AddTypeGenDialogBox() {
-  const [typeName, setTypeName] = useState("")
-  const [attributes, setAttributes] = useState<{ name: string; type: string; value: string }[]>([
-    { name: "", type: "string", value: "" },
-  ])
-
-  const handleAddAttribute = () => {
-    setAttributes([...attributes, { name: "", type: "string", value: "" }])
-  }
-
-  const handleRemoveAttribute = (index: number) => {
-    const newAttributes = [...attributes]
-    newAttributes.splice(index, 1)
-    setAttributes(newAttributes)
-  }
-
-  const handleAttributeChange = (index: number, field: string, value: string) => {
-    const newAttributes = [...attributes]
-    newAttributes[index] = { ...newAttributes[index], [field]: value }
-    setAttributes(newAttributes)
-  }
-
-  const handleSubmit = () => {
-    // Convert the attributes array to the required format
-    const formattedAttributes: { [attr: string]: GenAttributes } = {}
-
-    attributes.forEach((attr) => {
-      if (attr.name) {
-        formattedAttributes[attr.name] = {
-          type: attr.type,
-          value: attr.type === "number" ? Number(attr.value) : attr.value,
-        }
-      }
-    })
-
-    const genType: GenTypes = {
-      typeName,
-      attributes: formattedAttributes,
-    }
-
-    console.log("Generated Type:", genType)
-    // Here you would typically save the data or pass it to a parent component
-  }
-
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Type
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[550px]">
-        <DialogHeader>
-          <DialogTitle>Add New Type</DialogTitle>
-          <DialogDescription>
-            Create a new type with custom attributes. Fill in the type name and add attributes below.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="typeName" className="text-right">
-              Type Name
-            </Label>
-            <Input
-              id="typeName"
-              value={typeName}
-              onChange={(e) => setTypeName(e.target.value)}
-              placeholder="Enter type name"
-              className="col-span-3"
-            />
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label className="text-base">Attributes</Label>
-              <Button type="button" variant="outline" size="sm" onClick={handleAddAttribute}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Attribute
-              </Button>
-            </div>
-
-            {attributes.map((attr, index) => (
-              <div key={index} className="grid grid-cols-12 items-center gap-2">
-                <div className="col-span-3">
-                  <Input
-                    placeholder="Name"
-                    value={attr.name}
-                    onChange={(e) => handleAttributeChange(index, "name", e.target.value)}
-                  />
-                </div>
-                <div className="col-span-3">
-                  <Select value={attr.type} onValueChange={(value) => handleAttributeChange(index, "type", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="string">String</SelectItem>
-                      <SelectItem value="number">Number</SelectItem>
-                      <SelectItem value="boolean">Boolean</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="col-span-5">
-                  <Input
-                    placeholder="Value"
-                    value={attr.value}
-                    onChange={(e) => handleAttributeChange(index, "value", e.target.value)}
-                    type={attr.type === "number" ? "number" : "text"}
-                  />
-                </div>
-                <div className="col-span-1 flex justify-center">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveAttribute(index)}
-                    disabled={attributes.length === 1}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <DialogFooter>
-          <Button type="submit" onClick={handleSubmit}>
-            Save Type
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
+interface AddTypesGenProps {
+  compId: string | undefined;
 }
 
-
-export function AddTypesGen() {
+export function AddTypesGen({ compId }: AddTypesGenProps) {
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [compData, setCompData] = useState<CompDataI | null>(null)
+  const { get_comp_by_id, getTypeAttributes, deleteGenType } = SimDataState();
+  if (compId === undefined || compId === null) {
+    console.log("error in AddTypesGen Component [compId is null or undefined]")
+    return
+  }
+  useEffect(() => {
+    const compData = get_comp_by_id(compId)
+    if (compData === null) {
+      console.log("error in AddTypesGen Component [Component doesn't exists]")
+      return
+    }
+    setCompData(compData)
+  }, [compId])
+  const deleteGenTypeFn = (type: string) => {
+    deleteGenType(type)
+    setCompData(get_comp_by_id(compId))
+  }
   return (
     <div className="w-full flex flex-col">
       <div className="w-full flex flex-row justify-between">
@@ -482,9 +371,260 @@ export function AddTypesGen() {
           Add Generator Types
         </h1>
         <div>
-          <AddTypeGenDialogBox />
+          <JsonViewerDialog
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            compId={compId}
+            triggerComponent={<Button variant="outline" size="sm"><Plus /> Add Type</Button>}
+          />
         </div>
       </div>
+      <div className="w-full flex flex-col gap-2 mt-2">
+        {compData?.GenData?.types?.map((type) => (
+          <div className="w-full flex flex-row justify-between bg-muted/50 items-center px-4 py-2 hover:bg-muted/100 border  rounded-md" id={type} key={type}>
+            <h1>{type}</h1>
+            <div className="flex flex-row gap-2">
+              <JsonViewerDialog
+                triggerComponent={<Button variant="outline" size="sm"><Pencil /></Button>}
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                compId={compId}
+                // potential issue with here 
+                genTypesData={{
+                  typeName: type,
+                  genComponentId: compId,
+                  attributes: getTypeAttributes(type) ?? {}
+                }}
+
+              />
+              <Button variant="outline" size="sm" onClick={() => deleteGenTypeFn(type)}><Trash color="red" /> </Button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
+  );
+}
+
+// Define the structure for an attribute value
+interface AttributeValue {
+  type: string;
+  value: string | number | boolean | object | null;
+}
+
+// The new structure is an object with attribute names as keys
+interface AttributeMap {
+  [name: string]: AttributeValue;
+}
+
+interface JsonViewerDialogProps {
+  triggerComponent: React.ReactNode;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  compId: string | undefined;
+  genTypesData?: GenTypes;
+}
+
+// Updated default JSON structure
+const DefaultLayoutJson: string = `
+{
+  "attr_name": {
+    "type": "string",
+    "value": "test"
+  }
+}
+`;
+
+function JsonViewerDialog({ triggerComponent, open, onOpenChange, compId, genTypesData }: JsonViewerDialogProps) {
+  const [activeTab, setActiveTab] = useState<"view" | "json">("view");
+  const [typeName, setTypeName] = useState("Example");
+  const [jsonValue, setJsonValue] = useState(DefaultLayoutJson);
+  const [parsedJson, setParsedJson] = useState<AttributeMap | null>({});
+  const [jsonError, setJsonError] = useState<string | null>(null);
+  const { addGenTypeToComp, addGenType } = SimDataState()
+
+  const onChange = useCallback((val: string, _viewUpdate: any) => {
+    setJsonValue(val);
+  }, []);
+
+  useEffect(() => {
+    if (genTypesData === undefined) {
+      return
+    }
+    if (compId === undefined || compId === null) {
+      console.log("error in JsonViewerDialog Component [compId is null or undefined]")
+      return
+    }
+    setTypeName(genTypesData.typeName)
+    setJsonValue(JSON.stringify(genTypesData.attributes, null, 2))
+    setParsedJson(genTypesData.attributes)
+
+  }, [compId])
+
+  // Parse JSON when it changes
+  useEffect(() => {
+    if (activeTab !== "json") return;
+
+    try {
+      const parsed: AttributeMap = JSON.parse(jsonValue);
+
+      // Ensure we have an object, not an array
+      if (typeof parsed !== "object" || Array.isArray(parsed)) {
+        setJsonError("JSON must be an object with named attributes");
+        setParsedJson(null);
+        return;
+      }
+
+      // Validate each attribute property
+      for (const [key, attr] of Object.entries(parsed)) {
+        if (typeof attr !== "object" || attr === null) {
+          setJsonError(`Attribute "${key}" must be an object`);
+          setParsedJson(null);
+          return;
+        }
+        if (!attr.hasOwnProperty("type") || typeof attr.type !== "string") {
+          setJsonError(`Attribute "${key}" must have a valid "type" property`);
+          setParsedJson(null);
+          return;
+        }
+      }
+
+      setJsonError(null);
+      setParsedJson(parsed as AttributeMap);
+    } catch (e) {
+      console.error(e);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      setJsonError(`Invalid JSON format: \n${errorMessage}`);
+      setParsedJson(null);
+    }
+  }, [jsonValue, activeTab]);
+
+  const handleSave = () => {
+    if (compId === undefined || compId === null) {
+      console.log("error in JsonViewerDialog Component [compId is null or undefined]")
+      return
+    }
+    if (parsedJson) {
+      console.log(parsedJson);
+      addGenType({
+        typeName: typeName,
+        genComponentId: compId,
+        attributes: parsedJson
+      })
+      if (compId === undefined || compId === null) {
+        console.log("error in JsonViewerDialog Component [compId is null or undefined]")
+        return
+      }
+      addGenTypeToComp(compId, typeName)
+      onOpenChange(false);
+    }
+  };
+
+
+  const getTypeColor = (type: string) => {
+    console.log(type)
+    switch (type) {
+      case "string":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 px-2 rounded-md";
+      case "number":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300  px-2 rounded-md";
+      case "boolean":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300  px-2 rounded-md";
+      case "object":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300  px-2 rounded-md";
+      case "array":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300  px-2 rounded-md";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300  px-2 rounded-md";
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTrigger asChild>
+        {triggerComponent}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center justify-between">
+            <DialogTitle>Add New Type</DialogTitle>
+          </div>
+          <DialogDescription>
+            Create a new type by defining its structure. Toggle between JSON and visual view.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="grid w-full items-center gap-1.5">
+            <Label htmlFor="typeName">Type Name</Label>
+            <Input
+              id="typeName"
+              value={typeName}
+              onChange={(e) => setTypeName(e.target.value)}
+              className="col-span-3"
+            />
+          </div>
+
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as "view" | "json")}
+            className="w-full"
+          >
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="view" className="flex items-center gap-1">
+                <Eye className="h-4 w-4" />
+                Visual Mode
+              </TabsTrigger>
+              <TabsTrigger value="json" className="flex items-center gap-1">
+                <Code className="h-4 w-4" />
+                JSON Mode
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="json" className="space-y-4">
+              <div className="grid w-full gap-1.5">
+                <Label htmlFor="jsonEditor">JSON Structure</Label>
+                <ReactCodeMirror
+                  value={jsonValue}
+                  height="200px"
+                  onChange={onChange}
+                  extensions={[json()]}
+                />
+                {jsonError && (
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertDescription>{jsonError}</AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="view" className="space-y-4">
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium">Attributes</h3>
+                {parsedJson && Object.keys(parsedJson).length ? (
+                  <div className="space-y-2">
+                    {Object.entries(parsedJson).map(([name, type]) => (
+                      <div key={name} className="flex items-center gap-2 p-3 border rounded-md">
+                        <div className="flex-1 font-medium truncate">{name}</div>
+                        <div className={getTypeColor(type.type)}>{type.type}</div>
+                        <div className="flex-1 text-right truncate text-muted-foreground">{JSON.stringify(type.value).slice(0, 30)}...</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">No attributes defined</div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        <div className="flex justify-end">
+          <Button onClick={handleSave} disabled={!parsedJson}>
+            Save Type
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

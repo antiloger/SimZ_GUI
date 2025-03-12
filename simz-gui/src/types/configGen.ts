@@ -41,11 +41,12 @@ export const NewTimeStepGenConfigFn = () => {
 
 export interface GenAttributes {
   type: string;
-  value: number | string;
+  value: string | number | boolean | object | null;
 }
 
 export interface GenTypes {
   typeName: string;
+  genComponentId: string;
   attributes: { [attr: string]: GenAttributes };
 }
 

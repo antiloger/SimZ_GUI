@@ -30,7 +30,7 @@ export interface ConfigGenerator {
 
 export interface DataGenerator {
   config: ConfigGenerator;
-  types: string | null;
+  types: string[] | null;
 }
 
 export interface CompRegDataI {
@@ -43,8 +43,11 @@ export interface CompRegDataI {
   isGenerator?: boolean
 }
 
-interface ConnectorData {
-  from: string;
+// in - target
+// out - source
+export interface ConnectorData {
+  name: string;
+  flow: string; // in, out, inout
   type: string[];
   validation: string;
 }
@@ -63,8 +66,7 @@ export interface CompDataI {
   color?: string;
   notification?: string[];
   inputData: { [key: string]: number | string | boolean | string[] | number[] | null }
-  inputConn: ConnectorData[];
-  outpuConn: ConnectorData[];
+  connectors: ConnectorData[];
   Runners: RunnerFn[];
   GenData?: DataGenerator;
 }

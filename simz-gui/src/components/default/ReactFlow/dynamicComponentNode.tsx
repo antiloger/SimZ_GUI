@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { SimDataState, SimPropertyWindowStore } from "@/states/simDataState";
 import { CompDataI } from "@/types/component";
 import { Handle, Node, NodeProps, Position } from "@xyflow/react"
-import { HomeIcon, MoreVertical } from "lucide-react";
+import { Blocks, ChevronsLeft, ChevronsLeftRightEllipsis, ChevronsRight, HomeIcon, MoreVertical } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export interface NodeDisplayContentI {
@@ -83,15 +83,61 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
           </div>
         </div>
       </div>
-      <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" >
-        <Handle type="target" id="a" position={Position.Right} isConnectable={true} />
-        connector
-      </div>
+      {content?.connectors?.map((c) => {
+        switch (c.flow) {
+          case "inout":
+            return (
+              <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" >
+                <Handle type="target" id={`${c.name}-in`} position={Position.Left} isConnectable={true} />
+                <Handle type="source" id={`${c.name}-out`} position={Position.Right} isConnectable={true} isConnectableStart={true} />
+                <div className="flex flex-row gap-x-2 items-center justify-between w-full" >
+                  {c.name}
+                  <ChevronsLeftRightEllipsis />
+                </div>
+              </div>
+            )
+          case "in":
+            return (
+              <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" >
+                <Handle type="target" id={`${c.name}-in`} position={Position.Left} isConnectable={true} />
+                <div className="flex flex-row gap-x-2 items-center justify-between w-full" >
 
-      <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" >
+                  {c.name}
+                  <ChevronsLeft />
+                </div>
+              </div>
+            )
+          case "out":
+            return (
+              <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" >
+                <Handle type="source" id={`${c.name}-out`} position={Position.Right} isConnectable={true} isConnectableStart={true} />
+                <div className="flex flex-row gap-x-2 items-center justify-between w-full" >
+                  {c.name}
+                  <ChevronsRight />
+                </div>
+              </div>
+            )
+          default:
+            return null
+        }
+      })}
+      {
+        content?.GenData?.types?.map((t) => {
+          return (
+            <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" >
+              <Handle type="source" id={`${t}-out`} position={Position.Right} isConnectable={true} isConnectableStart={true} />
+              <div className="flex flex-row gap-x-2 items-center justify-between w-full" >
+                {t}
+                <Blocks className="w-4 h-4" />
+              </div>
+            </div>
+          )
+        })
+      }
+      {/* <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" >
         <Handle type="source" id="b" position={Position.Left} isConnectable={true} isConnectableStart={true} />
         connector
-      </div>
+      </div> */}
     </div>
   )
 }

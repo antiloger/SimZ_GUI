@@ -3,6 +3,7 @@ import {
   CompDataI,
   CompRegDataI,
   CompRegStore,
+  ConnectorData,
   InputFieldFormat,
 } from "@/types/component";
 import { create } from "zustand";
@@ -11,7 +12,7 @@ import { FlowNode, FlowState } from "./flowState";
 import { v4 as uuidv4 } from "uuid";
 import { componentData, componentRegStore } from "@/mockData/compData";
 import { updateKey } from "@/utils/componentTypeUtil";
-import { GenTypes, GenTypeState, NewTimeStepGenConfigFn } from "@/types/configGen";
+import { GenAttributes, GenTypes, GenTypeState, NewTimeStepGenConfigFn } from "@/types/configGen";
 
 // TODO: -
 // - add create_comp fn
@@ -44,11 +45,21 @@ type SimDataStateT = {
     key: string,
     values: string,
   ) => void | string;
+  addConnector: (compId: string, connector: ConnectorData) => void;
+  deleteConnector: (compId: string, connectorName: string) => void;
+  getAllConnectors: (compId: string) => ConnectorData[] | null;
+  getConnectorByName: (compId: string, connectorName: string) => ConnectorData | null;
+  addGenType: (type: GenTypes) => void;
+  addGenTypeToComp: (componentId: string, typename: string) => void;
+  getAllGenTypeNames: () => string[];
   change_comp_input_values: (
     id: string,
     key: string,
     values: any,
   ) => void | string;
+  getTypeAttributes: (typename: string) => { [attr: string]: GenAttributes } | null;
+  deleteGenType: (typename: string) => void;
+  saveStateAsJson: () => string;
 };
 
 export const SimDataState = create<SimDataStateT>((set, get) => ({
@@ -152,8 +163,7 @@ export const SimDataState = create<SimDataStateT>((set, get) => ({
       color: compStruct.color,
       notification: [],
       inputData: inputBuild,
-      inputConn: [],
-      outpuConn: [],
+      connectors: [],
       Runners: [],
     };
     compBuild = TypeSpecBuilder(compBuild)
@@ -256,43 +266,169 @@ export const SimDataState = create<SimDataStateT>((set, get) => ({
     }
     return;
   },
-  addGenType: (typename: string, type: GenTypes) => {
-    set((state) => ({
-      genTypesData: { ...state.genTypesData, [typename]: type },
-    }));
-  },
-  addAttrToGen: (
-    typename: string,
-    name: string,
-    type: string,
-    value: string | number,
-  ) => {
+  addConnector: (compId: string, connector: ConnectorData) => {
     set((state) => {
-      const gentype: GenTypes = state.genTypesData[typename];
-      if (!type) {
+      const comp = state.componentData[compId];
+      if (!comp) {
         return state;
       }
-      const updatedGenType: GenTypes = {
-        ...gentype,
-        attributes: {
-          ...gentype.attributes,
-          [name]: { type, value },
-        },
-      };
+      if (!Array.isArray(comp.connectors)) {
+        comp.connectors = [];
+      }
+      if (comp.connectors.find((c) => c.name === connector.name)) {
+        return state;
+      }
+      comp.connectors.push(connector);
       return {
-        genTypesData: {
-          ...state.genTypesData,
-          [typename]: updatedGenType,
+        componentData: {
+          ...state.componentData,
+          [compId]: comp,
         },
       };
     });
+  },
+  updateConnector: (compId: string, connectorName: string, connector: ConnectorData) => {
+    set((state) => {
+      const comp = state.componentData[compId];
+      if (!comp) {
+        return state;
+      }
+      const connectorIndex = comp.connectors.findIndex((c) => c.name === connectorName);
+      if (connectorIndex === -1) {
+        return state;
+      }
+      comp.connectors[connectorIndex] = connector;
+      return {
+        componentData: {
+          ...state.componentData,
+          [compId]: comp,
+        },
+      };
+    });
+  },
+  deleteConnector: (compId: string, connectorName: string) => {
+    set((state) => {
+      const comp = state.componentData[compId];
+      if (!comp) {
+        return state;
+      }
+      comp.connectors = comp.connectors.filter((c) => c.name !== connectorName);
+      return {
+        componentData: {
+          ...state.componentData,
+          [compId]: comp,
+        },
+      };
+    });
+  },
+  getAllConnectors: (compId: string) => {
+    const comp = get().componentData[compId];
+    if (!comp) {
+      return null;
+    }
+    return comp.connectors;
+  },
+  getConnectorByName: (compId: string, connectorName: string) => {
+    const comp = get().componentData[compId];
+    if (!comp) {
+      return null;
+    }
+    const connector = comp.connectors.find((c) => c.name === connectorName);
+    if (!connector) {
+      return null;
+    }
+    return connector;
+  },
+  addGenType: (type: GenTypes) => {
+    set((state) => {
+      // If typename already exists, we'll just replace it
+      return {
+        genTypesData: { ...state.genTypesData, [type.typeName]: type },
+      };
+    });
+  },
+  addGenTypeToComp: (componentId: string, typename: string) => {
+    set((state) => {
+      const comp = state.componentData[componentId];
+      if (!comp) {
+        return state;
+      }
+      const istypeexist = comp.GenData?.types?.includes(typename);
+      if (istypeexist) {
+        return state;
+      }
+      const gentype = state.genTypesData[typename];
+      if (!gentype) {
+        return state;
+      }
+      comp.GenData = {
+        config: comp.GenData?.config ?? NewTimeStepGenConfigFn(),
+        types: comp.GenData?.types ? [...comp.GenData.types, typename] : [typename]
+      }
+      return {
+        componentData: {
+          ...state.componentData,
+          [componentId]: comp,
+        },
+      };
+    })
   },
   getAllGenTypeNames: () => {
     return Object.keys(get().genTypesData);
   },
   getTypeAttributes: (typename: string) => {
-    return get().genTypesData[typename].attributes;
+    const genType = get().genTypesData[typename];
+    if (!genType) {
+      return null;
+    }
+    return genType.attributes;
   },
+  deleteGenType: (typename: string) => {
+    set((state) => {
+      const typeObj = state.genTypesData[typename];
+      if (!typeObj) {
+        return state;
+      }
+      const compid = typeObj.genComponentId;
+      const comp = state.componentData[compid];
+      if (!comp || !comp.GenData) {
+        const { addReactFlowError } = ErrorState.getState();
+        addReactFlowError({
+          errorType: "Component Not Found When Deleting GenType",
+          error: "Component Not Found When Deleting GenType",
+          type: "error",
+          componentId: compid,
+          componentName: comp?.compName ?? "Unknown",
+        });
+        return state;
+      }
+
+      comp.GenData = {
+        ...comp.GenData,
+        types: comp.GenData.types?.filter((type) => type !== typename) ?? []
+      };
+
+      const { [typename]: _, ...restGenTypes } = state.genTypesData;
+
+      return {
+        genTypesData: restGenTypes,
+        componentData: {
+          ...state.componentData,
+          [compid]: comp
+        }
+      };
+    });
+  },
+  saveStateAsJson: () => {
+    const { componentData } = get();
+    const json = JSON.stringify(componentData);
+    return json;
+  },
+  // SyncErrorsState: () => {
+  //   const { setError } = ErrorState.getState();
+  //   const { componentData } = get();
+
+  // }
 }));
 
 type SimPropertyWindowT = {
@@ -323,7 +459,7 @@ function TypeSpecBuilder(type: CompDataI) {
       const configFn = NewTimeStepGenConfigFn();
       type.GenData = {
         config: configFn,
-        types: ""
+        types: []
       }
       return type
     default:
