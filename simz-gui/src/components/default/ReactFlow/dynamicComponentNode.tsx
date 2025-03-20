@@ -28,7 +28,7 @@ export type DynamicComponentNodeT = Node<
 >
 
 export default function DynamicComponentNode(props: NodeProps<DynamicComponentNodeT>) {
-  const { get_comp_by_id, componentData } = SimDataState()
+  const { get_comp_by_id, componentData, getGenTypeById } = SimDataState()
   const { setPropertyWindowOn, setPropertyWindowData } = SimPropertyWindowStore()
   const [content, setContent] = useState<CompDataI | null>(null);
   useEffect(() => {
@@ -87,7 +87,7 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
         switch (c.flow) {
           case "inout":
             return (
-              <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" >
+              <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" key={c.name} >
                 <Handle type="target" id={`${c.name}-in`} position={Position.Left} isConnectable={true} />
                 <Handle type="source" id={`${c.name}-out`} position={Position.Right} isConnectable={true} isConnectableStart={true} />
                 <div className="flex flex-row gap-x-2 items-center justify-between w-full" >
@@ -98,7 +98,7 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
             )
           case "in":
             return (
-              <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" >
+              <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" key={c.name} >
                 <Handle type="target" id={`${c.name}-in`} position={Position.Left} isConnectable={true} />
                 <div className="flex flex-row gap-x-2 items-center justify-between w-full" >
 
@@ -109,7 +109,7 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
             )
           case "out":
             return (
-              <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" >
+              <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" key={c.name} >
                 <Handle type="source" id={`${c.name}-out`} position={Position.Right} isConnectable={true} isConnectableStart={true} />
                 <div className="flex flex-row gap-x-2 items-center justify-between w-full" >
                   {c.name}
@@ -123,11 +123,12 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
       })}
       {
         content?.GenData?.types?.map((t) => {
+          const genDataSet = getGenTypeById(t)
           return (
-            <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" >
+            <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" key={t} >
               <Handle type="source" id={`${t}-out`} position={Position.Right} isConnectable={true} isConnectableStart={true} />
               <div className="flex flex-row gap-x-2 items-center justify-between w-full" >
-                {t}
+                {genDataSet?.typeName}
                 <Blocks className="w-4 h-4" />
               </div>
             </div>

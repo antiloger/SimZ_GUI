@@ -51,5 +51,5 @@ export interface GenTypes {
 }
 
 export interface GenTypeState {
-  [type: string]: GenTypes;
+  [typeId: string]: GenTypes;
 }

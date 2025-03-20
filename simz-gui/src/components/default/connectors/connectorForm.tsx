@@ -16,6 +16,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { SimDataState } from "@/states/simDataState";
 import { ConnectorData } from "@/types/component";
+import { v4 as uuidv4 } from "uuid";
 
 interface ConnectorFormProps {
   comId: string
@@ -23,11 +24,13 @@ interface ConnectorFormProps {
 
 export default function ConnectorForm({ comId }: ConnectorFormProps) {
   const { getAllConnectors } = SimDataState()
+  const [isAddOpen, setIsAddOpen] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
   const [connectors, setConnectors] = useState<ConnectorData[] | null>(null)
   useEffect(() => {
     const data = getAllConnectors(comId)
     setConnectors(data)
-  }, [])
+  }, [isAddOpen, getAllConnectors])
 
   return (
     <div className="flex flex-col gap-y-2 mt-4" >
@@ -36,11 +39,13 @@ export default function ConnectorForm({ comId }: ConnectorFormProps) {
           <h1 className="font-semibold text-lg text-primary pb-2" >Connectors</h1>
         </div>
         <div>
-          <AddConnectorForm 
+          <AddConnectorForm
+            isOpen={isAddOpen}
+            setIsOpen={setIsAddOpen}
             comId={comId}
-            triggerComponent={<Button size="sm" variant="secondary">
+            triggerComponent={<Button size="sm" variant="outline">
               <Plus className="mr-2 h-4 w-4" />
-              Add
+              Connectors
             </Button>}
           />
         </div>
@@ -48,16 +53,18 @@ export default function ConnectorForm({ comId }: ConnectorFormProps) {
       <div className="flex flex-col gap-y-2" >
         {connectors ? (
           connectors.map((connector) => (
-            <div key={connector.name} className="flex flex-row justify-between items-center  bg-muted/50 items-center px-4 py-2 hover:bg-muted/100 border  rounded-md" >
+            <div key={connector.name} className="flex flex-row justify-between   bg-muted/50 items-center px-4 py-2 hover:bg-muted/100 border  rounded-md" >
               <p>{connector.name}</p>
               <div className="px-2 bg-gray-100 border rounded-md text-gray-500 border-gray-500" > {connector.flow} </div>
               <div className="flex flex-row gap-x-2" >
-                <AddConnectorForm 
+                <AddConnectorForm
                   comId={comId}
-                  connectorName={connector.name}
+                  connectorId={connector.id}
                   triggerComponent={<Button variant="outline" size="sm" >
                     <Pencil className="h-4 w-4" />
                   </Button>}
+                  isOpen={isEditOpen}
+                  setIsOpen={setIsEditOpen}
                 />
                 <Button variant="outline" size="sm" >
                   <Trash className="h-4 w-4" color="red" />
@@ -84,26 +91,28 @@ export default function ConnectorForm({ comId }: ConnectorFormProps) {
 // ]
 
 interface AddConnectorFormProps {
+  isOpen: boolean,
+  setIsOpen: (isOpen: boolean) => void,
   comId: string,
   triggerComponent: React.ReactNode,
-  connectorName?: string
+  connectorId?: string
 }
 
-export function AddConnectorForm({ comId, connectorName, triggerComponent }: AddConnectorFormProps) {
-  const [isOpen, setIsOpen] = useState(false)
+export function AddConnectorForm({ comId, connectorId, triggerComponent, isOpen, setIsOpen }: AddConnectorFormProps) {
   const [selectedConnector, setSelectedConnector] = useState("")
   const [connectionTypes, setConnectionTypes] = useState<string[]>([])
   const [queue, setQueue] = useState<string[]>([])
   const [onCheck, setOnCheck] = useState<string | undefined>("inout")
   const [conName, setConName] = useState<string>("")
   const [error, setError] = useState<string | null>(null)
-  const { getAllGenTypeNames, addConnector, getConnectorByName } = SimDataState()
+  const { getAllGenTypeNames, addConnector, getConnectorByName, updateConnector } = SimDataState()
 
   useEffect(() => {
     const data = getAllGenTypeNames()
     setConnectionTypes(data)
-    if (connectorName) {
-      const connector = getConnectorByName(comId, connectorName)
+    if (connectorId) {
+      console.log("Connection id", connectorId)
+      const connector = getConnectorByName(comId, connectorId)
       if (connector) {
         setQueue(connector.type)
         setOnCheck(connector.flow)
@@ -125,6 +134,7 @@ export function AddConnectorForm({ comId, connectorName, triggerComponent }: Add
   const onSubmit = () => {
     setError(null)
     if (!comId) return
+
     if (conName.trim() === "") {
       setError("Set Connection Name")
     } else if (queue.length === 0) {
@@ -135,15 +145,29 @@ export function AddConnectorForm({ comId, connectorName, triggerComponent }: Add
         setError("Select direction")
         return
       }
-      if (connectorName) {
-        const connector = getConnectorByName(comId, connectorName)
-        if (connector) {
-          setError("Connector already exists")
-          return
-        }
+      if (connectorId) {
+        updateConnector(comId, connectorId, {
+          id: connectorId,
+          name: conName,
+          type: queue,
+          flow: onCheck,
+          validation: ""
+        })
+        setIsOpen(false)
+        setQueue([])
+        setOnCheck("in&out")
+        setConName("")
+        return
       }
+      const connectorExt = getConnectorByName(comId, conName)
+      if (connectorExt) {
+        setError("Connector already exists")
+        return
+      }
+      const connectorIdNew = uuidv4()
       // TODO: Add validation
       const connector: ConnectorData = {
+        id: connectorIdNew,
         name: conName,
         type: queue,
         flow: onCheck,
@@ -231,7 +255,7 @@ export function AddConnectorForm({ comId, connectorName, triggerComponent }: Add
               <p className="text-red-400">{error}</p>
             )
           }
-          <Button onClick={onSubmit} >Add Connector</Button>
+          <Button onClick={onSubmit} >{connectorId ? "Update Connector" : "Add Connector"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

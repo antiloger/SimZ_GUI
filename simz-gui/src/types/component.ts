@@ -46,6 +46,7 @@ export interface CompRegDataI {
 // in - target
 // out - source
 export interface ConnectorData {
+  id: string;
   name: string;
   flow: string; // in, out, inout
   type: string[];
@@ -66,6 +67,7 @@ export interface CompDataI {
   color?: string;
   notification?: string[];
   inputData: { [key: string]: number | string | boolean | string[] | number[] | null }
+  customInput: { [key: string]: InputFieldFormat }
   connectors: ConnectorData[];
   Runners: RunnerFn[];
   GenData?: DataGenerator;

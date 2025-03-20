@@ -12,10 +12,9 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { AddTypesGen, TimeStepGenForm } from "../formBuilder/GenConfigForms"
 
 
-
 export default function PropertySheet() {
   const { isPropertyWindowOn, setPropertyWindowOn, propertyWindowData } = SimPropertyWindowStore()
-  const [content, setContent] = useState<CompDataI | null>(null)
+  const [content, setContent] = useState<CompDataI>()
 
   useEffect(() => {
     if (propertyWindowData) {
@@ -33,7 +32,7 @@ export default function PropertySheet() {
 
       fetchData()
     } else {
-      setContent(null)
+      console.log("PROPERTY SHEET DATA", "Component Not Found")
     }
   }, [propertyWindowData])
 
@@ -44,35 +43,20 @@ export default function PropertySheet() {
     // }
   }
 
-  const ContentGen = () => {
-    if (content?.category === "generator") {
-      return (
-        <>
-          <div>
-            <AddTypesGen compId={content.id} />
-          </div>
-          <div>
-            <h1 className="font-semibold text-lg text-primary pb-2" >Inputs</h1>
-            <TimeStepGenForm />
-          </div>
-        </>
-      )
-    } else {
-      return (
-        <>
-          <div>
-            <h1 className="font-semibold text-lg text-primary pb-2" >Inputs</h1>
-            <PropertyBuilderFrom category={content?.category ?? null} compType={content?.typeName ?? null} id={content?.id ?? null} />
-          </div>
-          <div>
-            <ConnectorForm comId={content?.id ?? ""} />
-          </div>
-          <div>
-            <ConnectorForm comId={content?.id ?? ""} />
-          </div>
-        </>
-      )
-    }
+  if (!(content?.id === propertyWindowData?.id)) {
+    return (
+      <Sheet open={isPropertyWindowOn} onOpenChange={handleSheetOpenChange}>
+        <SheetContent className=" w-[70vw] sm:max-w-full" >
+          <SheetHeader>
+            <SheetDescription>{content?.typeName ?? "No content"}</SheetDescription>
+            <SheetTitle className="text-2xl items-center justify-center " style={{ color: content?.color ?? "black" }}></SheetTitle>
+            <div>
+              component data issue
+            </div>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
+    )
   }
 
   return (
@@ -93,7 +77,21 @@ export default function PropertySheet() {
               <h1 className="font-semibold text-lg text-primary pb-2" >Default Config</h1>
               <DefaultInfoForm compId={propertyWindowData?.id ?? ""} />
             </div>
-            <ContentGen />
+            {/* <ContentGen /> */}
+            <div>
+              <h1 className="font-semibold text-lg text-primary pb-2" >Inputs</h1>
+              <PropertyBuilderFrom category={content?.category ?? null} compType={content?.typeName ?? null} id={content?.id ?? null} />
+            </div>
+            <div>
+              <ConnectorForm comId={content?.id ?? ""} />
+            </div>
+            <div>
+              <AddTypesGen compId={content?.id ?? ""} />
+            </div>
+            <div>
+              <h1 className="font-semibold text-lg text-primary pb-2" >Run Process</h1>
+              <TimeStepGenForm />
+            </div>
           </div>
         </ScrollArea>
       </SheetContent>

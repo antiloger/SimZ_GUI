@@ -62,9 +62,8 @@ export default function PropertyBuilderFrom({ category, compType, id }: Property
   }
 
   const renderField = (field: InputFieldFormat) => {
-
     return (
-      <TableRow className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r">
+      <TableRow key={field.inputName} className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r">
         <TableCell className="bg-muted/50 py-2 font-medium">{field.inputName}</TableCell>
         {field.fieldType === "text" && (
           <TableCell className="py-0 pr-0">

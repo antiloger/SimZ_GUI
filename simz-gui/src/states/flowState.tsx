@@ -57,5 +57,15 @@ export const FlowState = create<FlowStateT>((set, get) => ({
     set((s) => ({
       nodes: [...s.nodes, ...nodes]
     }))
+  },
+  removeNode: (nodeId: string) => {
+    set((s) => ({
+      nodes: s.nodes.filter((node) => node.id !== nodeId)
+    }))
+  },
+  removeEdge: (edgeId: string) => {
+    set((s) => ({
+      edges: s.edges.filter((edge) => edge.id !== edgeId)
+    }))
   }
 }))

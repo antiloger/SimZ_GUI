@@ -10,8 +10,25 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { SaveStateFlowAsJson } from "./saveState"
+import { SimDataState } from "@/states/simDataState"
+import { FlowState } from "@/states/flowState"
 
 export function DevPanelSheet() {
+  const { genTypesData, componentRegisterI, componentData } = SimDataState()
+  const { nodes, edges } = FlowState()
+  const consolelogstate = () => {
+    console.log(`
+      genTypesData: ${JSON.stringify(genTypesData, null, 2)}\n
+      ------------------------------------------------------------\n
+      componentRegisterI: ${JSON.stringify(componentRegisterI, null, 2)}\n
+      ------------------------------------------------------------\n
+      componentData: ${JSON.stringify(componentData, null, 2)}\n
+      ------------------------------------------------------------\n
+      nodes: ${JSON.stringify(nodes, null, 2)}\n
+      ------------------------------------------------------------\n
+      edges: ${JSON.stringify(edges, null, 2)}\n
+    `)
+  }
 
   return (
     <Sheet>
@@ -32,6 +49,7 @@ export function DevPanelSheet() {
             <div className="flex flex-col gap-2">
               <Button variant="outline" onClick={SaveStateFlowAsJson} >Save Workflow State </Button>
               <Button variant="outline" >Save Component Data State</Button>
+              <Button variant="outline" onClick={consolelogstate} >Console.log() State</Button>
             </div>
           </div>
         </div>

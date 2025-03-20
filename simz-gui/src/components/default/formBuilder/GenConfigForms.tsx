@@ -28,7 +28,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import ReactCodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 import { SimDataState } from "@/states/simDataState";
-import { GenTypes, GenTypeState } from "@/types/configGen";
 import { CompDataI } from "@/types/component";
 
 const formSchema = z.object({
@@ -345,13 +344,17 @@ interface AddTypesGenProps {
 }
 
 export function AddTypesGen({ compId }: AddTypesGenProps) {
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [selectedTypeId, setSelectedTypeId] = useState<string | undefined>(undefined)
   const [compData, setCompData] = useState<CompDataI | null>(null)
-  const { get_comp_by_id, getTypeAttributes, deleteGenType } = SimDataState();
+  const { get_comp_by_id, deleteGenType, getGenTypeById } = SimDataState();
+
   if (compId === undefined || compId === null) {
     console.log("error in AddTypesGen Component [compId is null or undefined]")
     return
   }
+
   useEffect(() => {
     const compData = get_comp_by_id(compId)
     if (compData === null) {
@@ -360,10 +363,17 @@ export function AddTypesGen({ compId }: AddTypesGenProps) {
     }
     setCompData(compData)
   }, [compId])
-  const deleteGenTypeFn = (type: string) => {
-    deleteGenType(type)
+
+  const deleteGenTypeFn = (typeId: string) => {
+    deleteGenType(typeId)
     setCompData(get_comp_by_id(compId))
   }
+
+  const handleEditClick = (typeId: string) => {
+    setSelectedTypeId(typeId);
+    setEditDialogOpen(true);
+  }
+
   return (
     <div className="w-full flex flex-col">
       <div className="w-full flex flex-row justify-between">
@@ -372,36 +382,53 @@ export function AddTypesGen({ compId }: AddTypesGenProps) {
         </h1>
         <div>
           <JsonViewerDialog
-            open={dialogOpen}
-            onOpenChange={setDialogOpen}
+            open={addDialogOpen}
+            onOpenChange={setAddDialogOpen}
             compId={compId}
-            triggerComponent={<Button variant="outline" size="sm"><Plus /> Add Type</Button>}
+            triggerComponent={<Button variant="outline" size="sm"><Plus /> Type</Button>}
+            genTypesId={undefined}
           />
         </div>
       </div>
       <div className="w-full flex flex-col gap-2 mt-2">
-        {compData?.GenData?.types?.map((type) => (
-          <div className="w-full flex flex-row justify-between bg-muted/50 items-center px-4 py-2 hover:bg-muted/100 border  rounded-md" id={type} key={type}>
-            <h1>{type}</h1>
-            <div className="flex flex-row gap-2">
-              <JsonViewerDialog
-                triggerComponent={<Button variant="outline" size="sm"><Pencil /></Button>}
-                open={dialogOpen}
-                onOpenChange={setDialogOpen}
-                compId={compId}
-                // potential issue with here 
-                genTypesData={{
-                  typeName: type,
-                  genComponentId: compId,
-                  attributes: getTypeAttributes(type) ?? {}
-                }}
-
-              />
-              <Button variant="outline" size="sm" onClick={() => deleteGenTypeFn(type)}><Trash color="red" /> </Button>
+        {compData?.GenData?.types?.map((typeId) => {
+          const genTypeName = getGenTypeById(typeId)?.typeName
+          return (
+            <div className="w-full flex flex-row justify-between bg-muted/50 items-center px-4 py-2 hover:bg-muted/100 border rounded-md" id={typeId} key={typeId}>
+              <h1>{genTypeName ?? "No Type Name"}</h1>
+              <div className="flex flex-row gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEditClick(typeId)}
+                >
+                  <Pencil />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => deleteGenTypeFn(typeId)}
+                >
+                  <Trash color="red" />
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        }) ?? (
+            <div className="flex rounded-lg border border-dashed h-10 bg-gray-100 items-center justify-center">
+              <p className="text-sm">Add Gen type</p>
+            </div>
+          )}
       </div>
+
+      {/* Edit Dialog */}
+      <JsonViewerDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        compId={compId}
+        triggerComponent={<div />}
+        genTypesId={selectedTypeId}
+      />
     </div>
   );
 }
@@ -422,7 +449,7 @@ interface JsonViewerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   compId: string | undefined;
-  genTypesData?: GenTypes;
+  genTypesId?: string;
 }
 
 // Updated default JSON structure
@@ -435,31 +462,39 @@ const DefaultLayoutJson: string = `
 }
 `;
 
-function JsonViewerDialog({ triggerComponent, open, onOpenChange, compId, genTypesData }: JsonViewerDialogProps) {
+function JsonViewerDialog({ triggerComponent, open, onOpenChange, compId, genTypesId }: JsonViewerDialogProps) {
   const [activeTab, setActiveTab] = useState<"view" | "json">("view");
-  const [typeName, setTypeName] = useState("Example");
-  const [jsonValue, setJsonValue] = useState(DefaultLayoutJson);
+  const [jsonValue, setJsonValue] = useState<string>(DefaultLayoutJson);
+  const [typeName, setTypeName] = useState<string>("Example");
   const [parsedJson, setParsedJson] = useState<AttributeMap | null>({});
   const [jsonError, setJsonError] = useState<string | null>(null);
-  const { addGenTypeToComp, addGenType } = SimDataState()
+  const { addGenType, updateGenType, getGenTypeById } = SimDataState();
+
+  // Reset form when dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      // Reset to default state first
+      formClear();
+
+      // If we have a genTypesId, load its data
+      if (genTypesId) {
+        const genType = getGenTypeById(genTypesId);
+        if (genType) {
+          setTypeName(genType.typeName);
+          setJsonValue(JSON.stringify(genType.attributes, null, 2));
+          setParsedJson(genType.attributes);
+        }
+      }
+    } else {
+      // Reset everything when dialog closes
+      formClear();
+      setActiveTab("view");
+    }
+  }, [open, genTypesId]);
 
   const onChange = useCallback((val: string, _viewUpdate: any) => {
     setJsonValue(val);
   }, []);
-
-  useEffect(() => {
-    if (genTypesData === undefined) {
-      return
-    }
-    if (compId === undefined || compId === null) {
-      console.log("error in JsonViewerDialog Component [compId is null or undefined]")
-      return
-    }
-    setTypeName(genTypesData.typeName)
-    setJsonValue(JSON.stringify(genTypesData.attributes, null, 2))
-    setParsedJson(genTypesData.attributes)
-
-  }, [compId])
 
   // Parse JSON when it changes
   useEffect(() => {
@@ -499,27 +534,43 @@ function JsonViewerDialog({ triggerComponent, open, onOpenChange, compId, genTyp
     }
   }, [jsonValue, activeTab]);
 
+  const formClear = () => {
+    setJsonValue(DefaultLayoutJson);
+    setParsedJson(null);
+    setJsonError(null);
+    setTypeName("Example");
+  };
+
   const handleSave = () => {
     if (compId === undefined || compId === null) {
-      console.log("error in JsonViewerDialog Component [compId is null or undefined]")
-      return
+      console.log("error in JsonViewerDialog Component [compId is null or undefined]");
+      return;
+    }
+    if (genTypesId) {
+      if (parsedJson) {
+        updateGenType(compId, genTypesId, {
+          typeName: typeName,
+          genComponentId: compId,
+          attributes: parsedJson
+        });
+        onOpenChange(false);
+      }
+      return;
     }
     if (parsedJson) {
-      console.log(parsedJson);
       addGenType({
         typeName: typeName,
         genComponentId: compId,
         attributes: parsedJson
-      })
-      if (compId === undefined || compId === null) {
-        console.log("error in JsonViewerDialog Component [compId is null or undefined]")
-        return
-      }
-      addGenTypeToComp(compId, typeName)
+      }, compId);
       onOpenChange(false);
     }
   };
 
+  const handleCancel = () => {
+    formClear();
+    onOpenChange(false);
+  };
 
   const getTypeColor = (type: string) => {
     console.log(type)
@@ -547,10 +598,10 @@ function JsonViewerDialog({ triggerComponent, open, onOpenChange, compId, genTyp
       <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle>Add New Type</DialogTitle>
+            <DialogTitle>{genTypesId ? "Edit Type" : "Add New Type"}</DialogTitle>
           </div>
           <DialogDescription>
-            Create a new type by defining its structure. Toggle between JSON and visual view.
+            {genTypesId ? "Edit the type structure." : "Create a new type by defining its structure."} Toggle between JSON and visual view.
           </DialogDescription>
         </DialogHeader>
 
@@ -562,6 +613,7 @@ function JsonViewerDialog({ triggerComponent, open, onOpenChange, compId, genTyp
               value={typeName}
               onChange={(e) => setTypeName(e.target.value)}
               className="col-span-3"
+              placeholder="Enter type name"
             />
           </div>
 
@@ -619,9 +671,12 @@ function JsonViewerDialog({ triggerComponent, open, onOpenChange, compId, genTyp
           </Tabs>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={handleCancel}>
+            Cancel
+          </Button>
           <Button onClick={handleSave} disabled={!parsedJson}>
-            Save Type
+            {genTypesId ? "Update" : "Save"} Type
           </Button>
         </div>
       </DialogContent>

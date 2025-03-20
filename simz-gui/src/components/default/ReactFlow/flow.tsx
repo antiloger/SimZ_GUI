@@ -7,6 +7,7 @@ import DynamicComponentNode from "./dynamicComponentNode";
 import { useCallback } from "react";
 import { ViewPortData } from "@/types/flow";
 import PanelBottomCenter from "./panel-bottom-center";
+import LogicalComponentNode from "./logicalComponentNode";
 
 const flowSelector = (state) => ({
   nodes: state.nodes,
@@ -18,6 +19,7 @@ const flowSelector = (state) => ({
 
 const NodeType = {
   dynComp: DynamicComponentNode,
+  logicalComp: LogicalComponentNode
 }
 
 export default function Flow() {
@@ -34,7 +36,7 @@ export default function Flow() {
     setViewport(viewport); // Sync viewport details to Zustand
   }, []);
 
-  console.log(`node - ${JSON.stringify(nodes, null, 2)}\nedges - ${JSON.stringify(edges, null, 2)}`)
+  // console.log(`node - ${JSON.stringify(nodes, null, 2)}\nedges - ${JSON.stringify(edges, null, 2)}`)
 
   return (
     <div style={{ height: '100vh' }} >
