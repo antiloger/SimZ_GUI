@@ -1,0 +1,23 @@
+##[pylyzer] failed /home/antiloger/Projects/SimZ/SimZ_GUI/simz-Engine/main.py 1744630333 9072
+
+.os: Never
+
+.json: Never
+
+.___v_desugar_1: Never
+.Path: Never
+.argparse: Never
+
+.___v_desugar_2 = pyimport "simz-Engine/core/__pycache__/project_manager"
+.simz-Engine/core/__pycache__/project_manager = pyimport "simz-Engine/core/__pycache__/project_manager"
+.ProjectManager: {simz-Engine.core.__pycache__.project_manager.ProjectManager}
+.demo_create_project: |Type_214 :> {"A demonstration simulation project"}, Type_186 <: Structural({.create_project = (self: Obj, Type_187, Type_214) -> Type_215}), Type_187: Type, Type_215: Type|(project_manager: Type_186, project_name: Type_187) -> Never
+.demo_create_component: |Type_190: Type, Type_260 :> global::Dict!({{"required"}: global::List!({"queue_length", "processed_entities", "entity_count"}, 3), {"type"}: {"object"}, {"properties"}: global::Dict!({{"entity_count"}: global::Dict!({{"type"}: {"integer"}}), {"processed_entities"}: global::Dict!({{"items"}: global::Dict!({{"type"}: {"object"}, {"properties"}: global::Dict!({{"id"}: global::Dict!({{"type"}: {"string"}}), {"arrival_time"}: global::Dict!({{"type"}: {"number"}}), {"processed_at"}: global::Dict!({{"type"}: {"number"}}), {"processing_time"}: global::Dict!({{"type"}: {"number"}})})}), {"type"}: {"array"}}), {"queue_length"}: global::Dict!({{"type"}: {"integer"}})})}), Type_261: Type, Type_189 <: Structural({.register_component = (self: Obj, Type_190, Type_257, Type_258, Type_259, Type_260) -> Type_261}), Type_258 :> {"\nclass QueueProcessor:\n    \"\"\"\n    A component that processes entities in a queue.\n    \"\"\"\n    \n    def __init__(self, config):\n        self.name = config.get(\'name\', \'QueueProcessor\')\n        self.processing_time = config.get(\'processing_time\', 1.0)\n        self.input_queue = []\n        self.entity_count = 0\n    \n    def process(self, simulation_time, input_data):\n        # Add new entities to the queue\n        if \'new_entities\' in input_data:\n            self.input_queue.extend(input_data[\'new_entities\'])\n        \n        # Process entities in the queue\n        processed_entities = []\n        while self.input_queue and len(processed_entities) < input_data.get(\'max_process\', 1):\n            entity = self.input_queue.pop(0)\n            entity[\'processed_at\'] = simulation_time\n            entity[\'processing_time\'] = self.processing_time\n            processed_entities.append(entity)\n            self.entity_count += 1\n        \n        return {\n            \'processed_entities\': processed_entities,\n            \'queue_length\': len(self.input_queue),\n            \'entity_count\': self.entity_count\n        }\n"}, Type_257 :> {"QueueProcessor"}, Type_259 :> global::Dict!({{"type"}: {"object"}, {"properties"}: global::Dict!({{"new_entities"}: global::Dict!({{"items"}: global::Dict!({{"required"}: global::List!({"id", "arrival_time"}, 2), {"type"}: {"object"}, {"properties"}: global::Dict!({{"arrival_time"}: global::Dict!({{"type"}: {"number"}}), {"id"}: global::Dict!({{"type"}: {"string"}})})}), {"type"}: {"array"}}), {"max_process"}: global::Dict!({{"minimum"}: {1}, {"type"}: {"integer"}})})})|(project_manager: Type_189, project_name: Type_190) -> Never
+.demo_create_run: |Type_372: Type, Type_192 <: Structural({.db_manager = Type_370 and Type_372; .create_run = (self: Obj, Type_193) -> Self; .save_simulation_state = (self: Obj, Type_193, V, Type_322, Type_323) -> Type_324; .get_db_connection = (self: Obj, Type_193, V) -> Type_354}), Self <: global::Indexable(K, V), K :> {"id"}, Type_322 :> {"initial_state"}, Type_299: Type, Type_370: Type, V: Type, Type_193: Type, Type_324: Type, Type_323 :> global::Dict!({{"simulation_time"}: {0.0}, {"random_seed"}: {12345}, {"events"}: global::List!(Type_299, 0), {"entities"}: global::List!(Type_297, 0)}), Type_297: Type, Type_354 <: global::IO!|(project_manager: Type_192, project_name: Type_193) -> Never
+.demo_list_projects: |Type_426: Type, Type_195 <: Structural({.list_projects = (self: Obj) -> Type_426})|(project_manager: Type_195) -> Never
+.demo_get_project_details: |Type_197 <: Structural({.get_project = (self: Obj, Type_198) -> Type_442; .list_components = (self: Obj, Type_198) -> Type_449; .list_runs = (self: Obj, Type_198) -> Type_458}), Type_198: Type, Type_442: Type, Type_458: Type, Type_449: Type|(project_manager: Type_197, project_name: Type_198) -> Never
+.main: () -> NoneType
+
+
+
+

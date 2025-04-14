@@ -1,0 +1,52 @@
+{
+  "typeName": "SolarPanel",
+  "discription": "A component that generates electricity from sunlight.",
+  "color": "#FFD700",
+  "category": "generator",
+  "InputForm": [
+    {
+      "inputName": "tiltAngle",
+      "fieldType": "float",
+      "defaultValue": 30.5,
+      "validation": "min:0|max:90",
+      "display": true,
+      "discription": "The angle of the solar panel tilt in degrees.",
+      "required": true
+    },
+    {
+      "inputName": "efficiency",
+      "fieldType": "float",
+      "defaultValue": 0.85,
+      "validation": "min:0|max:1",
+      "display": true,
+      "discription": "Efficiency of the solar panel as a fraction.",
+      "required": true
+    },
+    {
+      "inputName": "capacity",
+      "fieldType": "int",
+      "defaultValue": 500,
+      "validation": "min:100|max:1000",
+      "display": true,
+      "discription": "The capacity of the solar panel in watts.",
+      "required": true
+    },
+    {
+      "inputName": "mode",
+      "fieldType": "list",
+      "defaultValue": ["auto", "manual"],
+      "validation": "oneOf:auto|manual",
+      "display": true,
+      "discription": "The operational mode of the solar panel.",
+      "required": false
+    }
+  ],
+  "OutputForm": [
+    {
+      "typeOut": "electricity"
+    },
+    {
+      "typeOut": "temperature"
+    }
+  ]
+}

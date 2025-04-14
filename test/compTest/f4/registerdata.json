@@ -1,0 +1,43 @@
+{
+  "typeName": "ConveyorBelt",
+  "discription": "A component used to transport materials along a fixed path.",
+  "color": "#FF9800",
+  "category": "model",
+  "InputForm": [
+    {
+      "inputName": "speed",
+      "fieldType": "int",
+      "defaultValue": 10,
+      "validation": "min:1|max:50",
+      "display": true,
+      "discription": "The speed of the conveyor belt in meters per second.",
+      "required": true
+    },
+    {
+      "inputName": "length",
+      "fieldType": "float",
+      "defaultValue": 5.0,
+      "validation": "min:1|max:20",
+      "display": true,
+      "discription": "The length of the conveyor belt in meters.",
+      "required": true
+    },
+    {
+      "inputName": "materialType",
+      "fieldType": "list",
+      "defaultValue": ["rubber", "metal"],
+      "validation": "oneOf:rubber|metal",
+      "display": true,
+      "discription": "The material used for the conveyor belt.",
+      "required": false
+    }
+  ],
+  "OutputForm": [
+    {
+      "typeOut": "transportedItems"
+    },
+    {
+      "typeOut": "wearStatus"
+    }
+  ]
+}

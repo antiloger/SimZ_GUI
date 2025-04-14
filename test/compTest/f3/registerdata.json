@@ -1,0 +1,43 @@
+{
+  "typeName": "Transformer",
+  "discription": "A component that changes the voltage level of electricity.",
+  "color": "#9C27B0",
+  "category": "generator",
+  "InputForm": [
+    {
+      "inputName": "inputVoltage",
+      "fieldType": "int",
+      "defaultValue": 220,
+      "validation": "min:100|max:1000",
+      "display": true,
+      "discription": "The input voltage to the transformer in volts.",
+      "required": true
+    },
+    {
+      "inputName": "outputVoltage",
+      "fieldType": "int",
+      "defaultValue": 110,
+      "validation": "min:50|max:500",
+      "display": true,
+      "discription": "The output voltage from the transformer in volts.",
+      "required": true
+    },
+    {
+      "inputName": "efficiency",
+      "fieldType": "float",
+      "defaultValue": 0.98,
+      "validation": "min:0.8|max:1",
+      "display": true,
+      "discription": "The efficiency of the transformer as a fraction.",
+      "required": false
+    }
+  ],
+  "OutputForm": [
+    {
+      "typeOut": "transformedVoltage"
+    },
+    {
+      "typeOut": "powerLoss"
+    }
+  ]
+}

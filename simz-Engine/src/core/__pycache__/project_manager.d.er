@@ -1,0 +1,42 @@
+##[pylyzer] failed /home/antiloger/Projects/SimZ/SimZ_GUI/simz-Engine/src/core/project_manager.py 1744630464 18901
+.os: Never
+
+.json: Never
+
+.___v_desugar_1: Never
+.Dict: Never
+.List: Never
+.Any: Never
+.Optional: Never
+.Union: Never
+.___v_desugar_2: Never
+.Path: Never
+.___v_desugar_3: Never
+.FileManager: Never
+.___v_desugar_4: Never
+.DBManager: Never
+.ProjectManager: ClassType
+.ProjectManager.db_manager: Never
+.ProjectManager.file_manager: Never
+.ProjectManager.__call__: (base_dir: Str := Str) -> project_manager.ProjectManager
+.ProjectManager.create_project: Never
+.ProjectManager.list_projects: Never
+.ProjectManager.get_project: Never
+.ProjectManager.update_project: Never
+.ProjectManager.delete_project: (self: project_manager.ProjectManager, project_name: Str) -> NoneType
+.ProjectManager.create_run: Never
+.ProjectManager.list_runs: Never
+.ProjectManager.get_run: Never
+.ProjectManager.delete_run: (self: project_manager.ProjectManager, project_name: Str, run_id: Str) -> NoneType
+.ProjectManager.register_component: Never
+.ProjectManager.list_components: Never
+.ProjectManager.get_component: Never
+.ProjectManager.delete_component: (self: project_manager.ProjectManager, project_name: Str, component_name: Str) -> NoneType
+.ProjectManager.save_simulation_state: Never
+.ProjectManager.get_simulation_state: Never
+.ProjectManager.save_simulation_output: Never
+.ProjectManager.get_simulation_output: Never
+.ProjectManager.get_db_connection: (self: project_manager.ProjectManager, project_name: Str, run_id: Str) -> Never
+
+r, project_name: Str, run_id: Str) -> Never
+
