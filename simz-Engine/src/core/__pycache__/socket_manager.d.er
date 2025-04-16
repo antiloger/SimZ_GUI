@@ -1,0 +1,32 @@
+##[pylyzer] failed /home/antiloger/Projects/SimZ/SimZ_GUI/simz-Engine/src/core/socket_manager.py 1744645754 10297
+.socketio = pyimport "__init__"
+.__init__ = pyimport "__init__"
+
+.eventlet = pyimport "__init__"
+
+
+.___v_desugar_1 = pyimport "__init__"
+
+.Flask: Never
+.___v_desugar_2: Never
+.Dict: Never
+.Any: Never
+.Optional: Never
+.Callable: Never
+.___v_desugar_3: Never
+.env_manager: Never
+.SocketManager: ClassType
+.SocketManager.project_manager: Never
+.SocketManager.clients: Never
+.SocketManager.sio: Never
+.SocketManager.app: Never
+.SocketManager.config: Never
+.SocketManager.__call__: (project_manager: Obj := Obj, config: Obj := Obj) -> src.core.socket_manager.SocketManager
+.SocketManager._register_default_handlers: (self: src.core.socket_manager.SocketManager) -> NoneType
+.SocketManager.register_event_handler: (self: src.core.socket_manager.SocketManager, event: Str, handler: Obj) -> NoneType
+.SocketManager.emit: Never
+.SocketManager.setup_project_handlers: (self: src.core.socket_manager.SocketManager) -> NoneType
+.SocketManager.setup_run_handlers: (self: src.core.socket_manager.SocketManager) -> NoneType
+.SocketManager.setup_component_handlers: (self: src.core.socket_manager.SocketManager) -> NoneType
+.SocketManager.run: (self: src.core.socket_manager.SocketManager, host: Str := Str, port: Int := Int) -> NoneType
+

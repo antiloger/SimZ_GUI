@@ -1,9 +1,9 @@
 import * as React from "react"
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -25,59 +25,48 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Link } from "@tanstack/react-router"
 
-export interface AllProjects {
-  name: string;
-  project_type: string;
-  last_used: string;
+// Define the ProjectList interface if it's not imported from @/types/projects
+export interface ProjectList {
+  name: string
+  description: string
+  created_at: string
+  runs_count: number
 }
 
-const mockProjects: AllProjects[] = [
-  {
-    name: "SimFlow Optimizer",
-    project_type: "Simulation",
-    last_used: "2024-12-10",
-  },
-  {
-    name: "SmartGrid Manager",
-    project_type: "Energy Management",
-    last_used: "2024-12-05",
-  },
-  {
-    name: "Factory Workflow Analyzer",
-    project_type: "Discrete Event Simulation",
-    last_used: "2024-11-28",
-  },
-  {
-    name: "LogAnalyzer Pro",
-    project_type: "Data Analytics",
-    last_used: "2024-11-30",
-  },
-  {
-    name: "Retail Inventory Tracker",
-    project_type: "Supply Chain Management",
-    last_used: "2024-12-12",
-  },
-];
+// Helper function to format dates in a readable way
+function formatDate(dateString: string): string {
+  try {
+    const date = new Date(dateString)
 
-export const columns: ColumnDef<AllProjects>[] = [
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      return dateString
+    }
+
+    // Format the date: "Apr 15, 2025, 3:57 PM"
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    }).format(date)
+  } catch (error) {
+    console.error("Error formatting date:", error)
+    return dateString
+  }
+}
+
+export const columns: ColumnDef<ProjectList>[] = [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
+        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
         className="ml-4"
@@ -108,12 +97,10 @@ export const columns: ColumnDef<AllProjects>[] = [
         </Button>
       )
     },
-    cell: ({ row }) => (
-      <div className="pl-4 w-[200px] truncate">{row.getValue("name")}</div>
-    ),
+    cell: ({ row }) => <div className="pl-4 w-[200px] truncate">{row.getValue("name")}</div>,
   },
   {
-    accessorKey: "project_type",
+    accessorKey: "created_at",
     header: ({ column }) => {
       return (
         <Button
@@ -121,17 +108,20 @@ export const columns: ColumnDef<AllProjects>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="w-full justify-start pl-4"
         >
-          Project Type
+          created_at
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
     },
-    cell: ({ row }) => (
-      <div className="pl-4 w-[200px] truncate">{row.getValue("project_type")}</div>
-    ),
+    cell: ({ row }) => {
+      // Format the date for display
+      const formattedDate = formatDate(row.getValue("created_at"))
+      return <div className="pl-4 w-[200px] truncate">{formattedDate}</div>
+    },
+    sortingFn: "datetime", // Use the built-in datetime sorting function
   },
   {
-    accessorKey: "last_used",
+    accessorKey: "runs_count",
     header: ({ column }) => {
       return (
         <Button
@@ -139,14 +129,12 @@ export const columns: ColumnDef<AllProjects>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="w-full justify-start pl-4"
         >
-          Last Used
+          runs_count
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
     },
-    cell: ({ row }) => (
-      <div className="pl-4 w-[200px] truncate">{row.getValue("last_used")}</div>
-    ),
+    cell: ({ row }) => <div className="pl-4 w-[200px] truncate">{row.getValue("runs_count")}</div>,
   },
   {
     id: "actions",
@@ -165,9 +153,7 @@ export const columns: ColumnDef<AllProjects>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(project.name)}
-              >
+              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(project.name)}>
                 Copy project name
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -181,26 +167,23 @@ export const columns: ColumnDef<AllProjects>[] = [
   },
 ]
 
-export function DataTableDemo() {
+// const mockData = [
+//   { name: "Project A", description: "Description A", created_at: "2023-01-01", runs_count: 10 },
+//   { name: "Project B", description: "Description B", created_at: "2023-02-15", runs_count: 5 },
+//   { name: "Project C", description: "Description C", created_at: "2023-03-20", runs_count: 12 },
+// ]
+//
+interface ProjectTableProps {
+  data: ProjectList[];
+}
+
+export function DataTableDemo({ data }: ProjectTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
-  const [data, setData] = React.useState<AllProjects[]>([])
 
-  React.useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        // const projects = await invoke<AllProjects[]>('get_all_projects')
-        setData(mockProjects)
-      } catch (error) {
-        console.error('Failed to fetch projects:', error)
-      }
-    }
-    fetchProjects()
-  }, [])
-
-  const table = useReactTable({
+  const table = useReactTable<ProjectList>({
     data,
     columns,
     onSortingChange: setSorting,
@@ -225,9 +208,7 @@ export function DataTableDemo() {
         <Input
           placeholder="Filter projects..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
+          onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
           className="max-w-sm"
         />
         <DropdownMenu>
@@ -246,9 +227,7 @@ export function DataTableDemo() {
                     key={column.id}
                     className="capitalize"
                     checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
+                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
@@ -264,12 +243,7 @@ export function DataTableDemo() {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id} className="whitespace-nowrap">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
               </TableRow>
@@ -278,32 +252,28 @@ export function DataTableDemo() {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className="whitespace-nowrap"
-                    >
-                      <Link to="/project/$projectid" params={{ projectid: row.id }}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                  {row.getVisibleCells().map((cell) => {
+                    // Only wrap the content in a Link if it's not the select or actions column
+                    const isLinkableCell = cell.column.id !== "select" && cell.column.id !== "actions"
 
-                      </Link>
-                    </TableCell>
-                  ))}
+                    return (
+                      <TableCell key={cell.id} className="whitespace-nowrap">
+                        {isLinkableCell ? (
+                          <Link href={`/project/${row.original.name}`} className="block w-full h-full">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </Link>
+                        ) : (
+                          flexRender(cell.column.columnDef.cell, cell.getContext())
+                        )}
+                      </TableCell>
+                    )
+                  })}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
@@ -313,8 +283,8 @@ export function DataTableDemo() {
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
+          selected.
         </div>
         <div className="space-x-2">
           <Button
@@ -325,12 +295,7 @@ export function DataTableDemo() {
           >
             Previous
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
+          <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
             Next
           </Button>
         </div>

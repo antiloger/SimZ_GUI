@@ -8,7 +8,6 @@ import AnalyticsPage from '@/page/project/analytics'
 import SettingsPage from '@/page/project/settings'
 import { ProjectLoadingScreen } from '@/page/project/projectLoader'
 import { SimDataState } from '@/states/simDataState'
-import { ErrorDialog } from '@/components/default/error/errorDialog'
 
 export const Route = createFileRoute('/project/$projectid/')({
   component: RouteComponent,
@@ -57,7 +56,6 @@ function RouteComponent() {
       />
       <main className="flex flex-col w-full">
         {getComponentByName(currentPage)}
-        <ErrorDialog />
       </main>
     </SidebarProvider>
   )
