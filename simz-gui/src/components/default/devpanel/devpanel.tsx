@@ -12,10 +12,12 @@ import {
 import { SaveStateFlowAsJson } from "./saveState"
 import { SimDataState } from "@/states/simDataState"
 import { FlowState } from "@/states/flowState"
+import { useSocketStore } from "@/utils/socketIo"
 
 export function DevPanelSheet() {
   const { genTypesData, componentRegisterI, componentData } = SimDataState()
   const { nodes, edges } = FlowState()
+  const { get_registered_component } = useSocketStore();
   const consolelogstate = () => {
     console.log(`
       genTypesData: ${JSON.stringify(genTypesData, null, 2)}\n
@@ -50,6 +52,7 @@ export function DevPanelSheet() {
               <Button variant="outline" onClick={SaveStateFlowAsJson} >Save Workflow State </Button>
               <Button variant="outline" >Save Component Data State</Button>
               <Button variant="outline" onClick={consolelogstate} >Console.log() State</Button>
+              <Button variant="outline" onClick={() => { get_registered_component() }} >Console.log() fetch get_registered_component</Button>
             </div>
           </div>
         </div>

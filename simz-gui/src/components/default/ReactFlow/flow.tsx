@@ -7,7 +7,7 @@ import DynamicComponentNode from "./dynamicComponentNode";
 import { useCallback } from "react";
 import { ViewPortData } from "@/types/flow";
 import PanelBottomCenter from "./panel-bottom-center";
-import LogicalComponentNode from "./logicalComponentNode";
+import DynCompEdge from "./dynamicEdge";
 
 const flowSelector = (state) => ({
   nodes: state.nodes,
@@ -19,7 +19,10 @@ const flowSelector = (state) => ({
 
 const NodeType = {
   dynComp: DynamicComponentNode,
-  logicalComp: LogicalComponentNode
+}
+
+const EdgeType = {
+  dynComp: DynCompEdge
 }
 
 export default function Flow() {
@@ -47,6 +50,7 @@ export default function Flow() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={NodeType}
+        edgeTypes={EdgeType}
         onMove={handleMove}
       >
         <Background />

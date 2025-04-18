@@ -6,6 +6,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Union, Any
 
+from pydantic import ValidationError
+from src.models.ts_sim import CompRegDataI
+
 
 class FileManager:
     """
@@ -64,7 +67,7 @@ class FileManager:
         (project_path / "Run").mkdir()
 
         # Create RegisterComponent directory
-        (project_path / "RegisterComponent").mkdir()
+        (project_path / "save").mkdir()
 
         # Create and initialize config.json
         config = {
@@ -261,8 +264,8 @@ class FileManager:
         self.update_project_config(project_name, config)
 
     def save_state_data(
-        self, project_name: str, run_id: str, state_name: str, data: Dict
-    ) -> Path:
+        self, project_name: str, stateData: Dict, genData: Dict
+    ) -> Dict:
         """
         Save simulation state data as JSON.
 
@@ -279,19 +282,22 @@ class FileManager:
             ValueError: If the project or run doesn't exist
         """
         project_path = self.get_project_path(project_name)
-        state_path = project_path / "Run" / run_id / "state"
 
-        if not state_path.exists():
-            raise ValueError(f"State directory for run '{run_id}' does not exist.")
+        state_file_path = project_path / "save" / "dataState.json"
+        gen_file_path = project_path / "save" / "genState.json"
 
-        file_path = state_path / f"{state_name}.json"
+        with open(state_file_path, "w") as f:
+            json.dump(stateData, f, indent=4)
 
-        with open(file_path, "w") as f:
-            json.dump(data, f, indent=4)
+        with open(gen_file_path, "w") as f:
+            json.dump(genData, f, indent=4)
 
-        return file_path
+        return {
+            "state_file": str(state_file_path),
+            "gen_file": str(gen_file_path),
+        }
 
-    def get_state_data(self, project_name: str, run_id: str, state_name: str) -> Dict:
+    def get_state_data(self, project_name: str) -> Dict:
         """
         Get simulation state data.
 
@@ -307,19 +313,29 @@ class FileManager:
             ValueError: If the project, run, or state file doesn't exist
         """
         project_path = self.get_project_path(project_name)
-        file_path = project_path / "Run" / run_id / "state" / f"{state_name}.json"
+        state_file_path = project_path / "save" / "dataState.json"
+        gen_file_path = project_path / "save" / "genState.json"
 
-        if not file_path.exists():
-            raise ValueError(
-                f"State file '{state_name}' does not exist for run '{run_id}'."
-            )
+        if not state_file_path.exists():
+            print("State file does not exist.")
+            return {}
 
-        with open(file_path, "r") as f:
-            return json.load(f)
+        if not gen_file_path.exists():
+            print("State file does not exist.")
+            return {}
 
-    def save_output_data(
-        self, project_name: str, run_id: str, output_name: str, data: Dict
-    ) -> Path:
+        with open(state_file_path, "r") as f:
+            state_data = json.load(f)
+
+        with open(gen_file_path, "r") as f:
+            gen_data = json.load(f)
+
+        return {
+            "state_data": state_data,
+            "gen_data": gen_data,
+        }
+
+    def save_edge_data(self, project_name: str, data: Dict) -> Path:
         """
         Save simulation output data as JSON.
 
@@ -336,19 +352,19 @@ class FileManager:
             ValueError: If the project or run doesn't exist
         """
         project_path = self.get_project_path(project_name)
-        output_path = project_path / "Run" / run_id / "output"
+        output_path = project_path / "save"
 
         if not output_path.exists():
-            raise ValueError(f"Output directory for run '{run_id}' does not exist.")
+            raise ValueError("save does not exist.")
 
-        file_path = output_path / f"{output_name}.json"
+        file_path = output_path / "edge.json"
 
         with open(file_path, "w") as f:
             json.dump(data, f, indent=4)
 
         return file_path
 
-    def get_output_data(self, project_name: str, run_id: str, output_name: str) -> Dict:
+    def get_edge_data(self, project_name: str) -> List[Dict]:
         """
         Get simulation output data.
 
@@ -364,12 +380,67 @@ class FileManager:
             ValueError: If the project, run, or output file doesn't exist
         """
         project_path = self.get_project_path(project_name)
-        file_path = project_path / "Run" / run_id / "output" / f"{output_name}.json"
+        file_path = project_path / "save" / "edge.json"
 
         if not file_path.exists():
-            raise ValueError(
-                f"Output file '{output_name}' does not exist for run '{run_id}'."
+            print(
+                f"Output file 'edge.json' does not exist for project '{project_name}'."
             )
+            return []
+
+        with open(file_path, "r") as f:
+            return json.load(f)
+
+    def save_node_data(self, project_name: str, data: Dict) -> Path:
+        """
+        Save simulation output data as JSON.
+
+        Args:
+            project_name: Name of the project
+            run_id: ID of the run
+            output_name: Name of the output file (without extension)
+            data: Data to save
+
+        Returns:
+            Path to the saved output file
+
+        Raises:
+            ValueError: If the project or run doesn't exist
+        """
+        project_path = self.get_project_path(project_name)
+        output_path = project_path / "save"
+
+        if not output_path.exists():
+            raise ValueError("save does not exist.")
+
+        file_path = output_path / "node.json"
+
+        with open(file_path, "w") as f:
+            json.dump(data, f, indent=4)
+
+        return file_path
+
+    def get_node_data(self, project_name: str) -> List[Dict]:
+        """
+        Get simulation output data.
+
+        Args:
+            project_name: Name of the project
+            run_id: ID of the run
+            output_name: Name of the output file (without extension)
+
+        Returns:
+            Output data as a dictionary
+
+        Raises:
+            ValueError: If the project, run, or output file doesn't exist
+        """
+        project_path = self.get_project_path(project_name)
+        file_path = project_path / "save" / "node.json"
+
+        if not file_path.exists():
+            print("Output file 'node.json' does not exist.")
+            return []
 
         with open(file_path, "r") as f:
             return json.load(f)
@@ -405,8 +476,27 @@ class FileManager:
         )
         self.update_reg_comp_config(config)
 
-    def list_components(self) -> List[str]:
+    def list_components(self) -> Dict[str, Dict[str, CompRegDataI]]:
+        registry: Dict[str, Dict[str, CompRegDataI]] = {}
+        json_comp_path = self.component_reg / "compSchema"
 
+        for json_file in json_comp_path.glob("*.json"):
+            with open(json_file, "r") as f:
+                data = json.load(f)
+                try:
+                    comp = CompRegDataI(**data)
+                except ValidationError as e:
+                    print(f"Error parsing {json_file}: {e}")
+                    continue
+
+                category = comp.category
+                typeName = comp.typeName
+                if category not in registry:
+                    registry[category] = {}
+
+                registry[category][typeName] = comp
+
+        return registry
 
     def get_component(self, project_name: str, component_name: str) -> Dict[str, Any]:
         """
@@ -476,4 +566,3 @@ class FileManager:
             c for c in config["components"] if c["name"] != component_name
         ]
         self.update_project_config(project_name, config)
-

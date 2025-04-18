@@ -217,13 +217,18 @@ class SocketManager:
                 return {"error": "Project manager not available"}
 
             try:
-                project_name = data.get("project_name")
+                components = self.project_manager.list_components()
+                # Convert Pydantic models to dictionaries
+                serializable_components = {}
+                for category, comps in components.items():
+                    serializable_components[category] = {
+                        comp_type: comp_data.model_dump()
+                        if hasattr(comp_data, "model_dump")
+                        else comp_data.dict()
+                        for comp_type, comp_data in comps.items()
+                    }
 
-                if not project_name:
-                    return {"error": "Project name is required"}
-
-                components = self.project_manager.list_components(project_name)
-                return {"components": components}
+                return {"components": serializable_components}
             except Exception as e:
                 return {"error": str(e)}
 
@@ -279,6 +284,114 @@ class SocketManager:
                     project_name, component_name
                 )
                 return {"component": component_info}
+            except Exception as e:
+                return {"error": str(e)}
+
+        @self.sio.event
+        def save_state(sid, data):
+            if not self.project_manager:
+                return {"error": "Project manager not available"}
+
+            try:
+                project_name = data.get("project_name")
+                stateData = data.get("stateData")
+                genData = data.get("genData")
+
+                if not project_name or not stateData:
+                    return {"error": "Project name and component name are required"}
+
+                self.project_manager.save_simulation_state(
+                    project_name, stateData, genData
+                )
+
+                return {"response": "Simulation state saved successfully"}
+            except Exception as e:
+                return {"error": str(e)}
+
+        @self.sio.event
+        def get_state(sid, data):
+            if not self.project_manager:
+                return {"error": "Project manager not available"}
+
+            try:
+                project_name = data.get("project_name")
+
+                if not project_name:
+                    return {"error": "Project name required"}
+
+                dataState = self.project_manager.get_simulation_state(project_name)
+
+                return dataState
+            except Exception as e:
+                return {"error": str(e)}
+
+        @self.sio.event
+        def save_node(sid, data):
+            if not self.project_manager:
+                return {"error": "Project manager not available"}
+
+            try:
+                project_name = data.get("project_name")
+                stateData = data.get("data")
+
+                if not project_name or not stateData:
+                    return {"error": "Project name and component name are required"}
+
+                self.project_manager.save_simulation_node(project_name, stateData)
+
+                return {"response": "Simulation state saved successfully"}
+            except Exception as e:
+                return {"error": str(e)}
+
+        @self.sio.event
+        def get_node(sid, data):
+            if not self.project_manager:
+                return {"error": "Project manager not available"}
+
+            try:
+                project_name = data.get("project_name")
+
+                if not project_name:
+                    return {"error": "Project name required"}
+
+                dataState = self.project_manager.get_simulation_node(project_name)
+
+                return {"data": dataState}
+            except Exception as e:
+                return {"error": str(e)}
+
+        @self.sio.event
+        def save_edge(sid, data):
+            if not self.project_manager:
+                return {"error": "Project manager not available"}
+
+            try:
+                project_name = data.get("project_name")
+                stateData = data.get("data")
+
+                if not project_name or not stateData:
+                    return {"error": "Project name and component name are required"}
+
+                self.project_manager.save_simulation_edge(project_name, stateData)
+
+                return {"response": "Simulation state saved successfully"}
+            except Exception as e:
+                return {"error": str(e)}
+
+        @self.sio.event
+        def get_edge(sid, data):
+            if not self.project_manager:
+                return {"error": "Project manager not available"}
+
+            try:
+                project_name = data.get("project_name")
+
+                if not project_name:
+                    return {"error": "Project name required"}
+
+                dataState = self.project_manager.get_simulation_edge(project_name)
+
+                return {"data": dataState}
             except Exception as e:
                 return {"error": str(e)}
 

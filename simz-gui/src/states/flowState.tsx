@@ -1,4 +1,5 @@
 import { ViewPortData } from '@/types/flow';
+import { useSocketStore } from '@/utils/socketIo';
 import {
   addEdge,
   applyEdgeChanges,
@@ -10,6 +11,7 @@ import {
   type OnNodesChange
 } from '@xyflow/react';
 import { create } from 'zustand'
+import { ErrorState } from './errorState';
 
 export type FlowNode = Node;
 
@@ -22,6 +24,9 @@ export type FlowStateT = {
   onConnect: OnConnect;
   setNodes: (nodes: FlowNode[]) => void;
   setEdges: (edges: Edge[]) => void;
+  getJsonNodes: () => FlowNode[];
+  getJsonEdges: () => Edge[];
+  loadNodesEdges: (projectName: string) => Promise<void>;
   setViewport: (newViewport: any) => void
   addNodes: (nodes: FlowNode[]) => void;
 }
@@ -51,6 +56,26 @@ export const FlowState = create<FlowStateT>((set, get) => ({
   },
   setEdges: (edges) => {
     set({ edges });
+  },
+  getJsonNodes: () => {
+    return JSON.parse(JSON.stringify(get().nodes));
+  },
+  getJsonEdges: () => {
+    return JSON.parse(JSON.stringify(get().edges));
+  },
+  loadNodesEdges: async (projectName: string) => {
+    const { get_data_edge, get_data_node } = useSocketStore.getState();
+    try {
+      const nodes = await get_data_node(projectName);
+      const edges = await get_data_edge(projectName);
+      set({ nodes, edges });
+    } catch (error) {
+      const { setError } = ErrorState.getState();
+      setError({
+        header: 'Error loading nodes and edges',
+        body: 'Failed to load nodes and edges. Please try again.',
+      })
+    }
   },
   setViewport: (newViewport) => set({ viewport: newViewport }),
   addNodes: (nodes: FlowNode[]) => {

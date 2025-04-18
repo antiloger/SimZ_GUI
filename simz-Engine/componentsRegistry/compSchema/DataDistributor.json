@@ -1,0 +1,29 @@
+{
+  "typeName": "DataDistributor",
+  "description": "Distributes data to multiple endpoints",
+  "category": "distributer",
+  "color": "#9C27B0",
+  "InputForm": [
+    {
+      "inputName": "targets",
+      "fieldType": "multiselect",
+      "defaultValue": [
+        "cloud",
+        "local"
+      ],
+      "validation": "",
+      "display": true,
+      "options": [
+        "cloud",
+        "local",
+        "api"
+      ],
+      "required": true
+    }
+  ],
+  "OutputData": [
+    {
+      "typeOut": "Card"
+    }
+  ]
+}

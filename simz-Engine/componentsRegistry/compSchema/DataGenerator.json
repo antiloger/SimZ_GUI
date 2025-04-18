@@ -1,0 +1,43 @@
+{
+  "typeName": "DataGenerator",
+  "description": "Generates sample data streams",
+  "category": "generator",
+  "color": "#4CAF50",
+  "InputForm": [
+    {
+      "inputName": "frequency",
+      "fieldType": "number",
+      "defaultValue": 60,
+      "validation": "",
+      "display": true,
+      "required": true
+    },
+    {
+      "inputName": "dataType",
+      "fieldType": "select",
+      "defaultValue": "random",
+      "validation": "",
+      "display": true,
+      "description": "Type of data to generate",
+      "required": true,
+      "options": [
+        "random",
+        "sequential",
+        "pattern"
+      ]
+    },
+    {
+      "inputName": "active",
+      "fieldType": "checkbox",
+      "defaultValue": true,
+      "validation": "",
+      "display": false,
+      "required": false
+    }
+  ],
+  "OutputData": [
+    {
+      "typeOut": "Table"
+    }
+  ]
+}

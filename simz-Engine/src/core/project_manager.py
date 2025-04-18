@@ -2,6 +2,7 @@ import os
 import json
 from typing import Dict, List, Any, Optional, Union
 from pathlib import Path
+from src.models.ts_sim import CompRegDataI
 
 from src.core.file_manager import FileManager
 from src.core.db_manager import DBManager
@@ -102,7 +103,6 @@ class ProjectManager:
         project_path = self.file_manager.get_project_path(project_name)
 
         # Get component and run information
-        components = self.file_manager.list_components(project_name)
         runs = self.file_manager.list_runs(project_name)
 
         return {
@@ -111,7 +111,6 @@ class ProjectManager:
             "created_at": config.get("created_at", ""),
             "version": config.get("version", "1.0.0"),
             "path": str(project_path),
-            "components": components,
             "runs": runs,
         }
 
@@ -307,78 +306,11 @@ class ProjectManager:
 
         self.file_manager.delete_run(project_name, run_id)
 
-    def register_component(
-        self,
-        project_name: str,
-        component_name: str,
-        python_code: str,
-        input_schema: Dict,
-        output_schema: Dict,
-    ) -> Dict[str, Any]:
-        """
-        Register a simulation component with its code and schemas.
-
-        Args:
-            project_name: Name of the project
-            component_name: Name of the component
-            python_code: Python code defining the component
-            input_schema: Input JSON schema
-            output_schema: Output JSON schema
-
-        Returns:
-            Component information dictionary
-
-        Raises:
-            ValueError: If the project doesn't exist or component already exists
-        """
-        if not self.file_manager.project_exists(project_name):
-            raise ValueError(f"Project '{project_name}' does not exist.")
-
-        component_path = self.file_manager.register_component(
-            project_name, component_name, python_code, input_schema, output_schema
-        )
-
-        config = self.file_manager.get_project_config(project_name)
-        component_info = next(
-            (c for c in config.get("components", []) if c["name"] == component_name), {}
-        )
-
-        return {
-            "name": component_name,
-            "project_name": project_name,
-            "created_at": component_info.get("created_at", ""),
-            "path": str(component_path),
-        }
-
-    def list_components(self, project_name: str) -> List[Dict[str, Any]]:
+    def list_components(self) -> Dict[str, Dict[str, CompRegDataI]]:
         """
         List all registered components for a project with their information.
-
-        Args:
-            project_name: Name of the project
-
-        Returns:
-            List of component information dictionaries
-
-        Raises:
-            ValueError: If the project doesn't exist
         """
-        if not self.file_manager.project_exists(project_name):
-            raise ValueError(f"Project '{project_name}' does not exist.")
-
-        config = self.file_manager.get_project_config(project_name)
-        component_names = self.file_manager.list_components(project_name)
-
-        components = []
-        for name in component_names:
-            component_info = next(
-                (c for c in config.get("components", []) if c["name"] == name), {}
-            )
-            components.append(
-                {"name": name, "created_at": component_info.get("created_at", "")}
-            )
-
-        return components
+        return self.file_manager.list_components()
 
     def get_component(self, project_name: str, component_name: str) -> Dict[str, Any]:
         """
@@ -430,15 +362,13 @@ class ProjectManager:
         self.file_manager.delete_component(project_name, component_name)
 
     def save_simulation_state(
-        self, project_name: str, run_id: str, state_name: str, data: Dict
+        self, project_name: str, state: Dict, gen: Dict
     ) -> Dict[str, Any]:
         """
         Save simulation state data to a JSON file.
 
         Args:
             project_name: Name of the project
-            run_id: ID of the run
-            state_name: Name of the state file (without extension)
             data: Data to save
 
         Returns:
@@ -451,26 +381,20 @@ class ProjectManager:
             raise ValueError(f"Project '{project_name}' does not exist.")
 
         file_path = self.file_manager.save_state_data(
-            project_name, run_id, state_name, data
+            project_name, stateData=state, genData=gen
         )
 
         return {
             "project_name": project_name,
-            "run_id": run_id,
-            "state_name": state_name,
             "file_path": str(file_path),
         }
 
-    def get_simulation_state(
-        self, project_name: str, run_id: str, state_name: str
-    ) -> Dict[str, Any]:
+    def get_simulation_state(self, project_name: str) -> Dict[str, Any]:
         """
         Get simulation state data from a JSON file.
 
         Args:
             project_name: Name of the project
-            run_id: ID of the run
-            state_name: Name of the state file (without extension)
 
         Returns:
             State data
@@ -481,18 +405,31 @@ class ProjectManager:
         if not self.file_manager.project_exists(project_name):
             raise ValueError(f"Project '{project_name}' does not exist.")
 
-        return self.file_manager.get_state_data(project_name, run_id, state_name)
+        return self.file_manager.get_state_data(project_name)
 
-    def save_simulation_output(
-        self, project_name: str, run_id: str, output_name: str, data: Dict
-    ) -> Dict[str, Any]:
+    def save_simulation_edge(self, project_name: str, data: Dict) -> Dict[str, Any]:
+        if not self.file_manager.project_exists(project_name):
+            raise ValueError(f"Project '{project_name}' does not exist.")
+
+        file_path = self.file_manager.save_edge_data(project_name, data)
+
+        return {
+            "project_name": project_name,
+            "file_path": str(file_path),
+        }
+
+    def get_simulation_edge(self, project_name: str) -> List[Dict]:
+        if not self.file_manager.project_exists(project_name):
+            raise ValueError(f"Project '{project_name}' does not exist.")
+
+        return self.file_manager.get_edge_data(project_name)
+
+    def save_simulation_node(self, project_name: str, data: Dict) -> Dict[str, Any]:
         """
         Save simulation output data to a JSON file.
 
         Args:
             project_name: Name of the project
-            run_id: ID of the run
-            output_name: Name of the output file (without extension)
             data: Data to save
 
         Returns:
@@ -504,27 +441,19 @@ class ProjectManager:
         if not self.file_manager.project_exists(project_name):
             raise ValueError(f"Project '{project_name}' does not exist.")
 
-        file_path = self.file_manager.save_output_data(
-            project_name, run_id, output_name, data
-        )
+        file_path = self.file_manager.save_node_data(project_name, data)
 
         return {
             "project_name": project_name,
-            "run_id": run_id,
-            "output_name": output_name,
             "file_path": str(file_path),
         }
 
-    def get_simulation_output(
-        self, project_name: str, run_id: str, output_name: str
-    ) -> Dict[str, Any]:
+    def get_simulation_node(self, project_name: str) -> List[Dict]:
         """
         Get simulation output data from a JSON file.
 
         Args:
             project_name: Name of the project
-            run_id: ID of the run
-            output_name: Name of the output file (without extension)
 
         Returns:
             Output data
@@ -535,7 +464,7 @@ class ProjectManager:
         if not self.file_manager.project_exists(project_name):
             raise ValueError(f"Project '{project_name}' does not exist.")
 
-        return self.file_manager.get_output_data(project_name, run_id, output_name)
+        return self.file_manager.get_node_data(project_name)
 
     def get_db_connection(self, project_name: str, run_id: str):
         """

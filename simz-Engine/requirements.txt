@@ -4,4 +4,4 @@ uuid>=1.30
 python-socketio>=5.8.0
 flask>=2.0.0
 eventlet>=0.33.0 
-pydantic==2.11.3 
+pydantic>=2.11.3 

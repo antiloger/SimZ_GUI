@@ -1,4 +1,3 @@
-import api from "@/lib/axious";
 import {
   CompDataI,
   CompRegDataI,
@@ -10,9 +9,9 @@ import { create } from "zustand";
 import { ErrorState } from "./errorState";
 import { FlowNode, FlowState } from "./flowState";
 import { v4 as uuidv4 } from "uuid";
-import { componentData, componentRegStore } from "@/mockData/compData";
 import { updateKey } from "@/utils/componentTypeUtil";
 import { GenAttributes, GenTypes, GenTypeState, NewTimeStepGenConfigFn } from "@/types/configGen";
+import { useSocketStore } from "@/utils/socketIo";
 
 // TODO: -
 // - add create_comp fn
@@ -24,10 +23,13 @@ import { GenAttributes, GenTypes, GenTypeState, NewTimeStepGenConfigFn } from "@
 // - add check_data_comp fn
 
 type SimDataStateT = {
+  projectName: string | null;
   componentRegisterI: CompRegStore;
   componentData: { [id: string]: CompDataI };
   genTypesData: GenTypeState;
-  loadRegisterData: (projectId: string) => Promise<void>;
+  getProjectName: () => string | null;
+  setProjectName: (name: string) => void;
+  loadRegisterData: () => Promise<void>;
   loadCompData: (projectId: string) => Promise<void>;
   sync_comp_nodes: () => Promise<void>;
   create_comp: (name: string, type: string, cat: string) => void;
@@ -61,31 +63,38 @@ type SimDataStateT = {
   ) => void | string;
   getTypeAttributes: (typename: string) => { [attr: string]: GenAttributes } | null;
   deleteGenType: (typeId: string) => void;
-  saveStateAsJson: () => string;
+  saveStateAsJson: () => { [id: string]: CompDataI };
+  saveGenStateAsJson: () => GenTypeState;
 };
 
 export const SimDataState = create<SimDataStateT>((set, get) => ({
-  componentRegisterI: componentRegStore,
-  componentData: componentData,
+  projectName: null,
+  componentRegisterI: {},
+  componentData: {},
   genTypesData: {},
-  loadRegisterData: async (projectId: string) => {
+  getProjectName: () => {
+    return get().projectName;
+  },
+  setProjectName: (name: string) => {
+    set({ projectName: name });
+  },
+  loadRegisterData: async () => {
     const { setError } = ErrorState.getState();
+    const { get_registered_component } = useSocketStore.getState();
     try {
-      const res = await api.post<CompRegStore>(`/load-register-data`, {
-        projectId: projectId,
-      });
 
-      if (res.status != 200) {
-        setError({
-          header: "Register Component Data Not Found",
-          body: "check the simulation server is working or config dir are chenging",
-        });
-        console.log("not a valid status");
-        return;
-      }
+      const response = await get_registered_component();
 
-      const registerData = res.data;
-      set({ componentRegisterI: registerData });
+      // if (res.status != 200) {
+      //   setError({
+      //     header: "Register Component Data Not Found",
+      //     body: "check the simulation server is working or config dir are chenging",
+      //   });
+      //   console.log("not a valid status");
+      //   return;
+      // }
+
+      set({ componentRegisterI: response });
     } catch (err) {
       setError({
         header: "Register Component Data Not Found",
@@ -95,20 +104,32 @@ export const SimDataState = create<SimDataStateT>((set, get) => ({
     }
   },
   loadCompData: async (projectId: string) => {
-    const { setError } = ErrorState();
-    try {
-      const res = await api.get<{ [id: string]: CompDataI }>(
-        `/project/get-register-data/${projectId}`,
-      );
+    const { setError } = ErrorState.getState();
 
-      const compData = res.data;
-      set({ componentData: compData });
+    try {
+      const { get_data_state } = useSocketStore.getState();
+      const data = await get_data_state(projectId);
+      console.log("data >>", data);
+
+      if (!data || Object.keys(data).length === 0) return;
+
+      const isStateEmpty = !data.state_data || Object.keys(data.state_data).length === 0;
+      const isGenEmpty = !data.gen_data || Object.keys(data.gen_data).length === 0;
+
+      if (!isGenEmpty) {
+        set({ genTypesData: data.gen_data });
+      }
+
+      if (!isStateEmpty) {
+        set({ componentData: data.state_data });
+      }
+
     } catch (err) {
       setError({
         header: "Component Data Not Found",
-        body: "check the simulation server is working or config dir are chenging",
+        body: "Check if the simulation server is running or config directories have changed",
       });
-      console.log(`error from simdatastate: ${err}`);
+      console.error(`Error from simdatastate:`, err);
     }
   },
   sync_comp_nodes: async () => {
@@ -453,7 +474,12 @@ export const SimDataState = create<SimDataStateT>((set, get) => ({
   },
   saveStateAsJson: () => {
     const { componentData } = get();
-    const json = JSON.stringify(componentData);
+    const json = JSON.parse(JSON.stringify(componentData));
+    return json;
+  },
+  saveGenStateAsJson: () => {
+    const { genTypesData } = get();
+    const json = JSON.parse(JSON.stringify(genTypesData));
     return json;
   },
   // SyncErrorsState: () => {

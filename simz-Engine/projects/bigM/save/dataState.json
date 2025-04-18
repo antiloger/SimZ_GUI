@@ -1,0 +1,137 @@
+{
+    "0f4f11f7-c2e2-4589-b986-e47eac2267c5": {
+        "id": "0f4f11f7-c2e2-4589-b986-e47eac2267c5",
+        "compName": "gen",
+        "typeName": "DataGenerator",
+        "category": "generator",
+        "color": "#4CAF50",
+        "notification": [],
+        "inputData": {
+            "frequency": 60,
+            "dataType": "random",
+            "active": true
+        },
+        "customInput": {},
+        "connectors": [],
+        "Runners": [],
+        "GenData": {
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            },
+            "types": [
+                "e1060e64-ee2d-4e59-9ba9-8a4f0f030946"
+            ]
+        }
+    },
+    "ef74a71f-c33c-4fe3-bd5b-bf312710caad": {
+        "id": "ef74a71f-c33c-4fe3-bd5b-bf312710caad",
+        "compName": "mnm",
+        "typeName": "DataDistributor",
+        "category": "distributer",
+        "color": "#9C27B0",
+        "notification": [],
+        "inputData": {
+            "targets": [
+                "cloud",
+                "local"
+            ]
+        },
+        "customInput": {},
+        "connectors": [
+            {
+                "id": "f2818bcd-7008-4767-a9e4-43a94d542988",
+                "name": "jkj",
+                "type": [
+                    "Example"
+                ],
+                "flow": "inout",
+                "validation": ""
+            }
+        ],
+        "Runners": [],
+        "GenData": {
+            "types": [],
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            }
+        }
+    },
+    "d47e816f-e377-4a88-9ec8-1e9eeba6d283": {
+        "id": "d47e816f-e377-4a88-9ec8-1e9eeba6d283",
+        "compName": "me",
+        "typeName": "DataDistributor",
+        "category": "distributer",
+        "color": "#9C27B0",
+        "notification": [],
+        "inputData": {
+            "targets": [
+                "cloud",
+                "local"
+            ]
+        },
+        "customInput": {},
+        "connectors": [
+            {
+                "id": "cfa6ae24-71eb-43d8-931c-66d8bcca274d",
+                "name": "pppp",
+                "type": [
+                    "Example"
+                ],
+                "flow": "inout",
+                "validation": ""
+            }
+        ],
+        "Runners": [],
+        "GenData": {
+            "types": [],
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            }
+        }
+    }
+}

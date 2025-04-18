@@ -1,0 +1,12 @@
+{
+    "e1060e64-ee2d-4e59-9ba9-8a4f0f030946": {
+        "typeName": "Example",
+        "genComponentId": "0f4f11f7-c2e2-4589-b986-e47eac2267c5",
+        "attributes": {
+            "attr_name": {
+                "type": "string",
+                "value": "test"
+            }
+        }
+    }
+}

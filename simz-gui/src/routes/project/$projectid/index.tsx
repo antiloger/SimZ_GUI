@@ -2,19 +2,34 @@ import { createFileRoute, useBlocker } from '@tanstack/react-router'
 import { AppSidebar } from '@/components/default/project/side-bar-left'
 import { SidebarProvider } from '@/components/ui/sidebar'
 // import { Outlet } from '@tanstack/react-router'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import FlowPage from '@/page/project/flow'
 import AnalyticsPage from '@/page/project/analytics'
 import SettingsPage from '@/page/project/settings'
 import { ProjectLoadingScreen } from '@/page/project/projectLoader'
 import { SimDataState } from '@/states/simDataState'
+import { FlowState } from '@/states/flowState'
+import { ErrorState } from '@/states/errorState'
 
 export const Route = createFileRoute('/project/$projectid/')({
   component: RouteComponent,
   loader: async ({ params }) => {
-    const { loadRegisterData, sync_comp_nodes } = SimDataState.getState();
-    await loadRegisterData(params.projectid);
-    await sync_comp_nodes()
+    const { setProjectName } = SimDataState.getState();
+    try {
+      setProjectName(params.projectid);
+      await SimDataState.getState().loadRegisterData();
+      await FlowState.getState().loadNodesEdges(params.projectid);
+      await SimDataState.getState().loadCompData(params.projectid);
+    } catch (error) {
+      console.error('Error loading simulation data:', error);
+      const { setError } = ErrorState.getState();
+      setError({
+        header: 'Error loading simulation',
+        body: 'Failed to load simulation data. Please try again.',
+      })
+    }
+
+    // await sync_comp_nodes()
     return {
       simulationId: params.projectid,
     }
@@ -33,6 +48,8 @@ function RouteComponent() {
         'u need to save the file in order to exit otherwise your project will be unsave!',
       ),
   })
+
+  useEffect(() => { }, [simulationId])
 
   const getComponentByName = useCallback((name: string) => {
     switch (name) {
