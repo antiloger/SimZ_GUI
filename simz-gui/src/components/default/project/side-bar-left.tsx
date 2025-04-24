@@ -1,4 +1,4 @@
-import { AreaChartIcon as ChartArea, ComponentIcon, Settings } from 'lucide-react'
+import { AreaChartIcon as ChartArea, Codesandbox, ComponentIcon, Settings } from 'lucide-react'
 import React from "react"
 
 import {
@@ -14,6 +14,7 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { CustomSideBarHeader } from './side-bar-header'
 
 // Menu items with component names
 const items = [
@@ -48,6 +49,7 @@ export function AppSidebar({ simulationId, activeComponent, setActiveComponent }
         <SidebarMenu>
           <SidebarMenuItem>
             {/* Add header content if needed */}
+            <CustomSideBarHeader />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

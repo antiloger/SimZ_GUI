@@ -10,6 +10,7 @@ import { Info } from "lucide-react"
 import ConnectorForm from "../connectors/connectorForm"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { AddTypesGen, TimeStepGenForm } from "../formBuilder/GenConfigForms"
+import { CodeEditorModel } from "../codeflow/codemodel"
 
 
 export default function PropertySheet() {
@@ -91,6 +92,9 @@ export default function PropertySheet() {
             <div>
               <h1 className="font-semibold text-lg text-primary pb-2" >Run Process</h1>
               <TimeStepGenForm />
+            </div>
+            <div>
+              <CodeEditorModel componetnId={content?.id ?? ""} />
             </div>
           </div>
         </ScrollArea>
