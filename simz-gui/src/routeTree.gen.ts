@@ -13,6 +13,7 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as LoginImport } from './routes/login'
 import { Route as ProjectProjectidIndexImport } from './routes/project/$projectid/index'
 
 // Create Virtual Routes
@@ -27,6 +28,12 @@ const TppLazyRoute = TppLazyImport.update({
   path: '/tpp',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/tpp.lazy').then((d) => d.Route))
+
+const LoginRoute = LoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexLazyRoute = IndexLazyImport.update({
   id: '/',
@@ -51,6 +58,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
     '/tpp': {
       id: '/tpp'
       path: '/tpp'
@@ -72,12 +86,14 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/login': typeof LoginRoute
   '/tpp': typeof TppLazyRoute
   '/project/$projectid': typeof ProjectProjectidIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/login': typeof LoginRoute
   '/tpp': typeof TppLazyRoute
   '/project/$projectid': typeof ProjectProjectidIndexRoute
 }
@@ -85,27 +101,30 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
+  '/login': typeof LoginRoute
   '/tpp': typeof TppLazyRoute
   '/project/$projectid/': typeof ProjectProjectidIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/tpp' | '/project/$projectid'
+  fullPaths: '/' | '/login' | '/tpp' | '/project/$projectid'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/tpp' | '/project/$projectid'
-  id: '__root__' | '/' | '/tpp' | '/project/$projectid/'
+  to: '/' | '/login' | '/tpp' | '/project/$projectid'
+  id: '__root__' | '/' | '/login' | '/tpp' | '/project/$projectid/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  LoginRoute: typeof LoginRoute
   TppLazyRoute: typeof TppLazyRoute
   ProjectProjectidIndexRoute: typeof ProjectProjectidIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  LoginRoute: LoginRoute,
   TppLazyRoute: TppLazyRoute,
   ProjectProjectidIndexRoute: ProjectProjectidIndexRoute,
 }
@@ -121,12 +140,16 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/login",
         "/tpp",
         "/project/$projectid/"
       ]
     },
     "/": {
       "filePath": "index.lazy.tsx"
+    },
+    "/login": {
+      "filePath": "login.tsx"
     },
     "/tpp": {
       "filePath": "tpp.lazy.tsx"

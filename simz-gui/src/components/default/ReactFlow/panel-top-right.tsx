@@ -7,12 +7,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { SimDataState } from "@/states/simDataState";
 import { ChevronDown, Play, Plus } from "lucide-react";
 import { useState } from "react";
+import { SimulationRunDialog } from "../simRun/runDialog";
 
 export default function PanelTopRight() {
   return (
     <div className="flex items-center space-x-2">
       <AddComponentBtn />
-      <RunComponentBtn />
+      <SimulationRunDialog />
     </div>
   )
 }

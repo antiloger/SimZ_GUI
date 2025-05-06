@@ -1,6 +1,7 @@
 import { TimeStepGenConfig } from "./configGen";
 
-type DynArray = (object | string | number | DynArray)[];
+export type FieldType = "text" | "number" | "checkbox" | "select" | "multiselect"
+// type DynArray = (object | string | number | DynArray)[];
 
 export type CompRegStore = {
   [category: string]: {
@@ -17,6 +18,18 @@ export interface InputFieldFormat {
   description?: string;
   required: boolean;
   options?: string[] | number[]
+}
+
+export interface CustomInputField {
+  id: string
+  inputName: string
+  fieldType: FieldType
+  defaultValue: string | number | boolean | string[] | number[] | null
+  description?: string
+  required?: boolean
+  validation?: string
+  options?: string[]
+  visible?: boolean
 }
 
 interface OutputDataFormats {
@@ -37,7 +50,7 @@ export interface CompRegDataI {
   typeName: string;
   description?: string;
   color?: string;
-  category: "generator" | "model" | "distributer";
+  category: "generator" | "model" | "distributer" | "resource";
   InputForm: InputFieldFormat[];
   OutputData: OutputDataFormats[];
   isGenerator?: boolean
@@ -53,11 +66,18 @@ export interface ConnectorData {
   validation: string;
 }
 
-interface RunnerFn {
-  type: "ML" | "PreFunc" | "DynCode" | "SubProcess";
-  name: string;
-  args: DynArray;
+// interface RunnerFn {
+//   type: "ML" | "PreFunc" | "DynCode" | "SubProcess";
+//   name: string;
+//   args: DynArray;
+// }
+export interface RunnerFile {
+  run: string;
+  generator: string;
+  model: string;
+  event: string;
 }
+
 
 export interface CompDataI {
   typeName: string;
@@ -67,8 +87,8 @@ export interface CompDataI {
   color?: string;
   notification?: string[];
   inputData: { [key: string]: number | string | boolean | string[] | number[] | null }
-  customInput: { [key: string]: InputFieldFormat }
+  customInput: { [key: string]: CustomInputField }
   connectors: ConnectorData[];
-  Runners: RunnerFn[];
+  Runners: RunnerFile;
   GenData?: DataGenerator;
 }

@@ -8,7 +8,7 @@ interface ComponentDetailBarProps {
 
 export default function ComponentDetailBar({ componentName, componentType }: ComponentDetailBarProps) {
   return (
-    <div className="flex flex-row items-center justify-between p-4 border rounded-lg mb-6">
+    <div className="flex flex-row items-center justify-between p-4 border rounded-lg my-6 ">
       <div className="flex flex-row gap-2 items-center">
         <div className="bg-black w-10 h-10 rounded-lg items-center justify-center" >
           <Workflow color="white" />
@@ -20,12 +20,11 @@ export default function ComponentDetailBar({ componentName, componentType }: Com
       </div>
       <div className="flex flex-col  gap-x-2">
         <div className="flex flex-col items-end gap-2">
-          <h1 className=" ">
+          <h1 className="text-gray-700 font-bold text-sm">
             {componentType}
           </h1>
-          <Button>
+          <Button size="sm">
             <MoreVertical />
-            Config
           </Button>
         </div>
       </div>

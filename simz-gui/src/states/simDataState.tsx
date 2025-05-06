@@ -3,7 +3,9 @@ import {
   CompRegDataI,
   CompRegStore,
   ConnectorData,
+  CustomInputField,
   InputFieldFormat,
+  RunnerFile,
 } from "@/types/component";
 import { create } from "zustand";
 import { ErrorState } from "./errorState";
@@ -12,6 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 import { updateKey } from "@/utils/componentTypeUtil";
 import { GenAttributes, GenTypes, GenTypeState, NewTimeStepGenConfigFn } from "@/types/configGen";
 import { useSocketStore } from "@/utils/socketIo";
+import { initialRunnerFile } from "@/mockData/codemodel";
 
 // TODO: -
 // - add create_comp fn
@@ -65,6 +68,18 @@ type SimDataStateT = {
   deleteGenType: (typeId: string) => void;
   saveStateAsJson: () => { [id: string]: CompDataI };
   saveGenStateAsJson: () => GenTypeState;
+  getCustomInputAsArray: (compId: string) => CustomInputField[] | null;
+  addCustomInputField: (compId: string, field: CustomInputField) => void;
+  updateCustomInputField: (compId: string, fieldName: string, field: Partial<CustomInputField>) => void;
+  deleteCustomInputField: (compId: string, fieldName: string) => void;
+  toggleVisibilityCustomInput: (compId: string, filedName: string) => void;
+  saveRunnerStr: (compId: string, runnerStr: RunnerFile) => void;
+  getRunnerStr: (compId: string) => RunnerFile | null;
+  setCustomInput: (
+    compId: string,
+    fieldName: string,
+    value: string | number | boolean | string[] | number[] | null,
+  ) => void;
 };
 
 export const SimDataState = create<SimDataStateT>((set, get) => ({
@@ -93,7 +108,7 @@ export const SimDataState = create<SimDataStateT>((set, get) => ({
       //   console.log("not a valid status");
       //   return;
       // }
-
+      console.log("|||response >>", response);
       set({ componentRegisterI: response });
     } catch (err) {
       setError({
@@ -188,7 +203,7 @@ export const SimDataState = create<SimDataStateT>((set, get) => ({
       inputData: inputBuild,
       customInput: {},
       connectors: [],
-      Runners: [],
+      Runners: initialRunnerFile,
       GenData: { types: [], config: NewTimeStepGenConfigFn() }
     };
     // get current center viewport
@@ -482,6 +497,153 @@ export const SimDataState = create<SimDataStateT>((set, get) => ({
     const json = JSON.parse(JSON.stringify(genTypesData));
     return json;
   },
+  getCustomInputAsArray: (compId: string) => {
+    const comp = get().componentData[compId];
+    if (!comp) {
+      return null;
+    }
+    const customInput = comp.customInput;
+    if (!customInput) {
+      return null;
+    }
+    const customInputArray: CustomInputField[] = [];
+    Object.entries(customInput).forEach(([_, value]) => {
+      customInputArray.push(value);
+    });
+    return customInputArray;
+  },
+  addCustomInputField: (compId: string, field: CustomInputField) => {
+    set((state) => {
+      const comp = state.componentData[compId];
+      if (!comp) {
+        return state;
+      }
+      if (!comp.customInput) {
+        comp.customInput = {};
+      }
+      comp.customInput[field.inputName] = {
+        ...field,
+        defaultValue: field.defaultValue ?? null,
+      };
+      return {
+        componentData: {
+          ...state.componentData,
+          [compId]: comp,
+        },
+      };
+    });
+  },
+  updateCustomInputField: (compId: string, fieldName: string, field: Partial<CustomInputField>) => {
+    set((state) => {
+      const comp = state.componentData[compId];
+      if (!comp) {
+        return state;
+      }
+      if (!comp.customInput) {
+        return state;
+      }
+      if (!comp.customInput[fieldName]) {
+        return state;
+      }
+      comp.customInput[fieldName] = {
+        ...comp.customInput[fieldName],
+        ...field,
+        defaultValue: field.defaultValue ?? comp.customInput[fieldName].defaultValue,
+      };
+      return {
+        componentData: {
+          ...state.componentData,
+          [compId]: comp,
+        },
+      };
+    });
+  },
+  deleteCustomInputField: (compId: string, fieldName: string) => {
+    set((state) => {
+      const comp = state.componentData[compId];
+      if (!comp) {
+        return state;
+      }
+      if (!comp.customInput) {
+        return state;
+      }
+      if (!comp.customInput[fieldName]) {
+        return state;
+      }
+      delete comp.customInput[fieldName];
+      return {
+        componentData: {
+          ...state.componentData,
+          [compId]: comp,
+        },
+      };
+    });
+
+  },
+  toggleVisibilityCustomInput: (compId: string, filedName: string) => {
+    set((state) => {
+      const comp = state.componentData[compId];
+      if (!comp) {
+        return state;
+      }
+      if (!comp.customInput) {
+        return state;
+      }
+      if (!comp.customInput[filedName]) {
+        return state;
+      }
+      comp.customInput[filedName].visible = !comp.customInput[filedName].visible;
+      return {
+        componentData: {
+          ...state.componentData,
+          [compId]: comp,
+        },
+      };
+    });
+  },
+  saveRunnerStr: (compId: string, runnerStr: RunnerFile) => {
+    set((state) => {
+      const comp = state.componentData[compId];
+      if (!comp) {
+        return state;
+      }
+      comp.Runners = runnerStr;
+      return {
+        componentData: {
+          ...state.componentData,
+          [compId]: comp,
+        },
+      };
+    });
+  },
+  getRunnerStr: (compId: string) => {
+    const comp = get().componentData[compId];
+    if (!comp) {
+      return null;
+    }
+    return comp.Runners;
+  },
+  setCustomInput: (compId: string, fieldName: string, value: string | number | boolean | string[] | number[] | null) => {
+    set((state) => {
+      const comp = state.componentData[compId];
+      if (!comp) {
+        return state;
+      }
+      if (!comp.customInput) {
+        return state;
+      }
+      if (!comp.customInput[fieldName]) {
+        return state;
+      }
+      comp.customInput[fieldName].defaultValue = value;
+      return {
+        componentData: {
+          ...state.componentData,
+          [compId]: comp,
+        },
+      };
+    });
+  }
   // SyncErrorsState: () => {
   //   const { setError } = ErrorState.getState();
   //   const { componentData } = get();

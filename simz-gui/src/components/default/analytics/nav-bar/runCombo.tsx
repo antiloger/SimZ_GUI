@@ -55,7 +55,7 @@ export function AnalyticNavCombo() {
         >
           {value
             ? frameworks.find((framework) => framework.value === value)?.label
-            : "Select framework..."}
+            : "eq21343swsdfa23"}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>

@@ -12,5 +12,26 @@
         "target": "d47e816f-e377-4a88-9ec8-1e9eeba6d283",
         "targetHandle": "pppp-in",
         "id": "xy-edge__ef74a71f-c33c-4fe3-bd5b-bf312710caadjkj-out-d47e816f-e377-4a88-9ec8-1e9eeba6d283pppp-in"
+    },
+    {
+        "source": "fcb01b6e-65b1-4310-afb1-ea85ffdd9379",
+        "sourceHandle": "d20a2694-20ea-4e48-96f0-915863018bbd-out",
+        "target": "ef74a71f-c33c-4fe3-bd5b-bf312710caad",
+        "targetHandle": "jkj-in",
+        "id": "xy-edge__fcb01b6e-65b1-4310-afb1-ea85ffdd9379d20a2694-20ea-4e48-96f0-915863018bbd-out-ef74a71f-c33c-4fe3-bd5b-bf312710caadjkj-in"
+    },
+    {
+        "source": "d47e816f-e377-4a88-9ec8-1e9eeba6d283",
+        "sourceHandle": "pppp-out",
+        "target": "37bdcb20-1d0e-4a45-ab7c-33d2d738adab",
+        "targetHandle": "eqw-in",
+        "id": "xy-edge__d47e816f-e377-4a88-9ec8-1e9eeba6d283pppp-out-37bdcb20-1d0e-4a45-ab7c-33d2d738adabeqw-in"
+    },
+    {
+        "source": "37bdcb20-1d0e-4a45-ab7c-33d2d738adab",
+        "sourceHandle": "eqw-out",
+        "target": "ef74a71f-c33c-4fe3-bd5b-bf312710caad",
+        "targetHandle": "jkj-in",
+        "id": "xy-edge__37bdcb20-1d0e-4a45-ab7c-33d2d738adabeqw-out-ef74a71f-c33c-4fe3-bd5b-bf312710caadjkj-in"
     }
 ]

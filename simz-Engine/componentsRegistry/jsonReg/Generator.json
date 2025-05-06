@@ -1,0 +1,21 @@
+{
+  "typeName": "Generator",
+  "description": "Distributes data to multiple endpoints",
+  "category": "generator",
+  "color": "#9C27B0",
+  "InputForm": [
+    {
+      "inputName": "gen_count",
+      "fieldType": "number",
+      "defaultValue": 0,
+      "validation": "",
+      "display": true,
+      "required": true
+    }
+  ],
+  "OutputData": [
+    {
+      "typeOut": "Card"
+    }
+  ]
+}

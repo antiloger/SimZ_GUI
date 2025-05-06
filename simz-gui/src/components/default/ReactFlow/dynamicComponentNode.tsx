@@ -63,24 +63,36 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
           <hr className="mt-2" />
         </div>
         <div className="flex flex-col gap-y-2  mx-3 mb-3 " >
-          <div className="flex flex-row items-center justify-between py-2 px-4 rounded-lg bg-secondary " >
-            <div className="flex flex-row gap-x-2 text-sm">
-              {/* <Cylinder className="w-4 h-4" /> */}
-              Runner :
-            </div>
-            <div>
-              {"<N/A>"}
-            </div>
-          </div>
-          <div className="flex flex-row items-center justify-between py-2 px-4 rounded-lg bg-secondary " >
-            <div className="flex flex-row gap-x-2 text-sm">
-              {/* <Sun className="w-4 h-4" /> */}
-              Capacity :
-            </div>
-            <div>
-              02
-            </div>
-          </div>
+          {
+            Object.entries(content?.inputData ?? {}).map(([key, value]) => {
+              return (
+                <div className="flex flex-row items-center justify-between py-2 px-4 rounded-lg bg-secondary " key={key} >
+                  <div className="flex flex-row gap-x-2 text-sm">
+                    {/* <Sun className="w-4 h-4" /> */}
+                    {key} :
+                  </div>
+                  <div>
+                    {value}
+                  </div>
+                </div>
+              )
+            })
+          }
+          {
+            Object.entries(content?.customInput ?? {}).map(([key, value]) => {
+              return (
+                <div className="flex flex-row items-center justify-between py-2 px-4 rounded-lg bg-secondary " key={key} >
+                  <div className="flex flex-row gap-x-2 text-sm">
+                    {/* <Sun className="w-4 h-4" /> */}
+                    {key} :
+                  </div>
+                  <div>
+                    {value.defaultValue ?? "N/A"}
+                  </div>
+                </div>
+              )
+            })
+          }
         </div>
       </div>
       {content?.connectors?.map((c) => {

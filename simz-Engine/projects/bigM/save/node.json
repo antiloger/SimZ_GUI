@@ -11,8 +11,8 @@
             "data": []
         },
         "position": {
-            "x": -35.27460510172557,
-            "y": 378
+            "x": -109.27460510172557,
+            "y": 296
         },
         "measured": {
             "width": 300,
@@ -33,8 +33,8 @@
             "data": []
         },
         "position": {
-            "x": 411.47437885380106,
-            "y": 344.71148447332337
+            "x": 419.47437885380106,
+            "y": 522.7114844733234
         },
         "measured": {
             "width": 300,
@@ -55,8 +55,52 @@
             "data": []
         },
         "position": {
-            "x": 834.7447926853993,
-            "y": 477.5598650382707
+            "x": 1008.7447926853993,
+            "y": 479.5598650382707
+        },
+        "measured": {
+            "width": 300,
+            "height": 281
+        },
+        "selected": false,
+        "dragging": false
+    },
+    {
+        "id": "fcb01b6e-65b1-4310-afb1-ea85ffdd9379",
+        "type": "dynComp",
+        "data": {
+            "name": "gen2",
+            "id": "fcb01b6e-65b1-4310-afb1-ea85ffdd9379",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": -98.63082937848179,
+            "y": 633.413250281501
+        },
+        "measured": {
+            "width": 300,
+            "height": 281
+        },
+        "selected": false,
+        "dragging": false
+    },
+    {
+        "id": "37bdcb20-1d0e-4a45-ab7c-33d2d738adab",
+        "type": "dynComp",
+        "data": {
+            "name": "goss",
+            "id": "37bdcb20-1d0e-4a45-ab7c-33d2d738adab",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": 762.577005452869,
+            "y": -124.28457477179033
         },
         "measured": {
             "width": 300,

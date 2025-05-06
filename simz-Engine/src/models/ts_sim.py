@@ -70,6 +70,7 @@ class CompCategory(str, Enum):
     generator = "generator"
     model = "model"
     distributer = "distributer"
+    resource = "resource"
 
 
 class CompRegDataI(BaseModel):

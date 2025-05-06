@@ -1,11 +1,13 @@
-import { ChevronsUpDown, Codesandbox } from "lucide-react"
+import { ChevronsUpDown, Codesandbox, LogOut } from "lucide-react"
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 import { SimDataState } from "@/states/simDataState"
+import { useNavigate } from "@tanstack/react-router"
 
 export function CustomSideBarHeader() {
   const { projectName } = SimDataState()
+  const navigate = useNavigate()
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -26,7 +28,13 @@ export function CustomSideBarHeader() {
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]" align="start">
-            <DropdownMenuItem >
+            <DropdownMenuItem onClick={() => {
+              navigate({ to: '/' })
+            }} >
+              <div className="flex size-6 items-center justify-center rounded-sm border">
+                <LogOut className="size-4 shrink-0" />
+              </div>
+              Project
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

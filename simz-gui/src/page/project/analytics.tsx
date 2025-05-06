@@ -1,9 +1,13 @@
 import AnalyticsBuild from "@/components/default/analytics/analyticsBuild"
 import { AnalyticNavCombo } from "@/components/default/analytics/nav-bar/runCombo"
+import SimulationTab from "@/components/default/analytics/simulationTab"
 import { Separator } from "@/components/ui/separator"
 import { SimDataState } from "@/states/simDataState"
+import { useState } from "react"
 
 export default function AnalyticsPage() {
+  const [simId, setSimId] = useState<string | null>(null)
+  const [compId, setCompId] = useState<string | null>(null)
   const { projectName } = SimDataState()
 
 
@@ -24,14 +28,14 @@ export default function AnalyticsPage() {
               <h2 className="text-sm text-gray-600">current run:</h2>
               <AnalyticNavCombo />
             </div>
-            <div className="flex flex-col">
-              <h2 className="text-sm text-gray-600">component:</h2>
-              <AnalyticNavCombo />
-            </div>
+            {/* <div className="flex flex-col"> */}
+            {/*   <h2 className="text-sm text-gray-600">component:</h2> */}
+            {/*   <AnalyticNavCombo /> */}
+            {/* </div> */}
           </div>
         </div>
         <div className="flex flex-col w-full p-2">
-          <AnalyticsBuild />
+          <SimulationTab />
         </div>
       </div>
     </>

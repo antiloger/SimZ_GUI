@@ -1,6 +1,19 @@
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import Dashboard from "./chartbuilder/dashboard";
 import ComponentDetailBar from "./componentDetailBar";
-
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
+import { CalendarRange, ChartSpline, Check, ChevronsUpDown } from "lucide-react";
+import { EventListTable } from "../EventList/data-table";
+import { useState } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils"
 
 const dashboardConfig = [
   // Row 1: Stats cards
@@ -327,14 +340,126 @@ const dashboardConfig = [
 
 function AnalyticsBuild() {
   return (
-    <div className="analytics-build">
-      <div className="container mx-auto py-8">
-        <ComponentDetailBar componentName="Resource 1" componentType="Resource" />
-        // tab need in here
-        <Dashboard config={dashboardConfig} />
-      </div>
+    <div className="analytics-build gap-y-2">
+      {/* <div className="container mx-auto py-4"> */}
+      <AnalyticNavCombo />
+      <ComponentDetailBar componentName="Resource 1" componentType="Resource" />
+      {/*   // tab need in here */}
+      {/*   <Dashboard config={dashboardConfig} /> */}
+      {/* </div> */}
+
+      <Tabs defaultValue="tab-1">
+        <ScrollArea>
+          <TabsList className="mb-3">
+            <TabsTrigger value="tab-1">
+              <ChartSpline
+                className="-ms-0.5 me-1.5 opacity-60"
+                size={16}
+                aria-hidden="true"
+              />
+              Analytics Visualization
+            </TabsTrigger>
+            <TabsTrigger value="tab-2" className="group">
+              <CalendarRange
+                className="-ms-0.5 me-1.5 opacity-60"
+                size={16}
+                aria-hidden="true"
+              />
+              Event List
+            </TabsTrigger>
+          </TabsList>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+        <TabsContent value="tab-1">
+          <Dashboard config={dashboardConfig} />
+        </TabsContent>
+        <TabsContent value="tab-2">
+          <EventListTable />
+        </TabsContent>
+      </Tabs>
     </div>
   );
+}
+
+
+const frameworks = [
+  {
+    value: "next.js",
+    id: "e6ca5897-1859-48a9-9902-d98713516d8e",
+    label: "Next.js",
+  },
+  {
+    id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    value: "sveltekit",
+    label: "SvelteKit",
+  },
+  {
+    id: "b2c3d4e5-f6g7-8901-abcd-ef1234567890",
+    value: "nuxt.js",
+    label: "Nuxt.js",
+  },
+  {
+    id: "c3d4e5f6-g7h8-9012-abcd-ef1234567890",
+    value: "remix",
+    label: "Remix",
+  },
+  {
+    id: "d4e5f6g7-h8i9-0123-abcd-ef1234567890",
+    value: "astro",
+    label: "Astro",
+  },
+]
+
+function AnalyticNavCombo() {
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState("")
+
+  return (
+    <Popover open={open} onOpenChange={setOpen} >
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between"
+        >
+          {value
+            ? frameworks.find((framework) => framework.value === value)?.label
+            : "Select framework..."}
+          <ChevronsUpDown className="opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0">
+        <Command className="w-full" >
+          <CommandInput placeholder="Search framework..." className="h-9" />
+          <CommandList className="w-full">
+            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandGroup>
+              {frameworks.map((framework) => (
+                <CommandItem
+                  key={framework.value}
+                  value={framework.value}
+                  onSelect={(currentValue) => {
+                    setValue(currentValue === value ? "" : currentValue)
+                    setOpen(false)
+                  }}
+                >
+                  {framework.label}
+                  {framework.id}
+                  <Check
+                    className={cn(
+                      "ml-auto",
+                      value === framework.value ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
 }
 
 export default AnalyticsBuild;

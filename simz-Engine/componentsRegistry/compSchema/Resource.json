@@ -1,0 +1,29 @@
+{
+  "typeName": "Resource",
+  "description": "Resource management component for data streams",
+  "category": "resource",
+  "color": "#d4a82f",
+  "InputForm": [
+    {
+      "inputName": "capacity",
+      "fieldType": "number",
+      "defaultValue": 0,
+      "validation": "",
+      "display": true,
+      "required": true
+    },
+    {
+      "inputName": "default_timeout",
+      "fieldType": "number",
+      "defaultValue": 0,
+      "validation": "",
+      "display": true,
+      "required": true
+    }
+  ],
+  "OutputData": [
+    {
+      "typeOut": "Card"
+    }
+  ]
+}

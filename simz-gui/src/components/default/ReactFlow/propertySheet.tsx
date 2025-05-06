@@ -9,8 +9,9 @@ import { Button } from "@/components/ui/button"
 import { Info } from "lucide-react"
 import ConnectorForm from "../connectors/connectorForm"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { AddTypesGen, TimeStepGenForm } from "../formBuilder/GenConfigForms"
+import { AddTypesGen } from "../formBuilder/GenConfigForms"
 import { CodeEditorModel } from "../codeflow/codemodel"
+import CustomeInputBuilder from "../customInputBuilder/builder"
 
 
 export default function PropertySheet() {
@@ -84,17 +85,20 @@ export default function PropertySheet() {
               <PropertyBuilderFrom category={content?.category ?? null} compType={content?.typeName ?? null} id={content?.id ?? null} />
             </div>
             <div>
+              <CustomeInputBuilder compId={content?.id ?? ""} />
+            </div>
+            <div>
               <ConnectorForm comId={content?.id ?? ""} />
             </div>
             <div>
               <AddTypesGen compId={content?.id ?? ""} />
             </div>
+            {/* <div> */}
+            {/*   <h1 className="font-semibold text-lg text-primary pb-2" >Run Process</h1> */}
+            {/*   <TimeStepGenForm /> */}
+            {/* </div> */}
             <div>
-              <h1 className="font-semibold text-lg text-primary pb-2" >Run Process</h1>
-              <TimeStepGenForm />
-            </div>
-            <div>
-              <CodeEditorModel componetnId={content?.id ?? ""} />
+              <CodeEditorModel componentId={content?.id ?? ""} />
             </div>
           </div>
         </ScrollArea>

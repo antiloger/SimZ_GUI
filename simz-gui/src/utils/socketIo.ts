@@ -28,7 +28,7 @@ interface SocketStore {
 // Create socket connection utility
 const CreateSocketConnection = () => {
   // Get environment variables or use defaults
-  const socketUrl = 'http://192.168.8.175:5000';
+  const socketUrl = 'http://localhost:5000';
   try {
     return io(socketUrl, {
       transports: ['websocket'],
