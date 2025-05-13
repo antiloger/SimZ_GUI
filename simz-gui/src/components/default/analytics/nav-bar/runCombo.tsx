@@ -1,86 +1,63 @@
-import * as React from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-]
+export interface RunList {
+  id: string
+  name: string
+}
 
-export function AnalyticNavCombo() {
-  const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
+interface AnalyticNavComboProps {
+  runList: RunList[]
+  selectedRunId: string
+  setSelectedRunId: (id: string) => void
+  open: boolean
+  setOpen: (open: boolean) => void
+  placeholder?: string
+  width?: string
+  emptyMessage?: string
+  searchPlaceholder?: string
+}
 
+export function AnalyticNavCombo({
+  runList,
+  selectedRunId,
+  setSelectedRunId,
+  open,
+  setOpen,
+  placeholder = "Select a run",
+  width = "w-[200px]",
+  emptyMessage = "No runs found.",
+  searchPlaceholder = "Search runs...",
+}: AnalyticNavComboProps) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-[200px] justify-between"
-        >
-          {value
-            ? frameworks.find((framework) => framework.value === value)?.label
-            : "eq21343swsdfa23"}
-          <ChevronsUpDown className="opacity-50" />
+        <Button variant="outline" role="combobox" aria-expanded={open} className={`${width} justify-between`}>
+          {selectedRunId ? runList.find((run) => run.id === selectedRunId)?.name : placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className={`${width} p-0`}>
         <Command>
-          <CommandInput placeholder="Search framework..." className="h-9" />
+          <CommandInput placeholder={searchPlaceholder} className="h-9" />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>{emptyMessage}</CommandEmpty>
             <CommandGroup>
-              {frameworks.map((framework) => (
+              {runList.map((run) => (
                 <CommandItem
-                  key={framework.value}
-                  value={framework.value}
+                  key={run.id}
+                  value={run.id}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
+                    setSelectedRunId(currentValue === selectedRunId ? "" : currentValue)
                     setOpen(false)
                   }}
                 >
-                  {framework.label}
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      value === framework.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
+                  {run.name}
+                  <Check className={cn("ml-auto", selectedRunId === run.id ? "opacity-100" : "opacity-0")} />
                 </CommandItem>
               ))}
             </CommandGroup>

@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import Dashboard from "./chartbuilder/dashboard";
+import { useSocketStore } from "@/utils/socketIo";
 
 const dashboardConfig = [
   // Row 1: Key Stats Cards
@@ -184,10 +186,39 @@ const dashboardConfig = [
   }
 ];
 
-function SimulationOverviewAnalyticsBuild() {
+interface AnalyticsProps{
+  project_name: string
+  runId: string
+}
+
+function SimulationOverviewAnalyticsBuild({project_name, runId}: AnalyticsProps) {
+  const [dashboardData, setDashboardData] = useState(null);
+  const { check_socket_endpoint } = useSocketStore()
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await check_socket_endpoint("get_sim_data", {"project_name": project_name, "run_id": runId});
+        setDashboardData(data);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    }
+    fetchData();
+  },[]);
+
+  // no data page
+  if (!dashboardData) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <h1 className="text-2xl font-bold">No Data Available</h1>
+        <p className="text-gray-500">Please check back later.</p>
+      </div>
+    );
+  }
   return (
 
-    <Dashboard config={dashboardConfig} />
+    <Dashboard config={dashboardData as any[]} />
   );
 }
 

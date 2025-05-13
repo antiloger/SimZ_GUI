@@ -164,6 +164,41 @@ class ProjectManager:
 
         self.file_manager.delete_project(project_name)
 
+    def add_run_to_project(self, project_name: str, run_id: str) -> Dict[str, Any]:
+        """
+        Add an existing run to a project.
+
+        Args:
+            project_name: Name of the project
+            run_id: ID of the run
+            run_name: Optional name for the run
+
+        Returns:
+            Run information dictionary
+
+        Raises:
+            ValueError: If the project or run doesn't exist
+        """
+        if not self.file_manager.project_exists(project_name):
+            raise ValueError(f"Project '{project_name}' does not exist.")
+
+        if not self.file_manager.run_exists(project_name, run_id):
+            raise ValueError(
+                f"Run '{run_id}' does not exist in project '{project_name}'."
+            )
+
+        # Add run to project config
+        config = self.file_manager.get_project_config(project_name)
+        config["runs"].append({"id": run_id, "name": run_id})
+        self.file_manager.update_project_config(project_name, config)
+
+        return {
+            "id": run_id,
+            "project_name": project_name,
+            "created_at": config["created_at"],
+            "status": "added",
+        }
+
     def create_run(
         self, project_name: str, run_name: Optional[str] = None
     ) -> Dict[str, Any]:
@@ -218,22 +253,7 @@ class ProjectManager:
             raise ValueError(f"Project '{project_name}' does not exist.")
 
         config = self.file_manager.get_project_config(project_name)
-        run_ids = self.file_manager.list_runs(project_name)
-
-        runs = []
-        for run_id in run_ids:
-            run_info = next(
-                (r for r in config.get("runs", []) if r["id"] == run_id), {}
-            )
-            runs.append(
-                {
-                    "id": run_id,
-                    "created_at": run_info.get("created_at", ""),
-                    "status": run_info.get("status", "unknown"),
-                }
-            )
-
-        return runs
+        return config.get("runs", [])
 
     def get_run(self, project_name: str, run_id: str) -> Dict[str, Any]:
         """
@@ -485,3 +505,45 @@ class ProjectManager:
             raise ValueError(f"Project '{project_name}' does not exist.")
 
         return self.db_manager.get_run_db_connection(project_name, run_id)
+
+    def get_run_path(self, project_name: str, run: str) -> Union[str, None]:
+        """
+        Get the path to a specific run within a project.
+
+        Args:
+            project_name: Name of the project
+            run: Name of the run
+
+        Returns:
+            Path to the run directory
+        """
+        if not self.file_manager.project_exists(project_name):
+            raise ValueError(f"Project '{project_name}' does not exist.")
+
+        project_path = self.file_manager.get_project_path(project_name)
+        path = project_path / "Run" / run / f"{run}.csv"
+        if not path.is_file():
+            return None
+        return str(path)
+
+    def get_Run_Sim_data(self, project_name: str, run: str) -> Union[Dict[str, Any], None]:
+        """
+        Get the simulation data for a specific run within a project.
+
+        Args:
+            project_name: Name of the project
+            run: Name of the run
+
+        Returns:
+            Simulation data as a dictionary
+        """
+        if not self.file_manager.project_exists(project_name):
+            raise ValueError(f"Project '{project_name}' does not exist.")
+
+        project_path = self.file_manager.get_project_path(project_name)
+        path = project_path / "Run" / run / "simData.json"
+        if not path.is_file():
+            return None
+        with open(path, "r") as f:
+            data = json.load(f)
+        return data

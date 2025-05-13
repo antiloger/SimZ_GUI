@@ -8,7 +8,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { CalendarRange, ChartSpline, Check, ChevronsUpDown } from "lucide-react";
-import { EventListTable } from "../EventList/data-table";
+// import { EventListTable } from "../EventList/data-table";
 import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -374,7 +374,7 @@ function AnalyticsBuild() {
           <Dashboard config={dashboardConfig} />
         </TabsContent>
         <TabsContent value="tab-2">
-          <EventListTable />
+          {/* <EventListTable /> */}
         </TabsContent>
       </Tabs>
     </div>

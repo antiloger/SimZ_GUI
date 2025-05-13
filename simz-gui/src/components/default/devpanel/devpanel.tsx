@@ -15,9 +15,9 @@ import { FlowState } from "@/states/flowState"
 import { useSocketStore } from "@/utils/socketIo"
 
 export function DevPanelSheet() {
-  const { genTypesData, componentRegisterI, componentData } = SimDataState()
+  const { genTypesData, componentRegisterI, componentData, projectName } = SimDataState()
   const { nodes, edges } = FlowState()
-  const { get_registered_component } = useSocketStore();
+  const { get_registered_component, check_socket_endpoint } = useSocketStore();
   const consolelogstate = () => {
     console.log(`
       genTypesData: ${JSON.stringify(genTypesData, null, 2)}\n
@@ -30,6 +30,10 @@ export function DevPanelSheet() {
       ------------------------------------------------------------\n
       edges: ${JSON.stringify(edges, null, 2)}\n
     `)
+  }
+
+  const checkProjectData = async () => {
+    await check_socket_endpoint("get_project", { "name": projectName })
   }
 
   return (
@@ -53,6 +57,13 @@ export function DevPanelSheet() {
               <Button variant="outline" >Save Component Data State</Button>
               <Button variant="outline" onClick={consolelogstate} >Console.log() State</Button>
               <Button variant="outline" onClick={() => { get_registered_component() }} >Console.log() fetch get_registered_component</Button>
+            </div>
+          </div>
+          <div className="flex flex-col p-2 border rounded-md" >
+            <div className="pb-2" >Actions Panel</div>
+            <Separator className="mb-2" />
+            <div className="flex flex-col gap-2">
+              <Button variant="outline" onClick={checkProjectData} >Project Data</Button>
             </div>
           </div>
         </div>

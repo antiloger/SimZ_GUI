@@ -566,3 +566,18 @@ class FileManager:
             c for c in config["components"] if c["name"] != component_name
         ]
         self.update_project_config(project_name, config)
+
+    def run_exists(self, project_name: str, run_id: str) -> bool:
+        """
+        Check if a run exists.
+
+        Args:
+            project_name: Name of the project
+            run_id: ID of the run
+
+        Returns:
+            True if the run exists, False otherwise
+        """
+        project_path = self.get_project_path(project_name)
+        run_path = project_path / "Run" / run_id / f"{run_id}.csv"
+        return run_path.exists()

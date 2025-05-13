@@ -1,271 +1,355 @@
-"use client"
+import type React from "react"
 
 import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
-import { Eye, AlertCircle } from "lucide-react"
-import { DataDialog } from "./data-dialog"
-import { SearchForm } from "./search-form"
-import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, MoreHorizontal } from "lucide-react"
+import { DataTableDialog } from "./data-table-dialog"
+import { useSocketStore } from "@/utils/socketIo"
+import { SimDataState } from "@/states/simDataState"
+import { EventListParams } from "@/types/socketT"
 
-// Define the table data interface
-interface TableData {
-  time: number
-  component_id: string
-  component_type: string
-  action: string
-  values: { [key: string]: any }
-  PDV: { [key: string]: { [key: string]: any } }
-  addition: { [key: string]: any }
+interface DataTableProps {
+  runId: string
 }
 
-// Define the search form values interface
-interface SearchFormValues {
-  componentId?: string
-  componentType?: string
-  action?: string
-  timeSearchType: "range" | "specific"
-  startTimeValue?: string
-  endTimeValue?: string
-  specificTimeValue?: string
-  timeUnit: string
-  pdvKey?: string
-  pdvValue?: string
-}
+export function DataTable({ runId }: DataTableProps) {
+  // Table state
+  const [data, setData] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [totalRecords, setTotalRecords] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [columns, setColumns] = useState<string[]>([])
 
-export function EventListTable() {
-  // State for pagination
+  //
+  // Pagination state
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
-  const [totalPages, setTotalPages] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
-  // State for table data
-  const [tableData, setTableData] = useState<TableData[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  // Sorting state
+  const [sortColumn, setSortColumn] = useState("time")
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
 
-  // State for dialog
-  const [selectedRow, setSelectedRow] = useState<TableData | null>(null)
+  // Search and filter state
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchColumns, setSearchColumns] = useState<string[]>([])
+  const [filterConditions, setFilterConditions] = useState<Record<string, any>>({})
+  const [showFilters, setShowFilters] = useState(false)
+
+  // Detail dialog state
+  const [selectedRow, setSelectedRow] = useState<any | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
 
-  // State for current search
-  const [currentSearch, setCurrentSearch] = useState<SearchFormValues | null>(null)
+  const { projectName } = SimDataState()
+  const { geteventlist } = useSocketStore()
 
-  // Initialize socket connection and fetch data
-  useEffect(() => {
-    // // Connect to socket
-    // socketClient.connect()
-    //
-    // // Initial data fetch
-    // fetchData()
-    //
-    // // Listen for data updates
-    // socketClient.on("dataUpdate", handleDataUpdate)
-    //
-    // // Cleanup on unmount
-    // return () => {
-    //   socketClient.off("dataUpdate", handleDataUpdate)
-    // }
-  }, [])
-
-  // Fetch data when page or search changes
-  useEffect(() => {
-    fetchData()
-  }, [page, limit, currentSearch])
-
-  // Handle data update from socket
-  const handleDataUpdate = (data: { tableData: TableData[]; totalPages: number }) => {
-    setTableData(data.tableData)
-    setTotalPages(data.totalPages)
-    setIsLoading(false)
-  }
-
-  // Fetch data function
-  const fetchData = () => {
-    setIsLoading(true)
-    setError(null)
+  // Fetch data
+  const fetchData = async () => {
+    setLoading(true)
 
     try {
-      // Prepare request payload
-      const payload = {
-        page,
-        limit,
-        filters: currentSearch || {},
-      }
+      // In a real application, you would call your API function here
+      // const response = await get_full_tabel("projectName", "runId", {
+      //   page,
+      //   page_size: pageSize,
+      //   sort_column: sortColumn,
+      //   sort_direction: sortDirection,
+      //   search_query: searchQuery,
+      //   search_columns: searchColumns.length > 0 ? searchColumns : undefined,
+      //   filter_conditions: Object.keys(filterConditions).length > 0 ? filterConditions : undefined,
+      //   include_columns: ["time", "component_id", "component_type", "action", "values", "PDV", "addition"]
+      // })
 
-      // Emit socket event to fetch data
-      // socketClient.emit("fetchData", payload)
+      // For demonstration, we'll use mock data
+      if (!projectName) { return}
+      console.log("[EVENTLIST] Fetching data for project:", page, pageSize, sortColumn, sortDirection, searchQuery, searchColumns, filterConditions)
+      const response = await geteventlist(
+        projectName,
+        runId,
+        {
+        page: page,
+        page_size: pageSize,
+        sort_column: sortColumn,
+        sort_direction: sortDirection,
+        search_query: searchQuery,
+        search_columns: searchColumns.length > 0 ? searchColumns : undefined,
+        filter_conditions: Object.keys(filterConditions).length > 0 ? filterConditions : undefined,
+        } as EventListParams,
+      ) 
 
-      // For demo purposes, we'll simulate a response
-      simulateSocketResponse()
-    } catch (err) {
-      console.error("Error fetching data:", err)
-      setError("Failed to connect to the server. Please try again.")
-      setIsLoading(false)
+      console.log("[EVENTLIST] Fetched data:", response)
+
+      setData(response.data)
+      setTotalRecords(response.total)
+      setTotalPages(response.totalPages)
+      setColumns(response.columns)
+    } catch (error) {
+      console.error("Error fetching data:", error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  // Simulate socket response (for demo only)
-  const simulateSocketResponse = () => {
-    setTimeout(() => {
-      // Generate mock data
-      const mockData: TableData[] = Array.from({ length: limit }, (_, i) => ({
-        time: Math.floor(Math.random() * 100), // Random time value between 0-100
-        component_id: `comp-${i + (page - 1) * limit}`,
-        component_type: ["Button", "Form", "Table", "Modal", "Card"][Math.floor(Math.random() * 5)],
-        action: ["Click", "Submit", "Load", "Close", "Update"][Math.floor(Math.random() * 5)],
-        values: {
-          value1: `Value ${i}`,
-          value2: Math.random() * 100,
-        },
-        PDV: {
-          property1: {
-            key1: "value1",
-            key2: "value2",
-          },
-          property2: {
-            key3: "value3",
-            key4: "value4",
-          },
-        },
-        addition: {
-          metadata: {
-            timestamp: Date.now(),
-            user: "user123",
-          },
-        },
-      }))
+  // Initial data fetch and when dependencies change
+  useEffect(() => {
+    fetchData()
+  }, [page, pageSize, sortColumn, sortDirection, searchQuery, JSON.stringify(filterConditions)])
 
-      // Apply filters if search is active
-      let filteredData = mockData
-      if (currentSearch) {
-        if (currentSearch.componentId) {
-          filteredData = filteredData.filter((item) =>
-            item.component_id.toLowerCase().includes(currentSearch.componentId!.toLowerCase()),
-          )
-        }
-
-        if (currentSearch.componentType) {
-          filteredData = filteredData.filter((item) =>
-            item.component_type.toLowerCase().includes(currentSearch.componentType!.toLowerCase()),
-          )
-        }
-
-        if (currentSearch.action) {
-          filteredData = filteredData.filter((item) =>
-            item.action.toLowerCase().includes(currentSearch.action!.toLowerCase()),
-          )
-        }
-
-        // Time filters would be handled on the server in a real implementation
-      }
-
-      setTableData(filteredData)
-      setTotalPages(10) // Mock total pages
-      setIsLoading(false)
-    }, 800)
+  // Handle sort
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+    } else {
+      setSortColumn(column)
+      setSortDirection("asc")
+    }
+    setPage(1) // Reset to first page when sorting changes
   }
 
-  // Handle search form submission
-  const handleSearch = (searchData: SearchFormValues) => {
-    setCurrentSearch(searchData)
-    setPage(1) // Reset to first page on new search
+  // Handle search
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    setPage(1) // Reset to first page when search changes
   }
 
-  // Handle search form reset
-  const handleReset = () => {
-    setCurrentSearch(null)
-    setPage(1) // Reset to first page
-  }
-
-  // Handle page change
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage)
-  }
-
-  // Open dialog with row data
-  const handleViewDetails = (row: TableData) => {
+  // Handle row click to show details
+  const handleRowDetails = (row: any) => {
     setSelectedRow(row)
     setDialogOpen(true)
   }
 
+  // Visible columns in the main table
+  const visibleColumns = ["time", "component_id", "component_type", "action"]
+
   return (
-    <div className="space-y-6">
-      <SearchForm onSearch={handleSearch} onReset={handleReset} />
+    <div className="space-y-4">
+      {/* Advanced search form */}
+      <div className="bg-muted/40 p-4 rounded-lg mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-medium">Advanced Search</h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setFilterConditions({})
+              setSearchQuery("")
+              setPage(1)
+            }}
+          >
+            Clear All
+          </Button>
+        </div>
 
-      {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {/* Time input */}
+          <div>
+            <label className="text-sm font-medium mb-1 block">Time</label>
+            <Input
+              type="number"
+              placeholder="Enter time"
+              value={filterConditions.time || ""}
+              onChange={(e) => {
+                const value = e.target.value
+                if (value === "") {
+                  const newFilters = { ...filterConditions }
+                  delete newFilters.time
+                  setFilterConditions(newFilters)
+                } else {
+                  setFilterConditions({ ...filterConditions, time: Number.parseInt(value) })
+                }
+                setPage(1)
+              }}
+            />
+          </div>
 
+          {/* Component ID input */}
+          <div>
+            <label className="text-sm font-medium mb-1 block">Component ID</label>
+            <Input
+              type="text"
+              placeholder="Enter component ID"
+              value={filterConditions.component_id || ""}
+              onChange={(e) => {
+                const value = e.target.value
+                if (value === "") {
+                  const newFilters = { ...filterConditions }
+                  delete newFilters.component_id
+                  setFilterConditions(newFilters)
+                } else {
+                  setFilterConditions({ ...filterConditions, component_id: value })
+                }
+                setPage(1)
+              }}
+            />
+          </div>
+
+          {/* Component Type selector */}
+          <div>
+            <label className="text-sm font-medium mb-1 block">Component Type</label>
+            <Select
+              value={filterConditions.component_type || ""}
+              onValueChange={(value) => {
+                if (value === "") {
+                  const newFilters = { ...filterConditions }
+                  delete newFilters.component_type
+                  setFilterConditions(newFilters)
+                } else {
+                  setFilterConditions({ ...filterConditions, component_type: value })
+                }
+                setPage(1)
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All types</SelectItem>
+                <SelectItem value="generator">Generator</SelectItem>
+                <SelectItem value="resource">Resource</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Action selector */}
+          <div>
+            <label className="text-sm font-medium mb-1 block">Action</label>
+            <Select
+              value={filterConditions.action || ""}
+              onValueChange={(value) => {
+                if (value === "") {
+                  const newFilters = { ...filterConditions }
+                  delete newFilters.action
+                  setFilterConditions(newFilters)
+                } else {
+                  setFilterConditions({ ...filterConditions, action: value })
+                }
+                setPage(1)
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select action" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All actions</SelectItem>
+                <SelectItem value="GENERATE">GENERATE</SelectItem>
+                <SelectItem value="QUEUED">QUEUED</SelectItem>
+                <SelectItem value="ENTER">ENTER</SelectItem>
+                <SelectItem value="Exit">Exit</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Container ID input */}
+          <div>
+            <label className="text-sm font-medium mb-1 block">Container ID</label>
+            <Input
+              type="text"
+              placeholder="Enter container ID"
+              value={filterConditions.containerId || ""}
+              onChange={(e) => {
+                const value = e.target.value
+                if (value === "") {
+                  const newFilters = { ...filterConditions }
+                  delete newFilters.containerId
+                  setFilterConditions(newFilters)
+                } else {
+                  setFilterConditions({ ...filterConditions, containerId: value })
+                }
+                setPage(1)
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-end">
+          <Button onClick={fetchData} className="ml-auto">
+            Search
+          </Button>
+        </div>
+      </div>
+
+      {/* Table controls */}
+      <div className="flex flex-col sm:flex-row gap-4 justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Input
+            type="search"
+            placeholder="Quick search..."
+            className="w-full sm:w-[300px]"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && fetchData()}
+          />
+          <Button onClick={fetchData} variant="secondary">
+            <Search className="h-4 w-4 mr-2" />
+            Search
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Select
+            value={pageSize.toString()}
+            onValueChange={(value) => {
+              setPageSize(Number.parseInt(value))
+              setPage(1)
+            }}
+          >
+            <SelectTrigger className="w-[100px]">
+              <SelectValue placeholder="Rows" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5 rows</SelectItem>
+              <SelectItem value="10">10 rows</SelectItem>
+              <SelectItem value="20">20 rows</SelectItem>
+              <SelectItem value="50">50 rows</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Data table */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Time</TableHead>
-              <TableHead>Component ID</TableHead>
-              <TableHead>Component Type</TableHead>
-              <TableHead>Action</TableHead>
-              <TableHead className="w-[80px]">Details</TableHead>
+              {visibleColumns.map((column) => (
+                <TableHead key={column} className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort(column)}>
+                  <div className="flex items-center">
+                    {column.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                    {sortColumn === column && <span className="ml-1">{sortDirection === "asc" ? "↑" : "↓"}</span>}
+                  </div>
+                </TableHead>
+              ))}
+              <TableHead className="w-[80px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, index) => (
-                <TableRow key={`loading-${index}`} className="animate-pulse">
-                  <TableCell>
-                    <div className="h-4 w-32 bg-muted rounded"></div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="h-4 w-24 bg-muted rounded"></div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="h-4 w-20 bg-muted rounded"></div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="h-4 w-16 bg-muted rounded"></div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="h-8 w-8 bg-muted rounded-full"></div>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : tableData.length === 0 ? (
+            {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  No results found. Try adjusting your search filters.
+                <TableCell colSpan={visibleColumns.length + 1} className="h-24 text-center">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : data.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={visibleColumns.length + 1} className="h-24 text-center">
+                  No results found.
                 </TableCell>
               </TableRow>
             ) : (
-              tableData.map((row, index) => (
-                <TableRow key={index} className="hover:bg-muted/50">
-                  <TableCell>{row.time}</TableCell>
-                  <TableCell>{row.component_id}</TableCell>
-                  <TableCell>{row.component_type}</TableCell>
+              data.map((row, index) => (
+                <TableRow key={index}>
+                  {visibleColumns.map((column) => (
+                    <TableCell key={column}>
+                      {typeof row[column] === "object"
+                        ? JSON.stringify(row[column]).substring(0, 30) + "..."
+                        : String(row[column])}
+                    </TableCell>
+                  ))}
                   <TableCell>
-                    <Badge>
-                      {row.action}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleViewDetails(row)}
-                      aria-label="View details"
-                    >
-                      <Eye className="h-4 w-4" />
+                    <Button variant="ghost" size="sm" onClick={() => handleRowDetails(row)}>
+                      <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -275,56 +359,33 @@ export function EventListTable() {
         </Table>
       </div>
 
-      {!isLoading && tableData.length > 0 && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  if (page > 1) handlePageChange(page - 1)
-                }}
-                className={page <= 1 ? "pointer-events-none opacity-50" : ""}
-              />
-            </PaginationItem>
+      {/* Pagination */}
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          Showing {data.length > 0 ? (page - 1) * pageSize + 1 : 0} to {Math.min(page * pageSize, totalRecords)} of{" "}
+          {totalRecords} records
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" size="sm" onClick={() => setPage(1)} disabled={page === 1}>
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm font-medium">
+            Page {page} of {totalPages}
+          </span>
+          <Button variant="outline" size="sm" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setPage(totalPages)} disabled={page === totalPages}>
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
 
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              const pageNumber = page <= 3 ? i + 1 : page >= totalPages - 2 ? totalPages - 4 + i : page - 2 + i
-
-              if (pageNumber <= 0 || pageNumber > totalPages) return null
-
-              return (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      handlePageChange(pageNumber)
-                    }}
-                    isActive={page === pageNumber}
-                  >
-                    {pageNumber}
-                  </PaginationLink>
-                </PaginationItem>
-              )
-            })}
-
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  if (page < totalPages) handlePageChange(page + 1)
-                }}
-                className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
-
-      <DataDialog open={dialogOpen} onOpenChange={setDialogOpen} data={selectedRow} />
+      {/* Detail dialog */}
+      <DataTableDialog open={dialogOpen} onOpenChange={setDialogOpen} data={selectedRow} />
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { FlowNode } from '@/states/flowState';
 import { CompDataI, CompRegStore } from '@/types/component';
 import { GenTypeState } from '@/types/configGen';
 import { ProjectRowList } from '@/types/projects';
+import { EventListData, EventListParams, RunList } from '@/types/socketT';
 import { Edge } from '@xyflow/react';
 import { io, Socket } from 'socket.io-client';
 import { create } from 'zustand';
@@ -23,6 +24,13 @@ interface SocketStore {
   save_flow_state: (projectName: string, node: FlowNode[], edges: Edge[]) => Promise<void>;
   get_data_node: (projectName: string) => Promise<FlowNode[]>;
   get_data_edge: (projectName: string) => Promise<Edge[]>;
+  check_socket_endpoint: (endpointName: string, data: Object) => Promise<any>;
+  run_simulation: (projectName: string, run_name: string, time_unit: string, sim_time: number) => Promise<any>;
+  on_simulation_run_log: (callback: (data: any) => void) => void;
+  on_sim_run_status: (callback: (data: string) => void) => void;
+  remove_all_listeners: (eventName?: string) => void;
+  get_run_list: (projectName: string) => Promise<RunList[]>;
+  geteventlist: (projectName: string, runId: string, tableParams: EventListParams) => Promise<any>;
 }
 
 // Create socket connection utility
@@ -58,9 +66,9 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       set({ connected: true });
     });
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', (error) => {
       const { setError } = ErrorState.getState();
-      console.log('Disconnected from Socket.IO server');
+      console.log('Disconnected from Socket.IO server', error);
       setError({
         header: 'Socket Disconnected',
         body: 'The connection to the server has been lost. Please check your network connection and try again.',
@@ -348,4 +356,168 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       })
     })
   },
+  check_socket_endpoint: async (endpointName: string, data: Object) => {
+    const { socket } = get();
+    if (!socket) {
+      const { setError } = ErrorState.getState();
+      console.error('Socket is not connected');
+      setError({
+        header: 'Socket Not Connected',
+        body: " socket is not connected. Please connect to the socket first",
+      })
+      return;
+    }
+
+    return new Promise<any>((resolve) => {
+      socket.emit(endpointName, data, (response: any) => {
+        if (response.error) {
+          const { setError } = ErrorState.getState();
+          console.error('[ socketIO ] list component error :', response.error);
+          setError({
+            header: 'response error',
+            body: "get data state failed. please try again",
+          })
+        } else {
+          console.log('😉[IMPORTENT]:', response);
+          resolve(response.data);
+        }
+      })
+    })
+  },
+  run_simulation: async (projectName: string, run_name: string, time_unit: string, sim_time: number) => {
+    const { socket } = get();
+    if (!socket) {
+      const { setError } = ErrorState.getState();
+      console.error('Socket is not connected');
+      setError({
+        header: 'Socket Not Connected',
+        body: " socket is not connected. Please connect to the socket first",
+      })
+      return;
+    }
+
+    return new Promise<any>((resolve) => {
+      socket.emit('run_simulation', { "project_name": projectName, "run_name": run_name, "time_unit": time_unit, "sim_time": sim_time }, (response: any) => {
+        if (response.error) {
+          const { setError } = ErrorState.getState();
+          console.error('[ socketIO ] list component error :', response.error);
+          setError({
+            header: 'response error',
+            body: "get data state failed. please try again",
+          })
+        } else {
+          console.log('😉[IMPORTENT]:', response);
+          resolve(response.data);
+        }
+      })
+    })
+  },
+  // socket listeners
+  on_simulation_run_log: (callback: (data: any) => void) => {
+    const { socket } = get();
+    if (!socket) {
+      const { setError } = ErrorState.getState();
+      console.error('Socket is not connected');
+      setError({
+        header: 'Socket Not Connected',
+        body: " socket is not connected. Please connect to the socket first",
+      })
+      return;
+    }
+
+    socket.on('sim_update', (data: { "status": string }) => {
+      console.log('Simulation run log:', data);
+      callback(data.status);
+    });
+  },
+  on_sim_run_status: (callback: (data: string) => void) => {
+    const { socket } = get();
+    if (!socket) {
+      const { setError } = ErrorState.getState();
+      console.error('Socket is not connected');
+      setError({
+        header: 'Socket Not Connected',
+        body: " socket is not connected. Please connect to the socket first",
+      })
+      return;
+    }
+
+    socket.on('sim_run_status', (data: { status: string }) => {
+      console.log('Simulation run status:', data);
+      callback(data.status);
+    });
+  },
+  remove_all_listeners: (eventName?: string) => {
+    const { socket } = get();
+    if (socket) {
+      if (eventName) {
+        socket.removeAllListeners(eventName);
+      } else {
+        socket.removeAllListeners();
+      }
+    }
+  },
+  get_run_list: async (projectName: string) => {
+    const { socket } = get();
+    if (!socket) {
+      const { setError } = ErrorState.getState();
+      console.error('Socket is not connected');
+      setError({
+        header: 'Socket Not Connected',
+        body: " socket is not connected. Please connect to the socket first",
+      })
+      return [];
+    }
+
+    return new Promise<RunList[]>((resolve) => {
+      socket.emit('list_runs', { "project_name": projectName }, (response: any) => {
+        if (response.error) {
+          const { setError } = ErrorState.getState();
+          console.error('[ socketIO ] list component error :', response.error);
+          setError({
+            header: 'response error',
+            body: "get data state failed. please try again",
+          })
+        } else {
+          console.log('>>> Registered component response:', response);
+          resolve(response.runs);
+        }
+      })
+    })
+  },
+  geteventlist: async (projectName: string, runId: string, tableParams: EventListParams) =>{
+    const { socket } = get();
+    if (!socket) {
+      const { setError } = ErrorState.getState();
+      console.error('Socket is not connected');
+      setError({
+        header: 'Socket Not Connected',
+        body: " socket is not connected. Please connect to the socket first",
+      })
+      return {
+        data: [],
+        total: 0,
+        page: 0,
+        pageSize: 0,
+        totalPages: 0,
+        columns: []
+      };
+    }
+
+    return new Promise<EventListData>((resolve) => {
+      socket.emit('full_event_list', { "project_name": projectName, "run_id": runId, "table_data": tableParams }, (response: any) => {
+        if (response.error) {
+          const { setError } = ErrorState.getState();
+          console.error('[ socketIO ] list component error :', response.error);
+          setError({
+            header: 'response error',
+            body: "get data state failed. please try again",
+          })
+        } else {
+          console.log('>>> Registered component response:', response);
+          resolve(response.data);
+        }
+      })
+    })
+  }
 }));
