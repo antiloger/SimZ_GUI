@@ -1,5 +1,4 @@
-import { AreaChartIcon as ChartArea, Codesandbox, ComponentIcon, Settings } from 'lucide-react'
-import React from "react"
+import { AreaChartIcon as ChartArea, ComponentIcon, FileText, Settings } from 'lucide-react'
 
 import {
   Sidebar,
@@ -15,6 +14,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { CustomSideBarHeader } from './side-bar-header'
+import { ModeToggle } from '@/components/mode-toggle'
 
 // Menu items with component names
 const items = [
@@ -43,6 +43,10 @@ interface AppSidebarProp {
 
 export function AppSidebar({ simulationId, activeComponent, setActiveComponent }: AppSidebarProp) {
   console.log(simulationId)
+
+  const navigateTodocs = () => {
+    window.open('/docs/code-arch', '_blank');
+  };
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -69,6 +73,10 @@ export function AppSidebar({ simulationId, activeComponent, setActiveComponent }
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <SidebarMenuButton className='my-4' onClick={navigateTodocs}>
+                <FileText />
+                <span>Documentation</span>
+              </SidebarMenuButton>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -76,7 +84,7 @@ export function AppSidebar({ simulationId, activeComponent, setActiveComponent }
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarTrigger />
+            <ModeToggle />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

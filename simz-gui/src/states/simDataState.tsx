@@ -36,6 +36,8 @@ type SimDataStateT = {
   loadCompData: (projectId: string) => Promise<void>;
   sync_comp_nodes: () => Promise<void>;
   create_comp: (name: string, type: string, cat: string) => void;
+  copy_new_comp: (sourceCompId: string) => void;
+  delete_comp: (compId: string) => void;
   get_comp_by_id: (id: string) => CompDataI | null;
   get_comp_struct_out: (category: string, type: string) => CompRegDataI | null;
   get_comp_input_by_id: (id: string) => {
@@ -228,6 +230,294 @@ export const SimDataState = create<SimDataStateT>((set, get) => ({
       },
     }));
     addNodes([nodeBuild]);
+  },
+  copy_new_comp: (sourceCompId: string) => {
+    const { setError } = ErrorState.getState();
+
+    // Get the source component
+    const sourceComp = get().componentData[sourceCompId];
+    if (!sourceComp) {
+      setError({
+        header: "Component Not Found",
+        body: `Cannot copy component. Source component with ID ${sourceCompId} does not exist!`,
+      });
+      return;
+    }
+
+    // Generate a new ID for the copied component
+    const newCompId = uuidv4();
+
+    // Create a deep copy of the source component
+    const sourceCompCopy = JSON.parse(JSON.stringify(sourceComp));
+
+    // Update the copy with the new ID and a modified name
+    const newCompName = `${sourceComp.compName} (Copy)`;
+    const newComp: CompDataI = {
+      ...sourceCompCopy,
+      id: newCompId,
+      compName: newCompName,
+      notification: [], // Reset notifications
+    };
+
+    // Create a deep copy of connectors with new IDs
+    if (newComp.connectors && newComp.connectors.length > 0) {
+      newComp.connectors = newComp.connectors.map(connector => ({
+        ...connector,
+        id: uuidv4() // Generate new IDs for connectors
+      }));
+    }
+
+    // Handle GenData types if they exist
+    if (newComp.GenData && newComp.GenData.types && newComp.GenData.types.length > 0) {
+      const oldGenTypes = [...newComp.GenData.types];
+      const newGenTypes: string[] = [];
+      const genTypesMapping: {[oldId: string]: string} = {};
+
+      // Create new GenTypes with new IDs
+      oldGenTypes.forEach(oldTypeId => {
+        const oldGenType = get().genTypesData[oldTypeId];
+        if (oldGenType) {
+          const newTypeId = uuidv4();
+          genTypesMapping[oldTypeId] = newTypeId;
+          newGenTypes.push(newTypeId);
+
+          // Add the new GenType to the state
+          set(state => ({
+            genTypesData: {
+              ...state.genTypesData,
+              [newTypeId]: {
+                ...oldGenType,
+                genComponentId: newCompId // Update the component ID reference
+              }
+            }
+          }));
+        }
+      });
+
+      // Update the component's GenData with the new type IDs
+      newComp.GenData.types = newGenTypes;
+    }
+
+    // Get current viewport for positioning
+    const { viewport, addNodes } = FlowState.getState();
+
+    // Create a new node with an offset position from the original
+    const nodeBuild = {
+      id: newCompId,
+      type: "dynComp",
+      data: {
+        name: newCompName,
+        id: newCompId,
+        type: sourceComp.typeName,
+        color: sourceComp.color,
+        notify: false,
+        data: [],
+      },
+      // Position the new node with a slight offset from the viewport center
+      position: { x: viewport.x + 50, y: viewport.y + 50 },
+    } as FlowNode;
+
+    // Update the state with the new component
+    set((state) => ({
+      componentData: {
+        ...state.componentData,
+        [newCompId]: newComp,
+      },
+    }));
+
+    // Add the new node to the flow
+    addNodes([nodeBuild]);
+  },
+  delete_comp: (compId: string) => {
+    const { setError, addReactFlowError } = ErrorState.getState();
+
+    // Get the component to delete
+    const comp = get().componentData[compId];
+    if (!comp) {
+      setError({
+        header: "Component Not Found",
+        body: `Cannot delete component. Component with ID ${compId} does not exist!`,
+      });
+      return;
+    }
+
+    // Get FlowState to remove the node and related edges
+    const flowState = FlowState.getState();
+    const { removeNode, edges, setEdges } = flowState;
+
+    // 1. Check for edges connected to this component and notify user
+    const connectedEdges = edges.filter(
+      edge => edge.source === compId || edge.target === compId
+    );
+
+    if (connectedEdges.length > 0) {
+      // Add a warning to ReactFlowError about removed connections
+      addReactFlowError({
+        errorType: "Component Connections Removed",
+        error: `Deleted component '${comp.compName}' had ${connectedEdges.length} connection(s) that were removed.`,
+        type: "warning",
+        componentId: compId,
+        componentName: comp.compName
+      });
+
+      // Identify affected components for more detailed warnings
+      const affectedComponents = new Set<string>();
+      connectedEdges.forEach(edge => {
+        if (edge.source !== compId) affectedComponents.add(edge.source);
+        if (edge.target !== compId) affectedComponents.add(edge.target);
+      });
+
+      if (affectedComponents.size > 0) {
+        addReactFlowError({
+          errorType: "Affected Components",
+          error: `${affectedComponents.size} component(s) had connections to the deleted component '${comp.compName}'.`,
+          type: "warning",
+          componentId: compId,
+          componentName: comp.compName
+        });
+      }
+    }
+
+    // 2. Remove the node from FlowState
+    removeNode(compId);
+
+    // 3. Remove any edges connected to this component
+    // Filter out edges where this component is either the source or target
+    const filteredEdges = edges.filter(
+      edge => edge.source !== compId && edge.target !== compId
+    );
+
+    // Update edges in FlowState if any were removed
+    if (filteredEdges.length !== edges.length) {
+      setEdges(filteredEdges);
+    }
+
+    // 4. Handle cleanup of GenTypes associated with the component
+    if (comp.GenData?.types && comp.GenData.types.length > 0) {
+      // Create a copy to avoid mutation during iteration
+      const genTypesToRemove = [...comp.GenData.types];
+
+      // Add a notification about removed GenTypes if this is a generator component
+      if (comp.category === "generator" && genTypesToRemove.length > 0) {
+        addReactFlowError({
+          errorType: "Generator Types Removed",
+          error: `Deleted generator component '${comp.compName}' had ${genTypesToRemove.length} GenType(s) that were removed.`,
+          type: "warning",
+          componentId: compId,
+          componentName: comp.compName
+        });
+      }
+
+      // Remove each GenType from the state
+      set(state => {
+        // Create a new genTypesData object without the types to remove
+        const newGenTypesData = { ...state.genTypesData };
+
+        genTypesToRemove.forEach(typeId => {
+          if (newGenTypesData[typeId]) {
+            delete newGenTypesData[typeId];
+          }
+        });
+
+        return {
+          genTypesData: newGenTypesData
+        };
+      });
+    }
+
+    // 5. Check for components that might reference GenTypes from this component
+    // This needs to be done before removing the component from componentData
+    const componentsWithReferences: {id: string, name: string}[] = [];
+
+    if (comp.GenData?.types && comp.GenData.types.length > 0) {
+      const genTypeIds = new Set(comp.GenData.types);
+
+      // Check all other components for references to these GenTypes
+      Object.entries(get().componentData).forEach(([otherCompId, otherComp]) => {
+        if (otherCompId === compId) return; // Skip the component being deleted
+
+        // Check if any connector references these GenTypes
+        if (otherComp.connectors && otherComp.connectors.length > 0) {
+          const hasReference = otherComp.connectors.some(connector =>
+            connector.type.some(typeStr => genTypeIds.has(typeStr))
+          );
+
+          if (hasReference) {
+            componentsWithReferences.push({
+              id: otherCompId,
+              name: otherComp.compName
+            });
+          }
+        }
+      });
+    }
+
+    // Notify about components with invalid references
+    if (componentsWithReferences.length > 0) {
+      addReactFlowError({
+        errorType: "Invalid GenType References",
+        error: `${componentsWithReferences.length} component(s) have connectors that reference GenTypes from the deleted component '${comp.compName}'.`,
+        type: "error",
+        componentId: compId,
+        componentName: comp.compName
+      });
+
+      // Add individual warnings for each affected component
+      componentsWithReferences.forEach(affectedComp => {
+        addReactFlowError({
+          errorType: "Invalid GenType Reference",
+          error: `Component '${affectedComp.name}' has connectors referencing GenTypes from the deleted component '${comp.compName}'.`,
+          type: "error",
+          componentId: affectedComp.id,
+          componentName: affectedComp.name
+        });
+      });
+    }
+
+    // 6. Remove the component from componentData
+    set(state => {
+      // Create a new componentData object without the component to remove
+      const { [compId]: _, ...restComponentData } = state.componentData;
+
+      return {
+        componentData: restComponentData
+      };
+    });
+
+    // 7. Check for any GenTypes in other components that might reference this component
+    // This is a safety check to prevent orphaned references
+    const allGenTypes = get().genTypesData;
+    const orphanedGenTypes: string[] = [];
+
+    Object.entries(allGenTypes).forEach(([typeId, genType]) => {
+      if (genType.genComponentId === compId) {
+        orphanedGenTypes.push(typeId);
+      }
+    });
+
+    // Remove any orphaned GenTypes
+    if (orphanedGenTypes.length > 0) {
+      set(state => {
+        const newGenTypesData = { ...state.genTypesData };
+
+        orphanedGenTypes.forEach(typeId => {
+          delete newGenTypesData[typeId];
+        });
+
+        return {
+          genTypesData: newGenTypesData
+        };
+      });
+
+      // Add notification about orphaned GenTypes
+      addReactFlowError({
+        errorType: "Orphaned GenTypes Removed",
+        error: `Removed ${orphanedGenTypes.length} orphaned GenType(s) that referenced the deleted component '${comp.compName}'.`,
+        type: "warning",
+        componentId: compId,
+        componentName: comp.compName
+      });
+    }
   },
   get_comp_by_id: (id: string) => {
     const component = get().componentData[id] ?? null;

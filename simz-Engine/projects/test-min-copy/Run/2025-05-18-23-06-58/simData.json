@@ -1,0 +1,948 @@
+{
+    "id": "2025-05-18-23-06-58",
+    "dashboradData": [
+        {
+            "type": "card",
+            "header": "Simulation Time (last record)",
+            "description": "ending time of the simulation",
+            "value": 79.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Total Components",
+            "description": "Total number of components in the simulation",
+            "value": 4.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Total Containers",
+            "description": "Total number of Containers in the simulation",
+            "value": 30.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Total GenTypes",
+            "description": "Total number of GenTypes in the simulation",
+            "value": 3.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "pie",
+            "header": "Component Categories",
+            "description": "Distribution of component categories",
+            "series": [
+                {
+                    "name": "Categories",
+                    "data": [
+                        {
+                            "x": "resource",
+                            "y": 50.0
+                        },
+                        {
+                            "x": "generator",
+                            "y": 50.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_legend": true,
+                "show_tooltip": true,
+                "inner_radius": 0,
+                "outer_radius": "90%",
+                "padding_angle": 0.0,
+                "show_labels": true,
+                "label_type": "percent"
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "bar",
+            "header": "Action Counts",
+            "description": "Counts of actions performed by components",
+            "series": [
+                {
+                    "name": "Actions",
+                    "data": [
+                        {
+                            "x": "IN",
+                            "y": 70.0
+                        },
+                        {
+                            "x": "QUEUED",
+                            "y": 30.0
+                        },
+                        {
+                            "x": "GENERATE",
+                            "y": 20.0
+                        },
+                        {
+                            "x": "OUT",
+                            "y": 20.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": null,
+                "x_axis_label": null,
+                "layout": "vertical",
+                "bar_type": "grouped",
+                "bar_size": null,
+                "bar_radius": null
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "line",
+            "header": "Average Efficiency Times (components)",
+            "description": "Efficiency of components over time",
+            "series": [
+                {
+                    "name": "components",
+                    "data": [
+                        {
+                            "x": "clorine_gen",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "mixer_machine01",
+                            "y": 0.5
+                        },
+                        {
+                            "x": "water_gen",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "cleanup_machine01",
+                            "y": 1.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": null,
+                "x_axis_label": null,
+                "type": "linear",
+                "show_dots": true,
+                "dot_size": 4,
+                "active_dot_size": 6,
+                "stroke_width": 2
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "line",
+            "header": "Average Processing Time (components)",
+            "description": "Processing times of components over time",
+            "series": [
+                {
+                    "name": "components",
+                    "data": [
+                        {
+                            "x": "clorine_gen",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "mixer_machine01",
+                            "y": 5.0
+                        },
+                        {
+                            "x": "water_gen",
+                            "y": 4.0
+                        },
+                        {
+                            "x": "cleanup_machine01",
+                            "y": 4.6
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": null,
+                "x_axis_label": null,
+                "type": "linear",
+                "show_dots": true,
+                "dot_size": 4,
+                "active_dot_size": 6,
+                "stroke_width": 2
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Component Analytics",
+            "description": "Component-specific analytics are available separately. Use the component analytics API to access them.",
+            "value": "Available",
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 4,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "table",
+            "header": "Component Summary",
+            "description": "Summary of components in the simulation",
+            "series": [
+                {
+                    "name": "Components",
+                    "data": [
+                        {
+                            "x": "ec98113f-9a52-4226-8147-b2229dd79e9f",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "cf45bf07-f56e-478c-9c49-3ef8b033258a",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "d0e4d5c3-0732-4463-8fb2-ec15da088990",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "41b79005-4612-4ce5-8d6a-a79ec43328e4",
+                            "y": 1.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_pagination": true,
+                "show_search": true,
+                "show_filters": true,
+                "page_size": 10,
+                "page_size_options": [
+                    5,
+                    10,
+                    20,
+                    50
+                ],
+                "sortable": true,
+                "resizable": true,
+                "filterable": true,
+                "component_properties": {
+                    "components": [
+                        {
+                            "id": "ec98113f-9a52-4226-8147-b2229dd79e9f",
+                            "name": "Generator ec98113f-9a52-4226-8147-b2229dd79e9f",
+                            "type": "generator",
+                            "dashboradData": [
+                                {
+                                    "type": "card",
+                                    "header": "Generation Rate",
+                                    "description": "Entities generated per time unit",
+                                    "value": 0.28,
+                                    "value_suffix": null,
+                                    "value_prefix": null,
+                                    "value_formatting": "number",
+                                    "icon": null,
+                                    "trend": null,
+                                    "size": {
+                                        "cols": 1,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "card",
+                                    "header": "Total Entities",
+                                    "description": "Total number of entities generated",
+                                    "value": 10.0,
+                                    "value_suffix": null,
+                                    "value_prefix": null,
+                                    "value_formatting": "number",
+                                    "icon": null,
+                                    "trend": null,
+                                    "size": {
+                                        "cols": 1,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "chart",
+                                    "subtype": "line",
+                                    "header": "Entity Generation Pattern",
+                                    "description": "Timing of entity generation events",
+                                    "series": [
+                                        {
+                                            "name": "Generation Time",
+                                            "data": [
+                                                {
+                                                    "x": "1",
+                                                    "y": 4.0
+                                                },
+                                                {
+                                                    "x": "2",
+                                                    "y": 8.0
+                                                },
+                                                {
+                                                    "x": "3",
+                                                    "y": 12.0
+                                                },
+                                                {
+                                                    "x": "4",
+                                                    "y": 16.0
+                                                },
+                                                {
+                                                    "x": "5",
+                                                    "y": 20.0
+                                                },
+                                                {
+                                                    "x": "6",
+                                                    "y": 24.0
+                                                },
+                                                {
+                                                    "x": "7",
+                                                    "y": 28.0
+                                                },
+                                                {
+                                                    "x": "8",
+                                                    "y": 32.0
+                                                },
+                                                {
+                                                    "x": "9",
+                                                    "y": 36.0
+                                                },
+                                                {
+                                                    "x": "10",
+                                                    "y": 40.0
+                                                }
+                                            ],
+                                            "color": null
+                                        }
+                                    ],
+                                    "options": {
+                                        "show_grid": true,
+                                        "show_legend": true,
+                                        "show_tooltip": true,
+                                        "y_axis_label": "Simulation Time",
+                                        "x_axis_label": "Entity Number",
+                                        "type": "linear",
+                                        "show_dots": true,
+                                        "dot_size": 4,
+                                        "active_dot_size": 6,
+                                        "stroke_width": 2
+                                    },
+                                    "size": {
+                                        "cols": 2,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "card",
+                                    "header": "Component Efficiency",
+                                    "description": "Ratio of productive actions to total actions",
+                                    "value": 100.0,
+                                    "value_suffix": "%",
+                                    "value_prefix": null,
+                                    "value_formatting": "number",
+                                    "icon": null,
+                                    "trend": {
+                                        "value": 100.0,
+                                        "direction": "up",
+                                        "label": "Efficiency Score"
+                                    },
+                                    "size": {
+                                        "cols": 1,
+                                        "rows": 1
+                                    }
+                                }
+                            ],
+                            "dashboardTable": []
+                        },
+                        {
+                            "id": "cf45bf07-f56e-478c-9c49-3ef8b033258a",
+                            "name": "Generator cf45bf07-f56e-478c-9c49-3ef8b033258a",
+                            "type": "generator",
+                            "dashboradData": [
+                                {
+                                    "type": "card",
+                                    "header": "Generation Rate",
+                                    "description": "Entities generated per time unit",
+                                    "value": 0.37,
+                                    "value_suffix": null,
+                                    "value_prefix": null,
+                                    "value_formatting": "number",
+                                    "icon": null,
+                                    "trend": null,
+                                    "size": {
+                                        "cols": 1,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "card",
+                                    "header": "Total Entities",
+                                    "description": "Total number of entities generated",
+                                    "value": 10.0,
+                                    "value_suffix": null,
+                                    "value_prefix": null,
+                                    "value_formatting": "number",
+                                    "icon": null,
+                                    "trend": null,
+                                    "size": {
+                                        "cols": 1,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "chart",
+                                    "subtype": "line",
+                                    "header": "Entity Generation Pattern",
+                                    "description": "Timing of entity generation events",
+                                    "series": [
+                                        {
+                                            "name": "Generation Time",
+                                            "data": [
+                                                {
+                                                    "x": "1",
+                                                    "y": 3.0
+                                                },
+                                                {
+                                                    "x": "2",
+                                                    "y": 6.0
+                                                },
+                                                {
+                                                    "x": "3",
+                                                    "y": 9.0
+                                                },
+                                                {
+                                                    "x": "4",
+                                                    "y": 12.0
+                                                },
+                                                {
+                                                    "x": "5",
+                                                    "y": 15.0
+                                                },
+                                                {
+                                                    "x": "6",
+                                                    "y": 18.0
+                                                },
+                                                {
+                                                    "x": "7",
+                                                    "y": 21.0
+                                                },
+                                                {
+                                                    "x": "8",
+                                                    "y": 24.0
+                                                },
+                                                {
+                                                    "x": "9",
+                                                    "y": 27.0
+                                                },
+                                                {
+                                                    "x": "10",
+                                                    "y": 30.0
+                                                }
+                                            ],
+                                            "color": null
+                                        }
+                                    ],
+                                    "options": {
+                                        "show_grid": true,
+                                        "show_legend": true,
+                                        "show_tooltip": true,
+                                        "y_axis_label": "Simulation Time",
+                                        "x_axis_label": "Entity Number",
+                                        "type": "linear",
+                                        "show_dots": true,
+                                        "dot_size": 4,
+                                        "active_dot_size": 6,
+                                        "stroke_width": 2
+                                    },
+                                    "size": {
+                                        "cols": 2,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "card",
+                                    "header": "Component Efficiency",
+                                    "description": "Ratio of productive actions to total actions",
+                                    "value": 100.0,
+                                    "value_suffix": "%",
+                                    "value_prefix": null,
+                                    "value_formatting": "number",
+                                    "icon": null,
+                                    "trend": {
+                                        "value": 100.0,
+                                        "direction": "up",
+                                        "label": "Efficiency Score"
+                                    },
+                                    "size": {
+                                        "cols": 1,
+                                        "rows": 1
+                                    }
+                                }
+                            ],
+                            "dashboardTable": []
+                        },
+                        {
+                            "id": "d0e4d5c3-0732-4463-8fb2-ec15da088990",
+                            "name": "Resource d0e4d5c3-0732-4463-8fb2-ec15da088990",
+                            "type": "resource",
+                            "dashboradData": [
+                                {
+                                    "type": "card",
+                                    "header": "Component Utilization",
+                                    "description": "Percentage of time the component is active",
+                                    "value": 6.58,
+                                    "value_suffix": "%",
+                                    "value_prefix": null,
+                                    "value_formatting": "number",
+                                    "icon": null,
+                                    "trend": {
+                                        "value": 6.58,
+                                        "direction": "down",
+                                        "label": "Utilization Rate"
+                                    },
+                                    "size": {
+                                        "cols": 1,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "card",
+                                    "header": "Component Efficiency",
+                                    "description": "Ratio of productive actions to total actions",
+                                    "value": 50.0,
+                                    "value_suffix": "%",
+                                    "value_prefix": null,
+                                    "value_formatting": "number",
+                                    "icon": null,
+                                    "trend": {
+                                        "value": 50.0,
+                                        "direction": "down",
+                                        "label": "Efficiency Score"
+                                    },
+                                    "size": {
+                                        "cols": 1,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "chart",
+                                    "subtype": "bar",
+                                    "header": "Processing Time Statistics",
+                                    "description": "Time between IN and OUT actions",
+                                    "series": [
+                                        {
+                                            "name": "Processing Time",
+                                            "data": [
+                                                {
+                                                    "x": "Mean",
+                                                    "y": 0.0
+                                                },
+                                                {
+                                                    "x": "Median",
+                                                    "y": 0.0
+                                                },
+                                                {
+                                                    "x": "Min",
+                                                    "y": 0.0
+                                                },
+                                                {
+                                                    "x": "Max",
+                                                    "y": 0.0
+                                                }
+                                            ],
+                                            "color": null
+                                        }
+                                    ],
+                                    "options": {
+                                        "show_grid": true,
+                                        "show_legend": true,
+                                        "show_tooltip": true,
+                                        "y_axis_label": "Time",
+                                        "x_axis_label": "Statistic",
+                                        "layout": "vertical",
+                                        "bar_type": "grouped",
+                                        "bar_size": null,
+                                        "bar_radius": null
+                                    },
+                                    "size": {
+                                        "cols": 2,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "chart",
+                                    "subtype": "bar",
+                                    "header": "Queue Statistics",
+                                    "description": "Statistics about queue length",
+                                    "series": [
+                                        {
+                                            "name": "Queue Length",
+                                            "data": [
+                                                {
+                                                    "x": "Average",
+                                                    "y": 5.15
+                                                },
+                                                {
+                                                    "x": "Maximum",
+                                                    "y": 9.0
+                                                },
+                                                {
+                                                    "x": "Minimum",
+                                                    "y": 0.0
+                                                },
+                                                {
+                                                    "x": "Median",
+                                                    "y": 5.0
+                                                }
+                                            ],
+                                            "color": null
+                                        }
+                                    ],
+                                    "options": {
+                                        "show_grid": true,
+                                        "show_legend": true,
+                                        "show_tooltip": true,
+                                        "y_axis_label": "Queue Length",
+                                        "x_axis_label": "Statistic",
+                                        "layout": "vertical",
+                                        "bar_type": "grouped",
+                                        "bar_size": null,
+                                        "bar_radius": null
+                                    },
+                                    "size": {
+                                        "cols": 2,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "chart",
+                                    "subtype": "bar",
+                                    "header": "Processing Time Distribution",
+                                    "description": "No processing time data available",
+                                    "series": [
+                                        {
+                                            "name": "Count",
+                                            "data": [
+                                                {
+                                                    "x": "No Data",
+                                                    "y": 0.0
+                                                }
+                                            ],
+                                            "color": null
+                                        }
+                                    ],
+                                    "options": {
+                                        "show_grid": true,
+                                        "show_legend": true,
+                                        "show_tooltip": true,
+                                        "y_axis_label": null,
+                                        "x_axis_label": null,
+                                        "layout": "vertical",
+                                        "bar_type": "grouped",
+                                        "bar_size": null,
+                                        "bar_radius": null
+                                    },
+                                    "size": {
+                                        "cols": 2,
+                                        "rows": 1
+                                    }
+                                }
+                            ],
+                            "dashboardTable": []
+                        },
+                        {
+                            "id": "41b79005-4612-4ce5-8d6a-a79ec43328e4",
+                            "name": "Resource 41b79005-4612-4ce5-8d6a-a79ec43328e4",
+                            "type": "resource",
+                            "dashboradData": [
+                                {
+                                    "type": "card",
+                                    "header": "Component Utilization",
+                                    "description": "Percentage of time the component is active",
+                                    "value": 60.53,
+                                    "value_suffix": "%",
+                                    "value_prefix": null,
+                                    "value_formatting": "number",
+                                    "icon": null,
+                                    "trend": {
+                                        "value": 60.53,
+                                        "direction": "down",
+                                        "label": "Utilization Rate"
+                                    },
+                                    "size": {
+                                        "cols": 1,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "card",
+                                    "header": "Component Efficiency",
+                                    "description": "Ratio of productive actions to total actions",
+                                    "value": 100.0,
+                                    "value_suffix": "%",
+                                    "value_prefix": null,
+                                    "value_formatting": "number",
+                                    "icon": null,
+                                    "trend": {
+                                        "value": 100.0,
+                                        "direction": "up",
+                                        "label": "Efficiency Score"
+                                    },
+                                    "size": {
+                                        "cols": 1,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "chart",
+                                    "subtype": "bar",
+                                    "header": "Processing Time Statistics",
+                                    "description": "Time between IN and OUT actions",
+                                    "series": [
+                                        {
+                                            "name": "Processing Time",
+                                            "data": [
+                                                {
+                                                    "x": "Mean",
+                                                    "y": 0.0
+                                                },
+                                                {
+                                                    "x": "Median",
+                                                    "y": 0.0
+                                                },
+                                                {
+                                                    "x": "Min",
+                                                    "y": 0.0
+                                                },
+                                                {
+                                                    "x": "Max",
+                                                    "y": 0.0
+                                                }
+                                            ],
+                                            "color": null
+                                        }
+                                    ],
+                                    "options": {
+                                        "show_grid": true,
+                                        "show_legend": true,
+                                        "show_tooltip": true,
+                                        "y_axis_label": "Time",
+                                        "x_axis_label": "Statistic",
+                                        "layout": "vertical",
+                                        "bar_type": "grouped",
+                                        "bar_size": null,
+                                        "bar_radius": null
+                                    },
+                                    "size": {
+                                        "cols": 2,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "chart",
+                                    "subtype": "bar",
+                                    "header": "Queue Statistics",
+                                    "description": "Statistics about queue length",
+                                    "series": [
+                                        {
+                                            "name": "Queue Length",
+                                            "data": [
+                                                {
+                                                    "x": "Average",
+                                                    "y": 0.0
+                                                },
+                                                {
+                                                    "x": "Maximum",
+                                                    "y": 0.0
+                                                },
+                                                {
+                                                    "x": "Minimum",
+                                                    "y": 0.0
+                                                },
+                                                {
+                                                    "x": "Median",
+                                                    "y": 0.0
+                                                }
+                                            ],
+                                            "color": null
+                                        }
+                                    ],
+                                    "options": {
+                                        "show_grid": true,
+                                        "show_legend": true,
+                                        "show_tooltip": true,
+                                        "y_axis_label": "Queue Length",
+                                        "x_axis_label": "Statistic",
+                                        "layout": "vertical",
+                                        "bar_type": "grouped",
+                                        "bar_size": null,
+                                        "bar_radius": null
+                                    },
+                                    "size": {
+                                        "cols": 2,
+                                        "rows": 1
+                                    }
+                                },
+                                {
+                                    "type": "chart",
+                                    "subtype": "bar",
+                                    "header": "Processing Time Distribution",
+                                    "description": "No processing time data available",
+                                    "series": [
+                                        {
+                                            "name": "Count",
+                                            "data": [
+                                                {
+                                                    "x": "No Data",
+                                                    "y": 0.0
+                                                }
+                                            ],
+                                            "color": null
+                                        }
+                                    ],
+                                    "options": {
+                                        "show_grid": true,
+                                        "show_legend": true,
+                                        "show_tooltip": true,
+                                        "y_axis_label": null,
+                                        "x_axis_label": null,
+                                        "layout": "vertical",
+                                        "bar_type": "grouped",
+                                        "bar_size": null,
+                                        "bar_radius": null
+                                    },
+                                    "size": {
+                                        "cols": 2,
+                                        "rows": 1
+                                    }
+                                }
+                            ],
+                            "dashboardTable": []
+                        }
+                    ]
+                }
+            },
+            "size": {
+                "cols": 4,
+                "rows": 1
+            }
+        }
+    ],
+    "dashboardTable": [
+        {
+            "id": "simulation_metrics_table",
+            "data": [
+                {
+                    "metric": "Simulation Duration",
+                    "value": 79,
+                    "unit": "time units",
+                    "category": "Time"
+                },
+                {
+                    "metric": "Total Components",
+                    "value": 4,
+                    "unit": "count",
+                    "category": "Components"
+                },
+                {
+                    "metric": "Total Containers",
+                    "value": 30,
+                    "unit": "count",
+                    "category": "Containers"
+                },
+                {
+                    "metric": "Average Processing Time",
+                    "value": 3.93,
+                    "unit": "time units",
+                    "category": "Processing"
+                },
+                {
+                    "metric": "Maximum Processing Time",
+                    "value": 6,
+                    "unit": "time units",
+                    "category": "Processing"
+                }
+            ],
+            "title": "Simulation Metrics",
+            "description": "Key metrics from the simulation run",
+            "columnOrder": [
+                "category",
+                "metric",
+                "unit",
+                "value"
+            ],
+            "columnLabels": {
+                "category": "Category",
+                "metric": "Metric",
+                "unit": "Unit",
+                "value": "Value"
+            }
+        }
+    ]
+}

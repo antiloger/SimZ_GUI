@@ -10,9 +10,10 @@ interface DataTableDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   data: any | null
+  componentNames?: {[key: string]: string}
 }
 
-export function DataTableDialog({ open, onOpenChange, data }: DataTableDialogProps) {
+export function DataTableDialog({ open, onOpenChange, data, componentNames = {} }: DataTableDialogProps) {
   if (!data) return null
 
   // Format JSON data for display
@@ -40,6 +41,11 @@ export function DataTableDialog({ open, onOpenChange, data }: DataTableDialogPro
                 <Badge variant="outline" className="bg-primary/10 text-sm px-3 py-1">
                   Type: {data.component_type}
                 </Badge>
+                {data.component_id && componentNames[data.component_id] && (
+                  <Badge variant="outline" className="bg-primary/10 text-sm px-3 py-1">
+                    Component: {componentNames[data.component_id]}
+                  </Badge>
+                )}
                 <Badge variant="outline" className="bg-primary/10 text-sm px-3 py-1">
                   Action: {data.action}
                 </Badge>
@@ -78,8 +84,13 @@ export function DataTableDialog({ open, onOpenChange, data }: DataTableDialogPro
                         <p className="text-xl">{data.component_type}</p>
                       </div>
                       <div>
-                        <h3 className="text-sm font-medium text-muted-foreground mb-1">Component ID</h3>
-                        <p className="text-sm break-all font-mono bg-muted p-3 rounded-md">{data.component_id}</p>
+                        <h3 className="text-sm font-medium text-muted-foreground mb-1">Component</h3>
+                        <div className="text-sm break-all bg-muted p-3 rounded-md">
+                          {data.component_id && componentNames[data.component_id] && (
+                            <div className="font-medium mb-1">{componentNames[data.component_id]}</div>
+                          )}
+                          <div className="font-mono">{data.component_id}</div>
+                        </div>
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-muted-foreground mb-1">Action</h3>

@@ -29,6 +29,8 @@ export type FlowStateT = {
   loadNodesEdges: (projectName: string) => Promise<void>;
   setViewport: (newViewport: any) => void
   addNodes: (nodes: FlowNode[]) => void;
+  removeNode: (nodeId: string) => void;
+  removeEdge: (edgeId: string) => void;
 }
 
 

@@ -1,4 +1,4 @@
-import { ChevronRight, Codesandbox, File, Plus, Settings } from 'lucide-react';
+import { ChevronRight, Codesandbox, File, FileText, Plus, Settings } from 'lucide-react';
 import OverviewCard from '@/components/default/overview/overviewbtncard';
 import { DataTableDemo } from '@/components/default/overview/projecttable';
 import { useSocketStore } from '@/utils/socketIo';
@@ -33,6 +33,9 @@ export default function OverviewPage() {
     getDataToProjectTable();
   }
 
+  const navigateTodocs = () => {
+    window.open('/docs/simz-concept', '_blank');
+  };
 
   return (
     <>
@@ -69,6 +72,12 @@ export default function OverviewPage() {
           {/*   label='Data Source' */}
           {/*   onClick={handleNewProject} */}
           {/* /> */}
+          <OverviewCard
+            mainicon={FileText}
+            secicon={ChevronRight}
+            label='Documentation'
+            onClick={navigateTodocs}
+          />
           <OverviewCard
             mainicon={Settings}
             secicon={ChevronRight}

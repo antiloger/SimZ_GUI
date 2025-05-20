@@ -1,4 +1,5 @@
 import json
+import os
 import pandas as pd
 import duckdb
 from typing import Dict, Any, Optional, List, Tuple
@@ -26,77 +27,203 @@ class ContainerScraper:
         self.load_data()
 
     def load_data(self) -> None:
-        """Load the CSV data and prepare it for querying."""
+        """
+        Load the CSV data and prepare it for querying.
+        Enhanced with better error handling and data validation.
+        """
         try:
-            # Read the CSV data
-            self.df = pd.read_csv(self.csv_filepath)
+            # Check if file exists
+            if not os.path.exists(self.csv_filepath):
+                print(f"Warning: CSV file not found at {self.csv_filepath}")
+                self.df = pd.DataFrame()  # Create empty DataFrame
+                return
 
-            # Parse the JSON strings in values and PDV columns
-            self.df["values"] = self.df["values"].apply(
-                lambda x: json.loads(x.replace("'", '"')) if isinstance(x, str) else x
-            )
-            self.df["PDV"] = self.df["PDV"].apply(
-                lambda x: json.loads(x.replace("'", '"')) if isinstance(x, str) else x
-            )
+            # Read CSV with error handling
+            try:
+                self.df = pd.read_csv(self.csv_filepath)
+            except pd.errors.EmptyDataError:
+                print(f"Warning: CSV file is empty: {self.csv_filepath}")
+                self.df = pd.DataFrame()
+                return
+            except Exception as e:
+                print(f"Error reading CSV file: {e}")
+                self.df = pd.DataFrame()
+                return
+
+            # Check if DataFrame is empty
+            if self.df.empty:
+                print("Warning: No data found in CSV file")
+                return
+
+            # Ensure required columns exist
+            required_columns = ["time", "component_id", "component_type", "action", "values", "PDV"]
+            missing_columns = [col for col in required_columns if col not in self.df.columns]
+
+            if missing_columns:
+                print(f"Warning: Missing required columns: {missing_columns}")
+                # Add missing columns with default values
+                for col in missing_columns:
+                    self.df[col] = None
+
+            # Parse the JSON strings in values and PDV columns with better error handling
+            def safe_parse_json(x):
+                if not isinstance(x, str):
+                    return x
+                try:
+                    return json.loads(x.replace("'", '"'))
+                except (json.JSONDecodeError, AttributeError):
+                    return {}
+
+            self.df["values"] = self.df["values"].apply(safe_parse_json)
+            self.df["PDV"] = self.df["PDV"].apply(safe_parse_json)
 
             # Extract component IDs and types for easier access
             self.components_data = self._extract_components_data()
             self.containers_data = self._extract_containers_data()
 
             # Register the DataFrame as a view in DuckDB
-            self.conn.register("csv_data", self.df)
-            print(f"Data loaded successfully: {len(self.df)} rows")
+            try:
+                self.conn.register("csv_data", self.df)
+                print(f"Data loaded successfully: {len(self.df)} rows")
+            except Exception as e:
+                print(f"Warning: Could not register DataFrame with DuckDB: {e}")
+
         except Exception as e:
             print(f"Error loading data: {e}")
-            raise
+            self.df = pd.DataFrame()  # Create empty DataFrame as fallback
 
     def _extract_components_data(self) -> Dict[str, Dict[str, Any]]:
         """
         Extract component information from the DataFrame.
+        Enhanced to handle dynamic data structures and missing fields.
 
         Returns:
             Dict mapping component_id to component metadata
         """
         components = {}
+
+        # Handle empty DataFrame
+        if self.df is None or self.df.empty:
+            return components
+
         for _, row in self.df.iterrows():
-            comp_id = row["component_id"]
-            comp_type = row["component_type"]
+            # Safely extract component ID and type with fallbacks
+            comp_id = row.get("component_id", "unknown")
+            comp_type = row.get("component_type", "unknown")
 
+            if not comp_id or comp_id == "unknown":
+                continue  # Skip rows without valid component ID
+
+            # Initialize component entry if not exists
             if comp_id not in components:
-                components[comp_id] = {"type": comp_type, "actions": set()}
+                components[comp_id] = {
+                    "type": comp_type,
+                    "actions": set(),
+                    "metrics": {},  # For storing calculated metrics
+                }
 
-            # Add the action to the component's set of actions
+            # Add the action to the component's set of actions with safe extraction
             if "action" in row and pd.notna(row["action"]):
                 components[comp_id]["actions"].add(row["action"])
+
+            # Extract additional metadata if available
+            if "values" in row and isinstance(row["values"], dict):
+                # If this is the first time we're seeing values for this component,
+                # initialize a values_samples dictionary
+                if "values_samples" not in components[comp_id]:
+                    components[comp_id]["values_samples"] = {}
+
+                # Store a sample of each action's values
+                action = row.get("action", "unknown")
+                if action not in components[comp_id]["values_samples"]:
+                    components[comp_id]["values_samples"][action] = row["values"]
 
         return components
 
     def _extract_containers_data(self) -> Dict[str, Dict[str, Any]]:
         """
         Extract container information from the PDV field.
+        Enhanced to handle dynamic data structures and missing fields.
 
         Returns:
             Dict mapping container_id to container metadata
         """
         containers = {}
 
+        # Handle empty DataFrame
+        if self.df is None or self.df.empty:
+            return containers
+
         for _, row in self.df.iterrows():
-            if not isinstance(row["PDV"], dict) or "containerId" not in row["PDV"]:
+            pdv_data = None
+
+            # Safely extract PDV data
+            if "PDV" in row and row["PDV"] is not None:
+                if isinstance(row["PDV"], dict):
+                    pdv_data = row["PDV"]
+                elif isinstance(row["PDV"], str):
+                    # Try to parse string as JSON if it's not already a dict
+                    try:
+                        pdv_data = json.loads(row["PDV"].replace("'", '"'))
+                    except (json.JSONDecodeError, AttributeError):
+                        pdv_data = None
+
+            # Skip if no valid PDV data or no containerId
+            if not pdv_data or not isinstance(pdv_data, dict) or "containerId" not in pdv_data:
                 continue
 
-            container_id = row["PDV"]["containerId"]
+            container_id = pdv_data["containerId"]
 
+            # Get time with fallback
+            time_value = row.get("time", 0)
+
+            # Initialize container entry if not exists
             if container_id not in containers:
                 containers[container_id] = {
-                    "types": row["PDV"].get("types", {}),
-                    "first_seen": row["time"],
-                    "last_seen": row["time"],
+                    "types": pdv_data.get("types", {}),
+                    "first_seen": time_value,
+                    "last_seen": time_value,
+                    "components_interacted": set(),  # Track components that interact with this container
+                    "attributes": {},  # For storing extracted attributes
                 }
             else:
                 # Update the last seen time
                 containers[container_id]["last_seen"] = max(
-                    containers[container_id]["last_seen"], row["time"]
+                    containers[container_id]["last_seen"], time_value
                 )
+
+                # Update types if not already present
+                if "types" in pdv_data and isinstance(pdv_data["types"], dict):
+                    for type_id, type_data in pdv_data["types"].items():
+                        if "types" not in containers[container_id]:
+                            containers[container_id]["types"] = {}
+
+                        if type_id not in containers[container_id]["types"]:
+                            containers[container_id]["types"][type_id] = type_data
+
+            # Track component interactions
+            if "component_id" in row and row["component_id"]:
+                if "components_interacted" not in containers[container_id]:
+                    containers[container_id]["components_interacted"] = set()
+                containers[container_id]["components_interacted"].add(row["component_id"])
+
+            # Extract attributes for easier access
+            if "types" in pdv_data and isinstance(pdv_data["types"], dict):
+                for type_id, type_data in pdv_data["types"].items():
+                    if isinstance(type_data, dict) and "attributes" in type_data:
+                        type_name = type_data.get("typeName", "unknown_type")
+
+                        if "attributes" not in containers[container_id]:
+                            containers[container_id]["attributes"] = {}
+
+                        if type_name not in containers[container_id]["attributes"]:
+                            containers[container_id]["attributes"][type_name] = {}
+
+                        # Extract attribute values
+                        if isinstance(type_data["attributes"], dict):
+                            for attr_name, attr_data in type_data["attributes"].items():
+                                if isinstance(attr_data, dict) and "value" in attr_data:
+                                    containers[container_id]["attributes"][type_name][attr_name] = attr_data["value"]
 
         return containers
 
@@ -241,6 +368,7 @@ class ContainerScraper:
     ) -> Dict[str, Dict[str, Any]]:
         """
         Calculate time spent in each component by action.
+        Uses IN and OUT actions to determine processing time.
 
         Args:
             container_df: DataFrame containing data for a single container
@@ -250,7 +378,7 @@ class ContainerScraper:
         """
         component_times = {}
 
-        # Group by component and action
+        # Group by component
         for comp_id, comp_df in container_df.groupby("component_id"):
             if comp_id not in component_times:
                 component_times[comp_id] = {
@@ -258,73 +386,131 @@ class ContainerScraper:
                     "actions": {},
                 }
 
-            # Process each action type for this component
+            # Extract IN and OUT actions for processing time calculation
+            in_rows = comp_df[comp_df["action"] == "IN"]
+            out_rows = comp_df[comp_df["action"] == "OUT"]
+
+            # Also look for ENTER and Exit actions as fallbacks
+            enter_rows = comp_df[comp_df["action"] == "ENTER"]
+            exit_rows = comp_df[comp_df["action"] == "Exit"]
+
+            # First try to match IN/OUT pairs
+            if not in_rows.empty:
+                # Initialize the action entry if it doesn't exist
+                if "PROCESSING" not in component_times[comp_id]["actions"]:
+                    component_times[comp_id]["actions"]["PROCESSING"] = []
+
+                # Process each IN row
+                for _, in_row in in_rows.iterrows():
+                    in_values = in_row.get("values", {})
+                    in_time = in_row["time"]  # Use the timestamp directly
+                    input_count = in_values.get("input_count") if isinstance(in_values, dict) else None
+
+                    # Try to find matching OUT row with same input_count
+                    matching_out_rows = out_rows[
+                        out_rows["values"].apply(
+                            lambda v: isinstance(v, dict) and v.get("input_count") == input_count
+                        )
+                    ] if input_count is not None else pd.DataFrame()
+
+                    # If we found a matching OUT row
+                    if not matching_out_rows.empty:
+                        # Get the first matching OUT row that occurs after the IN row
+                        matching_out_rows = matching_out_rows[matching_out_rows["time"] > in_time]
+                        if not matching_out_rows.empty:
+                            out_row = matching_out_rows.iloc[0]
+                            out_time = out_row["time"]
+                            processing_time = out_time - in_time
+
+                            # Add to component times
+                            component_times[comp_id]["actions"]["PROCESSING"].append({
+                                "in_time": in_time,
+                                "out_time": out_time,
+                                "processing_time": processing_time,
+                                "input_count": input_count,
+                                "container_id": self._extract_container_id_from_row(in_row)
+                            })
+
+            # Fallback to ENTER/Exit pairs if no IN/OUT pairs were found
+            elif not enter_rows.empty and not exit_rows.empty:
+                # Initialize the action entry if it doesn't exist
+                if "PROCESSING" not in component_times[comp_id]["actions"]:
+                    component_times[comp_id]["actions"]["PROCESSING"] = []
+
+                # Process each ENTER row
+                for _, enter_row in enter_rows.iterrows():
+                    enter_values = enter_row.get("values", {})
+                    enter_time = enter_row["time"]  # Use the timestamp directly
+                    input_count = enter_values.get("input_count") if isinstance(enter_values, dict) else None
+
+                    # Try to find matching Exit row with same input_count
+                    matching_exit_rows = exit_rows[
+                        exit_rows["values"].apply(
+                            lambda v: isinstance(v, dict) and v.get("input_count") == input_count
+                        )
+                    ] if input_count is not None else pd.DataFrame()
+
+                    # If we found a matching Exit row
+                    if not matching_exit_rows.empty:
+                        # Get the first matching Exit row that occurs after the ENTER row
+                        matching_exit_rows = matching_exit_rows[matching_exit_rows["time"] > enter_time]
+                        if not matching_exit_rows.empty:
+                            exit_row = matching_exit_rows.iloc[0]
+                            exit_time = exit_row["time"]
+                            processing_time = exit_time - enter_time
+
+                            # Add to component times
+                            component_times[comp_id]["actions"]["PROCESSING"].append({
+                                "in_time": enter_time,
+                                "out_time": exit_time,
+                                "processing_time": processing_time,
+                                "input_count": input_count,
+                                "container_id": self._extract_container_id_from_row(enter_row)
+                            })
+
+            # Process other actions (GENERATE, QUEUED, etc.)
             for action, action_df in comp_df.groupby("action"):
-                # Handle ENTER/Exit pairs to calculate processing time
-                if action == "ENTER" or action == "Exit":
-                    # Extract in_time and out_time
-                    enter_rows = action_df[action_df["action"] == "ENTER"]
-                    exit_rows = action_df[action_df["action"] == "Exit"]
+                # Skip IN/OUT actions as we've already processed them
+                if action in ["IN", "OUT", "ENTER", "Exit"]:
+                    continue
 
-                    if not enter_rows.empty and not exit_rows.empty:
-                        # Get the values dictionaries
-                        for _, enter_row in enter_rows.iterrows():
-                            values = enter_row.get("values", {})
-                            if isinstance(values, dict) and "in_time" in values:
-                                in_time = values["in_time"]
+                # Initialize the action entry if it doesn't exist
+                if action not in component_times[comp_id]["actions"]:
+                    component_times[comp_id]["actions"][action] = []
 
-                                # Find matching exit row
-                                for _, exit_row in exit_rows.iterrows():
-                                    exit_values = exit_row.get("values", {})
-                                    if (
-                                        isinstance(exit_values, dict)
-                                        and "out_time" in exit_values
-                                        and exit_values.get("input_count")
-                                        == values.get("input_count")
-                                    ):
-                                        out_time = exit_values["out_time"]
-                                        processing_time = out_time - in_time
+                # Add each action occurrence
+                for _, row in action_df.iterrows():
+                    values = row.get("values", {})
+                    action_info = {"timestamp": row["time"]}
 
-                                        # Add to component times
-                                        if (
-                                            action
-                                            not in component_times[comp_id]["actions"]
-                                        ):
-                                            component_times[comp_id]["actions"][
-                                                action
-                                            ] = []
+                    # Add any relevant values
+                    if isinstance(values, dict):
+                        for key, val in values.items():
+                            action_info[key] = val
 
-                                        component_times[comp_id]["actions"][
-                                            action
-                                        ].append(
-                                            {
-                                                "in_time": in_time,
-                                                "out_time": out_time,
-                                                "processing_time": processing_time,
-                                                "input_count": values.get(
-                                                    "input_count"
-                                                ),
-                                            }
-                                        )
+                    # Add container ID if available
+                    container_id = self._extract_container_id_from_row(row)
+                    if container_id:
+                        action_info["container_id"] = container_id
 
-                # For other actions like GENERATE, QUEUED
-                else:
-                    for _, row in action_df.iterrows():
-                        values = row.get("values", {})
-
-                        if action not in component_times[comp_id]["actions"]:
-                            component_times[comp_id]["actions"][action] = []
-
-                        action_info = {"timestamp": row["time"]}
-
-                        # Add any relevant values
-                        if isinstance(values, dict):
-                            for key, val in values.items():
-                                action_info[key] = val
-
-                        component_times[comp_id]["actions"][action].append(action_info)
+                    component_times[comp_id]["actions"][action].append(action_info)
 
         return component_times
+
+    def _extract_container_id_from_row(self, row) -> Optional[str]:
+        """
+        Helper method to extract container ID from a row's PDV field.
+
+        Args:
+            row: DataFrame row
+
+        Returns:
+            Container ID string or None if not found
+        """
+        pdv = row.get("PDV", {})
+        if isinstance(pdv, dict) and "containerId" in pdv:
+            return pdv["containerId"]
+        return None
 
     def _calculate_efficiency_metrics(
         self,
@@ -512,7 +698,8 @@ class ContainerScraper:
                 # Update processing times
                 for action_name, action_data in comp_data.get("actions", {}).items():
                     for entry in action_data:
-                        if action_name == "ENTER" or action_name == "Exit":
+                        # Look for PROCESSING action (from IN/OUT pairs) first
+                        if action_name == "PROCESSING":
                             if "processing_time" in entry:
                                 bottlenecks["components"][comp_id][
                                     "total_processing_time"
@@ -522,7 +709,27 @@ class ContainerScraper:
                                 # Track individual long processing times
                                 bottlenecks["longest_processing_times"].append(
                                     {
-                                        "container_id": container_id,
+                                        "container_id": entry.get("container_id", container_id),
+                                        "component_id": comp_id,
+                                        "processing_time": entry["processing_time"],
+                                        "input_count": entry.get("input_count"),
+                                        "in_time": entry.get("in_time"),
+                                        "out_time": entry.get("out_time"),
+                                    }
+                                )
+
+                        # Fallback to ENTER/Exit pairs if PROCESSING not found
+                        elif (action_name == "ENTER" or action_name == "Exit") and "PROCESSING" not in comp_data.get("actions", {}):
+                            if "processing_time" in entry:
+                                bottlenecks["components"][comp_id][
+                                    "total_processing_time"
+                                ] += entry["processing_time"]
+                                bottlenecks["components"][comp_id]["count"] += 1
+
+                                # Track individual long processing times
+                                bottlenecks["longest_processing_times"].append(
+                                    {
+                                        "container_id": entry.get("container_id", container_id),
                                         "component_id": comp_id,
                                         "processing_time": entry["processing_time"],
                                         "input_count": entry.get("input_count"),
@@ -538,7 +745,7 @@ class ContainerScraper:
                                 # Track individual long queue times
                                 bottlenecks["longest_queue_times"].append(
                                     {
-                                        "container_id": container_id,
+                                        "container_id": entry.get("container_id", container_id),
                                         "component_id": comp_id,
                                         "queue_length": entry["queue_length"],
                                         "timestamp": entry.get(

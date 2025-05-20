@@ -1,0 +1,68 @@
+[
+    {
+        "id": "5391b307-b77b-45d3-8a0b-1a99d14f02b1",
+        "type": "dynComp",
+        "data": {
+            "name": "gen1",
+            "id": "5391b307-b77b-45d3-8a0b-1a99d14f02b1",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": 45.30327152710734,
+            "y": 67.03209344699997
+        },
+        "measured": {
+            "width": 300,
+            "height": 281
+        },
+        "selected": false,
+        "dragging": false
+    },
+    {
+        "id": "c3617971-d268-486c-8b57-6855793f7f37",
+        "type": "dynComp",
+        "data": {
+            "name": "res1",
+            "id": "c3617971-d268-486c-8b57-6855793f7f37",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": 625.0261219225656,
+            "y": 183.09890473602798
+        },
+        "measured": {
+            "width": 300,
+            "height": 329
+        },
+        "selected": false,
+        "dragging": false
+    },
+    {
+        "id": "fd3b34f7-7dc5-45ea-a158-6b223e23b97e",
+        "type": "dynComp",
+        "data": {
+            "name": "res1 (Copy)",
+            "id": "fd3b34f7-7dc5-45ea-a158-6b223e23b97e",
+            "type": "Resource",
+            "color": "#d4a82f",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": 1162.9011219225656,
+            "y": 99.09890473602798
+        },
+        "measured": {
+            "width": 300,
+            "height": 329
+        },
+        "selected": false,
+        "dragging": false
+    }
+]

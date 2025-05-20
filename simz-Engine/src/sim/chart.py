@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Dict, Union, Optional, Tuple, Literal
+from typing import List, Dict, Union, Optional, Tuple, Literal, Any
 from pydantic import BaseModel, Field, validator
 
 
@@ -14,6 +14,7 @@ class ChartSubtype(str, Enum):
     LINE = "line"
     PIE = "pie"
     RADAR = "radar"
+    TABLE = "table"
 
 
 class BarLayout(str, Enum):
@@ -132,6 +133,19 @@ class RadarChartOptions(BaseModel):
     stroke_width: Optional[int] = Field(2, alias="strokeWidth")
 
 
+class TableChartOptions(BaseModel):
+    """Options for table charts."""
+    show_pagination: Optional[bool] = Field(True, alias="showPagination")
+    show_search: Optional[bool] = Field(True, alias="showSearch")
+    show_filters: Optional[bool] = Field(True, alias="showFilters")
+    page_size: Optional[int] = Field(10, alias="pageSize")
+    page_size_options: Optional[List[int]] = Field([5, 10, 20, 50], alias="pageSizeOptions")
+    sortable: Optional[bool] = Field(True)
+    resizable: Optional[bool] = Field(True)
+    filterable: Optional[bool] = Field(True)
+    component_properties: Optional[Dict[str, Any]] = Field({}, alias="componentProperties")
+
+
 class ChartConfig(BaseModel):
     type: Literal["chart"] = "chart"
     subtype: ChartSubtype
@@ -145,6 +159,7 @@ class ChartConfig(BaseModel):
             LineChartOptions,
             PieChartOptions,
             RadarChartOptions,
+            TableChartOptions,
         ]
     ] = None
     size: Optional[ChartSize] = None
@@ -171,6 +186,8 @@ class ChartConfig(BaseModel):
             return PieChartOptions(**v)
         elif subtype == ChartSubtype.RADAR and v:
             return RadarChartOptions(**v)
+        elif subtype == ChartSubtype.TABLE and v:
+            return TableChartOptions(**v)
         return v
 
 
@@ -573,6 +590,72 @@ class ChartBuilder:
     def to_dict(config: Union[ChartConfig, CardConfig]) -> Dict:
         """Convert config model to a dictionary for serialization"""
         return config.dict(by_alias=True, exclude_none=True)
+
+    @classmethod
+    def create_table_chart(
+        cls,
+        header: str,
+        description: str,
+        series: List[Series],
+        show_pagination: bool = True,
+        show_search: bool = True,
+        show_filters: bool = True,
+        page_size: int = 10,
+        page_size_options: List[int] = [5, 10, 20, 50],
+        sortable: bool = True,
+        resizable: bool = True,
+        filterable: bool = True,
+        component_properties: Dict[str, Any] = None,
+        cols: Optional[int] = None,
+        rows: Optional[int] = None,
+    ) -> ChartConfig:
+        """
+        Create a table chart configuration
+
+        Args:
+            header: Chart title
+            description: Chart description
+            series: List of Series objects containing data
+            show_pagination: Whether to show pagination controls
+            show_search: Whether to show search box
+            show_filters: Whether to show filter controls
+            page_size: Default number of rows per page
+            page_size_options: Available page size options
+            sortable: Whether columns are sortable
+            resizable: Whether columns are resizable
+            filterable: Whether columns are filterable
+            component_properties: Additional component-specific properties
+            cols: Number of columns (1-4) the chart should span
+            rows: Number of rows (1-4) the chart should span
+
+        Returns:
+            ChartConfig object for a table chart
+        """
+        if component_properties is None:
+            component_properties = {}
+
+        options = TableChartOptions(
+            showPagination=show_pagination,
+            showSearch=show_search,
+            showFilters=show_filters,
+            pageSize=page_size,
+            pageSizeOptions=page_size_options,
+            sortable=sortable,
+            resizable=resizable,
+            filterable=filterable,
+            componentProperties=component_properties,
+        )
+
+        size = cls.create_chart_size(cols, rows) if cols or rows else None
+
+        return ChartConfig(
+            subtype=ChartSubtype.TABLE,
+            header=header,
+            description=description,
+            series=series,
+            options=options,
+            size=size,
+        )
 
     @staticmethod
     def to_json(config: Union[ChartConfig, CardConfig]) -> str:

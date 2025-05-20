@@ -1,0 +1,140 @@
+{
+    "id": "test_sim",
+    "dashboradData": [],
+    "dashboardTable": [
+        {
+            "id": "test_table",
+            "data": [
+                {
+                    "id": "comp1",
+                    "name": "Component 1",
+                    "type": "generator",
+                    "value": 100
+                },
+                {
+                    "id": "comp2",
+                    "name": "Component 2",
+                    "type": "resource",
+                    "value": 75.5
+                },
+                {
+                    "id": "comp3",
+                    "name": "Component 3",
+                    "type": "resource",
+                    "value": 90.2
+                }
+            ],
+            "title": "Test Table",
+            "description": "A test table for the updated implementation",
+            "columnOrder": [
+                "id",
+                "name",
+                "type",
+                "value"
+            ],
+            "columnLabels": {
+                "id": "ID",
+                "name": "Name",
+                "type": "Type",
+                "value": "Value"
+            }
+        },
+        {
+            "id": "component_summary_table",
+            "data": [
+                {
+                    "id": "comp1",
+                    "name": "Generator 1",
+                    "type": "generator",
+                    "generation_count": 100,
+                    "avg_processing_time": 2.5
+                },
+                {
+                    "id": "comp2",
+                    "name": "Resource 1",
+                    "type": "resource",
+                    "capacity": 2,
+                    "utilization": 75.5,
+                    "avg_processing_time": 3.2
+                },
+                {
+                    "id": "comp3",
+                    "name": "Resource 2",
+                    "type": "resource",
+                    "capacity": 1,
+                    "utilization": 90.2,
+                    "avg_processing_time": 4.1
+                }
+            ],
+            "title": "Component Summary",
+            "description": "Summary of components in the simulation",
+            "columnOrder": [
+                "id",
+                "name",
+                "type",
+                "avg_processing_time",
+                "capacity",
+                "utilization",
+                "generation_count"
+            ],
+            "columnLabels": {
+                "id": "Id",
+                "name": "Name",
+                "type": "Type",
+                "avg_processing_time": "Avg Processing Time",
+                "capacity": "Capacity",
+                "utilization": "Utilization",
+                "generation_count": "Generation Count"
+            }
+        },
+        {
+            "id": "simulation_metrics_table",
+            "data": [
+                {
+                    "metric": "Simulation Duration",
+                    "value": 100.5,
+                    "unit": "time units",
+                    "category": "Time"
+                },
+                {
+                    "metric": "Total Components",
+                    "value": 10,
+                    "unit": "count",
+                    "category": "Components"
+                },
+                {
+                    "metric": "Total Containers",
+                    "value": 50,
+                    "unit": "count",
+                    "category": "Containers"
+                },
+                {
+                    "metric": "Average Processing Time",
+                    "value": 3.2,
+                    "unit": "time units",
+                    "category": "Processing"
+                },
+                {
+                    "metric": "Maximum Processing Time",
+                    "value": 8.5,
+                    "unit": "time units",
+                    "category": "Processing"
+                }
+            ],
+            "title": "Simulation Metrics",
+            "description": "Key metrics from the simulation run",
+            "columnOrder": [
+                "category",
+                "unit",
+                "value",
+                "metric"
+            ],
+            "columnLabels": {
+                "unit": "Unit",
+                "value": "Value",
+                "metric": "Metric",
+                "category": "Category"
+            }
+        }
+    ]
+}

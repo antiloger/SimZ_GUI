@@ -1,0 +1,96 @@
+{
+    "id": "test_table",
+    "title": "Test Table",
+    "description": "A test table for the new implementation",
+    "columns": [
+        {
+            "id": "id",
+            "header": "ID",
+            "accessor": "id",
+            "type": "string",
+            "sortable": true,
+            "filterable": true,
+            "width": null,
+            "minWidth": null,
+            "maxWidth": null,
+            "align": "left",
+            "format": null
+        },
+        {
+            "id": "name",
+            "header": "Name",
+            "accessor": "name",
+            "type": "string",
+            "sortable": true,
+            "filterable": true,
+            "width": null,
+            "minWidth": null,
+            "maxWidth": null,
+            "align": "left",
+            "format": null
+        },
+        {
+            "id": "type",
+            "header": "Type",
+            "accessor": "type",
+            "type": "string",
+            "sortable": true,
+            "filterable": true,
+            "width": null,
+            "minWidth": null,
+            "maxWidth": null,
+            "align": "left",
+            "format": null
+        },
+        {
+            "id": "value",
+            "header": "Value",
+            "accessor": "value",
+            "type": "number",
+            "sortable": true,
+            "filterable": true,
+            "width": null,
+            "minWidth": null,
+            "maxWidth": null,
+            "align": "right",
+            "format": null
+        }
+    ],
+    "data": [
+        {
+            "id": "comp1",
+            "name": "Component 1",
+            "type": "generator",
+            "value": 100
+        },
+        {
+            "id": "comp2",
+            "name": "Component 2",
+            "type": "resource",
+            "value": 75.5
+        },
+        {
+            "id": "comp3",
+            "name": "Component 3",
+            "type": "resource",
+            "value": 90.2
+        }
+    ],
+    "options": {
+        "showPagination": true,
+        "showSearch": true,
+        "showFilters": true,
+        "pageSize": 10,
+        "pageSizeOptions": [
+            5,
+            10,
+            20,
+            50
+        ],
+        "sortable": true,
+        "resizable": true,
+        "filterable": true,
+        "defaultSortField": "name",
+        "defaultSortDirection": "asc"
+    }
+}

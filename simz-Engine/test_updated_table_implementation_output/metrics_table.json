@@ -1,0 +1,49 @@
+{
+    "id": "simulation_metrics_table",
+    "data": [
+        {
+            "metric": "Simulation Duration",
+            "value": 100.5,
+            "unit": "time units",
+            "category": "Time"
+        },
+        {
+            "metric": "Total Components",
+            "value": 10,
+            "unit": "count",
+            "category": "Components"
+        },
+        {
+            "metric": "Total Containers",
+            "value": 50,
+            "unit": "count",
+            "category": "Containers"
+        },
+        {
+            "metric": "Average Processing Time",
+            "value": 3.2,
+            "unit": "time units",
+            "category": "Processing"
+        },
+        {
+            "metric": "Maximum Processing Time",
+            "value": 8.5,
+            "unit": "time units",
+            "category": "Processing"
+        }
+    ],
+    "title": "Simulation Metrics",
+    "description": "Key metrics from the simulation run",
+    "columnOrder": [
+        "category",
+        "unit",
+        "value",
+        "metric"
+    ],
+    "columnLabels": {
+        "unit": "Unit",
+        "value": "Value",
+        "metric": "Metric",
+        "category": "Category"
+    }
+}

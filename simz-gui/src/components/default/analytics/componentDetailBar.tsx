@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button"
-import { MoreVertical, Workflow } from "lucide-react"
+import { Workflow } from "lucide-react"
 
 interface ComponentDetailBarProps {
   componentName: string
@@ -14,7 +13,7 @@ export default function ComponentDetailBar({ componentName, componentType }: Com
           <Workflow color="white" />
         </div>
         <div className="flex flex-col  gap-x-2">
-          <h1 className="text-gray-700 font-bold text-sm">Compoenet Name</h1>
+          <h1 className="text-gray-700 font-bold text-sm">Compoenet Id</h1>
           <h1 className=" font-semibold text-lg">{componentName}</h1>
         </div>
       </div>
@@ -23,9 +22,6 @@ export default function ComponentDetailBar({ componentName, componentType }: Com
           <h1 className="text-gray-700 font-bold text-sm">
             {componentType}
           </h1>
-          <Button size="sm">
-            <MoreVertical />
-          </Button>
         </div>
       </div>
     </div>

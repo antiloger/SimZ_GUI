@@ -1,0 +1,108 @@
+{
+    "id": "simulation_metrics_table",
+    "title": "Simulation Metrics",
+    "description": "Key metrics from the simulation run",
+    "columns": [
+        {
+            "id": "category",
+            "header": "Category",
+            "accessor": "category",
+            "type": "string",
+            "sortable": true,
+            "filterable": true,
+            "width": null,
+            "minWidth": null,
+            "maxWidth": null,
+            "align": "left",
+            "format": null
+        },
+        {
+            "id": "value",
+            "header": "Value",
+            "accessor": "value",
+            "type": "number",
+            "sortable": true,
+            "filterable": true,
+            "width": null,
+            "minWidth": null,
+            "maxWidth": null,
+            "align": "right",
+            "format": null
+        },
+        {
+            "id": "unit",
+            "header": "Unit",
+            "accessor": "unit",
+            "type": "string",
+            "sortable": true,
+            "filterable": true,
+            "width": null,
+            "minWidth": null,
+            "maxWidth": null,
+            "align": "left",
+            "format": null
+        },
+        {
+            "id": "metric",
+            "header": "Metric",
+            "accessor": "metric",
+            "type": "string",
+            "sortable": true,
+            "filterable": true,
+            "width": null,
+            "minWidth": null,
+            "maxWidth": null,
+            "align": "left",
+            "format": null
+        }
+    ],
+    "data": [
+        {
+            "metric": "Simulation Duration",
+            "value": 100.5,
+            "unit": "time units",
+            "category": "Time"
+        },
+        {
+            "metric": "Total Components",
+            "value": 10,
+            "unit": "count",
+            "category": "Components"
+        },
+        {
+            "metric": "Total Containers",
+            "value": 50,
+            "unit": "count",
+            "category": "Containers"
+        },
+        {
+            "metric": "Average Processing Time",
+            "value": 3.2,
+            "unit": "time units",
+            "category": "Processing"
+        },
+        {
+            "metric": "Maximum Processing Time",
+            "value": 8.5,
+            "unit": "time units",
+            "category": "Processing"
+        }
+    ],
+    "options": {
+        "showPagination": true,
+        "showSearch": true,
+        "showFilters": true,
+        "pageSize": 10,
+        "pageSizeOptions": [
+            5,
+            10,
+            20,
+            50
+        ],
+        "sortable": true,
+        "resizable": true,
+        "filterable": true,
+        "defaultSortField": "category",
+        "defaultSortDirection": "asc"
+    }
+}

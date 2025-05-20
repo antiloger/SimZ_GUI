@@ -1,0 +1,90 @@
+[
+    {
+        "id": "ec98113f-9a52-4226-8147-b2229dd79e9f",
+        "type": "dynComp",
+        "data": {
+            "name": "water_gen",
+            "id": "ec98113f-9a52-4226-8147-b2229dd79e9f",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": -829.302873670294,
+            "y": 444.20420075375955
+        },
+        "measured": {
+            "width": 300,
+            "height": 281
+        },
+        "selected": false,
+        "dragging": false
+    },
+    {
+        "id": "cf45bf07-f56e-478c-9c49-3ef8b033258a",
+        "type": "dynComp",
+        "data": {
+            "name": "clorine_gen",
+            "id": "cf45bf07-f56e-478c-9c49-3ef8b033258a",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": -840.2424235487722,
+            "y": -48.504356733452184
+        },
+        "measured": {
+            "width": 300,
+            "height": 281
+        },
+        "selected": false,
+        "dragging": false
+    },
+    {
+        "id": "d0e4d5c3-0732-4463-8fb2-ec15da088990",
+        "type": "dynComp",
+        "data": {
+            "name": "mixer_machine01",
+            "id": "d0e4d5c3-0732-4463-8fb2-ec15da088990",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": -86.23817039458879,
+            "y": 77.61859833078987
+        },
+        "measured": {
+            "width": 300,
+            "height": 435
+        },
+        "selected": false,
+        "dragging": false
+    },
+    {
+        "id": "41b79005-4612-4ce5-8d6a-a79ec43328e4",
+        "type": "dynComp",
+        "data": {
+            "name": "cleanup_machine01",
+            "id": "41b79005-4612-4ce5-8d6a-a79ec43328e4",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": 510.1770388839055,
+            "y": 43.74878583628882
+        },
+        "measured": {
+            "width": 300,
+            "height": 377
+        },
+        "selected": false,
+        "dragging": false
+    }
+]

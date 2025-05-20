@@ -1,0 +1,15 @@
+{
+    "counts": {
+        "product": 200
+    },
+    "percentages": {
+        "product": 100.0
+    },
+    "data_points": [
+        {
+            "x": "product",
+            "y": 100.0
+        }
+    ],
+    "total_count": 200
+}

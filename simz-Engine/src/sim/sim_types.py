@@ -401,20 +401,38 @@ class GenContainer(BaseModel):
         return None, None
 
     def Display(self) -> Dict[str, Any]:
-        result = self.dict(include={"containerId", "Data"})
-        # rename the “Data” key to “types” and massage the attrs
-        result["types"] = {
-            key: {
-                "typeName": gen["typeName"],
-                "genComponentId": gen["genComponentId"],
+        """
+        Convert the container to a serializable dictionary for logging and display.
+        Ensures the output is valid JSON.
+        """
+        # Create a clean dictionary with only the needed fields
+        result = {
+            "containerId": self.containerId,
+            "types": {}
+        }
+
+        # Process each GenType in the Data dictionary
+        for key, gen in self.Data.items():
+            result["types"][key] = {
+                "typeName": gen.typeName,
+                "genComponentId": gen.genComponentId,
                 "attributes": {
-                    k: {"type": v["type"], "value": v["value"]}
-                    for k, v in gen["attributes"].items()
+                    k: {"type": v.type, "value": v.value}
+                    for k, v in gen.attributes.items()
                 },
             }
-            for key, gen in result.pop("Data").items()
-        }
+
         return result
+
+    def checkType(self, type_name: str) -> bool:
+        """
+        Check if the type exists in the Data dictionary.
+        """
+        for key, gen in self.Data.items():
+            if gen.typeName == type_name:
+                return True
+        return False
+
 
 
 # -----------------------------
@@ -504,6 +522,7 @@ class Edge(BaseModel):
 class SimOutput(BaseModel):
     id: str
     dashboradData: List[Union[CardConfig, ChartConfig]] = []
+    dashboardTable: List[Dict[str, Any]] = []
 
     def add_card(self, card: CardConfig) -> None:
         """
@@ -516,6 +535,24 @@ class SimOutput(BaseModel):
         Add a chart to the dashboard data.
         """
         self.dashboradData.append(chart)
+
+    def add_table(self, table_data: Dict[str, Any]) -> None:
+        """
+        Add table data to the dashboard tables.
+
+        Args:
+            table_data: Dictionary containing table data with structure matching TypeScript interface:
+                {
+                    "id": str,
+                    "data": List[Dict[str, Any]],
+                    "title": Optional[str],
+                    "description": Optional[str],
+                    "columnOrder": Optional[List[str]],
+                    "columnLabels": Optional[Dict[str, str]],
+                    "excludeColumns": Optional[List[str]]
+                }
+        """
+        self.dashboardTable.append(table_data)
 
 
 class ComponentOutput(BaseModel):
@@ -523,6 +560,7 @@ class ComponentOutput(BaseModel):
     name: str
     type: str
     dashboradData: List[Union[CardConfig, ChartConfig]] = []
+    dashboardTable: List[Dict[str, Any]] = []
 
     def add_card(self, card: CardConfig) -> None:
         """
@@ -535,3 +573,21 @@ class ComponentOutput(BaseModel):
         Add a chart to the dashboard data.
         """
         self.dashboradData.append(chart)
+
+    def add_table(self, table_data: Dict[str, Any]) -> None:
+        """
+        Add table data to the dashboard tables.
+
+        Args:
+            table_data: Dictionary containing table data with structure matching TypeScript interface:
+                {
+                    "id": str,
+                    "data": List[Dict[str, Any]],
+                    "title": Optional[str],
+                    "description": Optional[str],
+                    "columnOrder": Optional[List[str]],
+                    "columnLabels": Optional[Dict[str, str]],
+                    "excludeColumns": Optional[List[str]]
+                }
+        """
+        self.dashboardTable.append(table_data)

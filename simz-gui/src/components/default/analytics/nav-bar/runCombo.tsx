@@ -43,7 +43,7 @@ export function AnalyticNavCombo({
       </PopoverTrigger>
       <PopoverContent className={`${width} p-0`}>
         <Command>
-          <CommandInput placeholder={searchPlaceholder} className="h-9" />
+          <CommandInput placeholder={searchPlaceholder} className="h-9 w-full" />
           <CommandList>
             <CommandEmpty>{emptyMessage}</CommandEmpty>
             <CommandGroup>

@@ -1,0 +1,85 @@
+{
+    "id": "gen1",
+    "name": "Generator gen1",
+    "type": "generator",
+    "dashboradData": [
+        {
+            "type": "card",
+            "header": "Generation Rate",
+            "description": "Entities generated per time unit",
+            "value": 0.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Total Entities",
+            "description": "Total number of entities generated",
+            "value": 0.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "line",
+            "header": "Entity Generation Pattern",
+            "description": "Timing of entity generation events",
+            "series": [
+                {
+                    "name": "Generation Time",
+                    "data": [],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Simulation Time",
+                "x_axis_label": "Entity Number",
+                "type": "linear",
+                "show_dots": true,
+                "dot_size": 4,
+                "active_dot_size": 6,
+                "stroke_width": 2
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Component Efficiency",
+            "description": "Ratio of productive actions to total actions",
+            "value": 0.0,
+            "value_suffix": "%",
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": {
+                "value": 0.0,
+                "direction": "down",
+                "label": "Efficiency Score"
+            },
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        }
+    ]
+}

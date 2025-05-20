@@ -1,0 +1,126 @@
+{
+    "id": "cf45bf07-f56e-478c-9c49-3ef8b033258a",
+    "name": "Generator cf45bf07-f56e-478c-9c49-3ef8b033258a",
+    "type": "generator",
+    "dashboradData": [
+        {
+            "type": "card",
+            "header": "Generation Rate",
+            "description": "Entities generated per time unit",
+            "value": 0.37,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Total Entities",
+            "description": "Total number of entities generated",
+            "value": 10.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "line",
+            "header": "Entity Generation Pattern",
+            "description": "Timing of entity generation events",
+            "series": [
+                {
+                    "name": "Generation Time",
+                    "data": [
+                        {
+                            "x": "1",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "2",
+                            "y": 6.0
+                        },
+                        {
+                            "x": "3",
+                            "y": 9.0
+                        },
+                        {
+                            "x": "4",
+                            "y": 12.0
+                        },
+                        {
+                            "x": "5",
+                            "y": 15.0
+                        },
+                        {
+                            "x": "6",
+                            "y": 18.0
+                        },
+                        {
+                            "x": "7",
+                            "y": 21.0
+                        },
+                        {
+                            "x": "8",
+                            "y": 24.0
+                        },
+                        {
+                            "x": "9",
+                            "y": 27.0
+                        },
+                        {
+                            "x": "10",
+                            "y": 30.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Simulation Time",
+                "x_axis_label": "Entity Number",
+                "type": "linear",
+                "show_dots": true,
+                "dot_size": 4,
+                "active_dot_size": 6,
+                "stroke_width": 2
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Component Efficiency",
+            "description": "Ratio of productive actions to total actions",
+            "value": 100.0,
+            "value_suffix": "%",
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": {
+                "value": 100.0,
+                "direction": "up",
+                "label": "Efficiency Score"
+            },
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        }
+    ]
+}

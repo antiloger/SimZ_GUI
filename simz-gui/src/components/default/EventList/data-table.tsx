@@ -22,7 +22,7 @@ export function DataTable({ runId }: DataTableProps) {
   const [totalRecords, setTotalRecords] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [columns, setColumns] = useState<string[]>([])
-
+  const [componentNames, setComponentNames] = useState<{[key: string]: string}>({})
   //
   // Pagination state
   const [page, setPage] = useState(1)
@@ -43,7 +43,7 @@ export function DataTable({ runId }: DataTableProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const { projectName } = SimDataState()
-  const { geteventlist } = useSocketStore()
+  const { geteventlist, check_socket_endpoint } = useSocketStore()
 
   // Fetch data
   const fetchData = async () => {
@@ -62,22 +62,30 @@ export function DataTable({ runId }: DataTableProps) {
       //   include_columns: ["time", "component_id", "component_type", "action", "values", "PDV", "addition"]
       // })
 
+
+      const data = await check_socket_endpoint("get_component_names", {
+        project_name: projectName,
+        run_id: runId,
+      })
+
+      setComponentNames(data)
+
       // For demonstration, we'll use mock data
-      if (!projectName) { return}
+      if (!projectName) { return }
       console.log("[EVENTLIST] Fetching data for project:", page, pageSize, sortColumn, sortDirection, searchQuery, searchColumns, filterConditions)
       const response = await geteventlist(
         projectName,
         runId,
         {
-        page: page,
-        page_size: pageSize,
-        sort_column: sortColumn,
-        sort_direction: sortDirection,
-        search_query: searchQuery,
-        search_columns: searchColumns.length > 0 ? searchColumns : undefined,
-        filter_conditions: Object.keys(filterConditions).length > 0 ? filterConditions : undefined,
+          page: page,
+          page_size: pageSize,
+          sort_column: sortColumn,
+          sort_direction: sortDirection,
+          search_query: searchQuery,
+          search_columns: searchColumns.length > 0 ? searchColumns : undefined,
+          filter_conditions: Object.keys(filterConditions).length > 0 ? filterConditions : undefined,
         } as EventListParams,
-      ) 
+      )
 
       console.log("[EVENTLIST] Fetched data:", response)
 
@@ -95,7 +103,7 @@ export function DataTable({ runId }: DataTableProps) {
   // Initial data fetch and when dependencies change
   useEffect(() => {
     fetchData()
-  }, [page, pageSize, sortColumn, sortDirection, searchQuery, JSON.stringify(filterConditions)])
+  }, [page, pageSize, sortColumn, sortDirection, searchQuery, JSON.stringify(filterConditions), runId, projectName])
 
   // Handle sort
   const handleSort = (column: string) => {
@@ -166,10 +174,10 @@ export function DataTable({ runId }: DataTableProps) {
 
           {/* Component ID input */}
           <div>
-            <label className="text-sm font-medium mb-1 block">Component ID</label>
+            <label className="text-sm font-medium mb-1 block">Component Name & ID</label>
             <Input
               type="text"
-              placeholder="Enter component ID"
+              placeholder="Enter component ID or name"
               value={filterConditions.component_id || ""}
               onChange={(e) => {
                 const value = e.target.value
@@ -316,7 +324,9 @@ export function DataTable({ runId }: DataTableProps) {
               {visibleColumns.map((column) => (
                 <TableHead key={column} className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort(column)}>
                   <div className="flex items-center">
-                    {column.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                    {column === "component_id"
+                      ? "Component Name & ID"
+                      : column.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                     {sortColumn === column && <span className="ml-1">{sortDirection === "asc" ? "↑" : "↓"}</span>}
                   </div>
                 </TableHead>
@@ -342,9 +352,25 @@ export function DataTable({ runId }: DataTableProps) {
                 <TableRow key={index}>
                   {visibleColumns.map((column) => (
                     <TableCell key={column}>
-                      {typeof row[column] === "object"
-                        ? JSON.stringify(row[column]).substring(0, 30) + "..."
-                        : String(row[column])}
+                      {column === "component_id" ? (
+                        <div>
+                          {row[column] && typeof row[column] === 'string' && componentNames[row[column]] ? (
+                            <>
+                              <span className="font-medium">{componentNames[row[column]]}</span>
+                              <span className="text-xs text-muted-foreground ml-1">
+                                ({row[column].substring(0, 8)}...)
+                              </span>
+                            </>
+                          ) : (
+                            // If no name is found, just display the ID
+                            String(row[column])
+                          )}
+                        </div>
+                      ) : typeof row[column] === "object" ? (
+                        JSON.stringify(row[column]).substring(0, 30) + "..."
+                      ) : (
+                        String(row[column])
+                      )}
                     </TableCell>
                   ))}
                   <TableCell>
@@ -385,7 +411,12 @@ export function DataTable({ runId }: DataTableProps) {
       </div>
 
       {/* Detail dialog */}
-      <DataTableDialog open={dialogOpen} onOpenChange={setDialogOpen} data={selectedRow} />
+      <DataTableDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        data={selectedRow}
+        componentNames={componentNames}
+      />
     </div>
   )
 }

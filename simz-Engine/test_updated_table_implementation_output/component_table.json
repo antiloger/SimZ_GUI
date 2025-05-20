@@ -1,0 +1,48 @@
+{
+    "id": "component_summary_table",
+    "data": [
+        {
+            "id": "comp1",
+            "name": "Generator 1",
+            "type": "generator",
+            "generation_count": 100,
+            "avg_processing_time": 2.5
+        },
+        {
+            "id": "comp2",
+            "name": "Resource 1",
+            "type": "resource",
+            "capacity": 2,
+            "utilization": 75.5,
+            "avg_processing_time": 3.2
+        },
+        {
+            "id": "comp3",
+            "name": "Resource 2",
+            "type": "resource",
+            "capacity": 1,
+            "utilization": 90.2,
+            "avg_processing_time": 4.1
+        }
+    ],
+    "title": "Component Summary",
+    "description": "Summary of components in the simulation",
+    "columnOrder": [
+        "id",
+        "name",
+        "type",
+        "avg_processing_time",
+        "capacity",
+        "utilization",
+        "generation_count"
+    ],
+    "columnLabels": {
+        "id": "Id",
+        "name": "Name",
+        "type": "Type",
+        "avg_processing_time": "Avg Processing Time",
+        "capacity": "Capacity",
+        "utilization": "Utilization",
+        "generation_count": "Generation Count"
+    }
+}

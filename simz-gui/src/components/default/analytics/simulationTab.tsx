@@ -61,7 +61,7 @@ export default function SimulationTab({ project_name, runId }: DataTableProps) {
         <SimulationOverviewAnalyticsBuild project_name={project_name} runId={runId} />
       </TabsContent>
       <TabsContent value="tab-2">
-        <AnalyticsBuild />
+        <AnalyticsBuild projectName={project_name} runId={runId} />
       </TabsContent>
       <TabsContent value="tab-3">
         <DataTable runId={runId} />

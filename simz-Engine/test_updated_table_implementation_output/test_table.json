@@ -1,0 +1,37 @@
+{
+    "id": "test_table",
+    "data": [
+        {
+            "id": "comp1",
+            "name": "Component 1",
+            "type": "generator",
+            "value": 100
+        },
+        {
+            "id": "comp2",
+            "name": "Component 2",
+            "type": "resource",
+            "value": 75.5
+        },
+        {
+            "id": "comp3",
+            "name": "Component 3",
+            "type": "resource",
+            "value": 90.2
+        }
+    ],
+    "title": "Test Table",
+    "description": "A test table for the updated implementation",
+    "columnOrder": [
+        "id",
+        "name",
+        "type",
+        "value"
+    ],
+    "columnLabels": {
+        "id": "ID",
+        "name": "Name",
+        "type": "Type",
+        "value": "Value"
+    }
+}

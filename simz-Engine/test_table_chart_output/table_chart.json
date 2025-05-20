@@ -1,0 +1,75 @@
+{
+    "type": "chart",
+    "subtype": "table",
+    "header": "Component Summary",
+    "description": "Summary of components in the simulation",
+    "series": [
+        {
+            "name": "Components",
+            "data": [
+                {
+                    "x": "component1",
+                    "y": 1.0
+                },
+                {
+                    "x": "component2",
+                    "y": 1.0
+                },
+                {
+                    "x": "component3",
+                    "y": 1.0
+                }
+            ],
+            "color": null
+        }
+    ],
+    "options": {
+        "show_pagination": true,
+        "show_search": true,
+        "show_filters": true,
+        "page_size": 10,
+        "page_size_options": [
+            5,
+            10,
+            20,
+            50
+        ],
+        "sortable": true,
+        "resizable": true,
+        "filterable": true,
+        "component_properties": {
+            "components": [
+                {
+                    "id": "component1",
+                    "name": "Generator 1",
+                    "type": "generator",
+                    "properties": {
+                        "generation_count": 100
+                    }
+                },
+                {
+                    "id": "component2",
+                    "name": "Resource 1",
+                    "type": "resource",
+                    "properties": {
+                        "capacity": 2,
+                        "utilization": 75.5
+                    }
+                },
+                {
+                    "id": "component3",
+                    "name": "Resource 2",
+                    "type": "resource",
+                    "properties": {
+                        "capacity": 1,
+                        "utilization": 90.2
+                    }
+                }
+            ]
+        }
+    },
+    "size": {
+        "cols": 4,
+        "rows": 1
+    }
+}

@@ -1,0 +1,23 @@
+[
+    {
+        "source": "cf45bf07-f56e-478c-9c49-3ef8b033258a",
+        "sourceHandle": "9f50afac-6c70-4ee7-84b2-ad17d8657729-out",
+        "target": "d0e4d5c3-0732-4463-8fb2-ec15da088990",
+        "targetHandle": "mixer-in",
+        "id": "xy-edge__cf45bf07-f56e-478c-9c49-3ef8b033258a9f50afac-6c70-4ee7-84b2-ad17d8657729-out-d0e4d5c3-0732-4463-8fb2-ec15da088990mixer-in"
+    },
+    {
+        "source": "ec98113f-9a52-4226-8147-b2229dd79e9f",
+        "sourceHandle": "2c5132c3-bf5a-4a63-8a59-47fbee501157-out",
+        "target": "d0e4d5c3-0732-4463-8fb2-ec15da088990",
+        "targetHandle": "mixer-in",
+        "id": "xy-edge__ec98113f-9a52-4226-8147-b2229dd79e9f2c5132c3-bf5a-4a63-8a59-47fbee501157-out-d0e4d5c3-0732-4463-8fb2-ec15da088990mixer-in"
+    },
+    {
+        "source": "d0e4d5c3-0732-4463-8fb2-ec15da088990",
+        "sourceHandle": "9129d263-0a66-4bab-8de0-0fc7da3bcd75-out",
+        "target": "41b79005-4612-4ce5-8d6a-a79ec43328e4",
+        "targetHandle": "clean-in",
+        "id": "xy-edge__d0e4d5c3-0732-4463-8fb2-ec15da0889909129d263-0a66-4bab-8de0-0fc7da3bcd75-out-41b79005-4612-4ce5-8d6a-a79ec43328e4clean-in"
+    }
+]

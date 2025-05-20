@@ -1,0 +1,119 @@
+{
+    "id": "2025-05-20-21-37-30",
+    "dashboradData": [
+        {
+            "type": "card",
+            "header": "Total Components",
+            "description": "Total number of components in the simulation",
+            "value": 3.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Total Containers",
+            "description": "Total number of Containers in the simulation",
+            "value": 0.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Total GenTypes",
+            "description": "Total number of GenTypes in the simulation",
+            "value": 1.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        }
+    ],
+    "dashboardTable": [
+        {
+            "id": "component_comparison_table",
+            "data": [
+                {
+                    "id": "5391b307-b77b-45d3-8a0b-1a99d14f02b1",
+                    "name": "Generator 5391b307-b77b-45d3-8a0b-1a99d14f02b1",
+                    "type": "generator",
+                    "efficiency": 0.0,
+                    "avg_processing_time": 0.0,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 0,
+                    "utilization": 0.0,
+                    "optimization_score": 53.0,
+                    "generation_count": 0
+                },
+                {
+                    "id": "c3617971-d268-486c-8b57-6855793f7f37",
+                    "name": "Resource c3617971-d268-486c-8b57-6855793f7f37",
+                    "type": "resource",
+                    "efficiency": 0.0,
+                    "avg_processing_time": 0.0,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 0,
+                    "utilization": 0.0,
+                    "optimization_score": 42.0
+                },
+                {
+                    "id": "fd3b34f7-7dc5-45ea-a158-6b223e23b97e",
+                    "name": "Resource fd3b34f7-7dc5-45ea-a158-6b223e23b97e",
+                    "type": "resource",
+                    "efficiency": 0.0,
+                    "avg_processing_time": 0.0,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 0,
+                    "utilization": 0.0,
+                    "optimization_score": 42.0
+                }
+            ],
+            "title": "Component Performance Comparison",
+            "description": "Comparison of key performance indicators across all components",
+            "columnOrder": [
+                "id",
+                "name",
+                "type",
+                "efficiency",
+                "optimization_score",
+                "avg_processing_time",
+                "in_out_processing_time",
+                "processing_count",
+                "utilization",
+                "generation_count"
+            ],
+            "columnLabels": {
+                "id": "ID",
+                "name": "Name",
+                "type": "Type",
+                "efficiency": "Efficiency (%)",
+                "optimization_score": "Optimization Score",
+                "avg_processing_time": "Avg. Processing Time",
+                "in_out_processing_time": "IN/OUT Processing Time",
+                "processing_count": "Processed Count",
+                "utilization": "Utilization (%)",
+                "generation_count": "Generation Count",
+                "avg_queue_length": "Avg. Queue Length",
+                "max_queue_length": "Max Queue Length"
+            }
+        }
+    ]
+}

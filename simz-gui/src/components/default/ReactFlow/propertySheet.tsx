@@ -12,6 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { AddTypesGen } from "../formBuilder/GenConfigForms"
 import { CodeEditorModel } from "../codeflow/codemodel"
 import CustomeInputBuilder from "../customInputBuilder/builder"
+import FileUploadModel from "../modelUploader/model-uploader"
 
 
 export default function PropertySheet() {
@@ -99,6 +100,9 @@ export default function PropertySheet() {
             {/* </div> */}
             <div>
               <CodeEditorModel componentId={content?.id ?? ""} />
+            </div>
+            <div>
+              <FileUploadModel />
             </div>
           </div>
         </ScrollArea>

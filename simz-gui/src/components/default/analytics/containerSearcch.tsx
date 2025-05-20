@@ -7,158 +7,69 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { useSocketStore } from "@/utils/socketIo"
 
-// Updated data structure
-const initialData = {
-  container_id: "697d7d347b444e9787511ee4ef745951",
-  start_time: 2,
-  end_time: 9,
-  total_processing_time: 7,
+// Define the type for container data
+interface ContainerType {
+  typeName: string;
+  genComponentId: string;
   attributes: {
-    Water: {
-      ph: 54,
-    },
-  },
+    [key: string]: {
+      type: string;
+      value: number | string;
+    }
+  }
+}
+
+interface ContainerAction {
+  action: string;
+  timestamp: number;
+  attributes: {
+    [key: string]: {
+      [key: string]: number | string;
+    }
+  };
+  values: {
+    [key: string]: number | string;
+  }
+}
+
+interface ComponentWorkflow {
+  component_id: string;
+  component_type: string;
+  actions: ContainerAction[];
+}
+
+interface ContainerData {
+  container_id: string;
+  start_time: number;
+  end_time: number;
+  total_processing_time: number;
+  attributes: {
+    [key: string]: {
+      [key: string]: number | string;
+    }
+  };
   types: {
-    "77984a0e-c500-4b35-939c-14ad0ca0ec68": {
-      typeName: "Water",
-      genComponentId: "b59350a1-9ca8-4ab9-ae68-402099c69765",
-      attributes: {
-        ph: {
-          type: "number",
-          value: 54,
-        },
-      },
-    },
-  },
-  combined_workflow: [
-    {
-      component_id: "b59350a1-9ca8-4ab9-ae68-402099c69765",
-      component_type: "generator",
-      actions: [
-        {
-          action: "GENERATE",
-          timestamp: 2,
-          attributes: {
-            Water: {
-              ph: 54,
-            },
-          },
-          values: {
-            input_count: 1,
-            run_count: 1,
-            out_time: 2,
-          },
-        },
-      ],
-    },
-    {
-      component_id: "84986f37-da38-4d45-83b1-ac900113f303",
-      component_type: "resource",
-      actions: [
-        {
-          action: "QUEUED",
-          timestamp: 2,
-          attributes: {
-            Water: {
-              ph: 54,
-            },
-          },
-          values: {
-            queue_length: 0,
-            in_time: 2,
-          },
-        },
-        {
-          action: "ENTER",
-          timestamp: 2,
-          attributes: {
-            Water: {
-              ph: 54,
-            },
-          },
-          values: {
-            input_count: 1,
-            run_count: 1,
-          },
-        },
-        {
-          action: "Exit",
-          timestamp: 6,
-          attributes: {
-            Water: {
-              ph: 54,
-            },
-          },
-          values: {
-            input_count: 2,
-            run_count: 2,
-            out_time: 6,
-          },
-        },
-      ],
-    },
-    {
-      component_id: "c36c9056-68fc-49cf-8ef2-19aaa04a22c9",
-      component_type: "resource",
-      actions: [
-        {
-          action: "QUEUED",
-          timestamp: 6,
-          attributes: {
-            Water: {
-              ph: 54,
-            },
-          },
-          values: {
-            queue_length: 0,
-            in_time: 6,
-          },
-        },
-        {
-          action: "ENTER",
-          timestamp: 6,
-          attributes: {
-            Water: {
-              ph: 54,
-            },
-          },
-          values: {
-            input_count: 1,
-            run_count: 1,
-          },
-        },
-        {
-          action: "Exit",
-          timestamp: 9,
-          attributes: {
-            Water: {
-              ph: 54,
-            },
-          },
-          values: {
-            input_count: 1,
-            run_count: 1,
-            out_time: 9,
-          },
-        },
-      ],
-    },
-  ],
+    [key: string]: ContainerType;
+  };
+  combined_workflow: ComponentWorkflow[];
 }
 
 interface ContainerDataProps {
-  projcetName: string
-  runId: string
+  projcetName: string;
+  runId: string;
+  componentId?: string; // Optional componentId for filtering
 }
 
-export default function ContainerDataViewer({ projcetName, runId }: ContainerDataProps) {
+export default function ContainerDataViewer({ projcetName, runId, componentId }: ContainerDataProps) {
   const [searchQuery, setSearchQuery] = useState("")
-  const [data, setData] = useState(initialData)
+  const [data, setData] = useState<ContainerData | null>(null)
+  const [isSearched, setIsSearched] = useState(false)
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [componentNames, setComponentNames] = useState<{[key: string]: string}>({})
 
-  // Filter data based on search query
-  const filteredData = searchQuery ? (data.container_id.includes(searchQuery) ? data : null) : data
   const { check_socket_endpoint } = useSocketStore()
+
   const toggleRow = (componentId: string) => {
     if (expandedRow === componentId) {
       setExpandedRow(null)
@@ -168,14 +79,44 @@ export default function ContainerDataViewer({ projcetName, runId }: ContainerDat
   }
 
   // Helper function to get unique action names for a component
-  const getUniqueActionNames = (component: any) => {
-    return [...new Set(component.actions.map((action: any) => action.action))]
+  const getUniqueActionNames = (component: ComponentWorkflow) => {
+    return [...new Set(component.actions.map((action) => action.action))]
+  }
+
+  // Function to fetch component names
+  const fetchComponentNames = async () => {
+    try {
+      const namesData = await check_socket_endpoint("get_component_names", {
+        project_name: projcetName,
+        run_id: runId,
+      })
+      setComponentNames(namesData || {})
+    } catch (error) {
+      console.error("Error fetching component names:", error)
+    }
   }
 
   const getData = async () => {
     if (searchQuery) {
-      const data = await check_socket_endpoint("get_container_data", { "project_name": projcetName, "run_id": runId, "container_id": searchQuery })
-      setData(data)
+      setIsLoading(true)
+      setIsSearched(true)
+      try {
+        // Fetch container data
+        const result = await check_socket_endpoint("get_container_data", {
+          "project_name": projcetName,
+          "run_id": runId,
+          "container_id": searchQuery
+        })
+        setData(result)
+
+        // Fetch component names
+        await fetchComponentNames()
+      } catch (error) {
+        console.error("Error fetching container data:", error)
+        setData(null)
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -192,9 +133,22 @@ export default function ContainerDataViewer({ projcetName, runId }: ContainerDat
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <Button onClick={getData} >Search</Button>
+        <Button onClick={getData} disabled={isLoading || !searchQuery}>
+          {isLoading ? "Searching..." : "Search"}
+        </Button>
       </div>
-      {filteredData ? (
+
+      {isLoading ? (
+        <div className="text-center py-12 border rounded-lg">
+          <h2 className="text-xl font-medium">Loading...</h2>
+          <p className="text-muted-foreground mt-2">Searching for container data</p>
+        </div>
+      ) : !isSearched ? (
+        <div className="text-center py-12 border rounded-lg">
+          <h2 className="text-xl font-medium">Enter a container ID to search</h2>
+          <p className="text-muted-foreground mt-2">Enter a container ID in the search box above and click Search</p>
+        </div>
+      ) : data ? (
         <div className="space-y-8">
           {/* Container Details Card */}
           <Card>
@@ -208,13 +162,13 @@ export default function ContainerDataViewer({ projcetName, runId }: ContainerDat
                 <div className="space-y-4">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-1">Container ID</p>
-                    <p className="font-mono text-lg">{filteredData.container_id}</p>
+                    <p className="font-mono text-lg">{data.container_id}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-1">Start Time</p>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
-                      <p className="text-lg">{filteredData.start_time}</p>
+                      <p className="text-lg">{data.start_time}</p>
                     </div>
                   </div>
                 </div>
@@ -223,14 +177,14 @@ export default function ContainerDataViewer({ projcetName, runId }: ContainerDat
                     <p className="text-sm font-medium text-muted-foreground mb-1">End Time</p>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
-                      <p className="text-lg">{filteredData.end_time}</p>
+                      <p className="text-lg">{data.end_time}</p>
                     </div>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-1">Total Processing Time</p>
                     <div className="flex items-center gap-2">
                       <Activity className="h-4 w-4 text-muted-foreground" />
-                      <p className="text-lg">{filteredData.total_processing_time}</p>
+                      <p className="text-lg">{data.total_processing_time}</p>
                     </div>
                   </div>
                 </div>
@@ -246,7 +200,7 @@ export default function ContainerDataViewer({ projcetName, runId }: ContainerDat
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              {Object.entries(filteredData.types).map(([typeId, typeInfo]) => (
+              {Object.entries(data.types).map(([typeId, typeInfo]) => (
                 <div key={typeId} className="mb-4 p-6 border rounded-lg">
                   <div className="flex items-center gap-2 mb-4">
                     <h3 className="text-xl font-bold">{typeInfo.typeName}</h3>
@@ -286,53 +240,84 @@ export default function ContainerDataViewer({ projcetName, runId }: ContainerDat
             <CardHeader className="bg-muted/50">
               <CardTitle className="text-xl flex items-center gap-2">
                 <Cpu className="h-5 w-5" /> Components
+                {componentId && (
+                  <Badge variant="outline" className="ml-2">
+                    Filtered by component: {componentNames[componentId] || componentId.substring(0, 8) + '...'}
+                  </Badge>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="border rounded-md">
                 {/* Table Header */}
                 <div className="grid grid-cols-12 gap-4 p-4 bg-muted/50 font-medium">
-                  <div className="col-span-5">Component ID</div>
+                  <div className="col-span-5">Component Name & ID</div>
                   <div className="col-span-2">Type</div>
                   <div className="col-span-4">Actions</div>
                   <div className="col-span-1 text-right">Details</div>
                 </div>
 
-                {/* Table Rows */}
-                {filteredData.combined_workflow.map((component) => (
-                  <div key={String(component.component_id)} className="border-t">
-                    {/* Main Row */}
-                    <div className="grid grid-cols-12 gap-4 p-4 items-center">
-                      <div className="col-span-5 font-mono">{component.component_id}</div>
-                      <div className="col-span-2">
-                        <Badge variant={component.component_type === "generator" ? "default" : "secondary"}>
-                          {component.component_type}
-                        </Badge>
+                {/* Filter components based on componentId if provided */}
+                {(() => {
+                  const filteredWorkflow = componentId
+                    ? data.combined_workflow.filter(comp => comp.component_id === componentId)
+                    : data.combined_workflow;
+
+                  if (filteredWorkflow.length === 0) {
+                    return (
+                      <div className="p-8 text-center text-muted-foreground">
+                        {componentId
+                          ? `No components found matching ID: ${componentId}`
+                          : "No components found in this container"}
                       </div>
-                      <div className="col-span-4">
-                        <div className="flex flex-wrap gap-1">
-                          {getUniqueActionNames(component).map((action) => (
-                            <Badge variant="outline">
-                              {String(action)}
-                            </Badge>
-                          ))}
+                    );
+                  }
+
+                  return filteredWorkflow.map((component: ComponentWorkflow) => (
+                    <div key={String(component.component_id)} className="border-t">
+                      {/* Main Row */}
+                      <div className="grid grid-cols-12 gap-4 p-4 items-center">
+                        <div className="col-span-5">
+                          {componentNames[component.component_id] ? (
+                            <>
+                              <span className="font-medium">{componentNames[component.component_id]}</span>
+                              <span className="text-xs text-muted-foreground ml-1 font-mono">
+                                ({component.component_id.substring(0, 8)}...)
+                              </span>
+                            </>
+                          ) : (
+                            <span className="font-mono">{component.component_id}</span>
+                          )}
+                        </div>
+                        <div className="col-span-2">
+                          <Badge variant={component.component_type === "generator" ? "default" : "secondary"}>
+                            {component.component_type}
+                          </Badge>
+                        </div>
+                        <div className="col-span-4">
+                          <div className="flex flex-wrap gap-1">
+                            {getUniqueActionNames(component).map((action, idx) => (
+                              <Badge key={idx} variant="outline">
+                                {String(action)}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="col-span-1 text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleRow(component.component_id)}
+                            className="h-8 w-8 p-0"
+                          >
+                            {expandedRow === component.component_id ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                          </Button>
                         </div>
                       </div>
-                      <div className="col-span-1 text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleRow(component.component_id)}
-                          className="h-8 w-8 p-0"
-                        >
-                          {expandedRow === component.component_id ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
 
                     {/* Expanded Content */}
                     {expandedRow === component.component_id && (
@@ -347,12 +332,12 @@ export default function ContainerDataViewer({ projcetName, runId }: ContainerDat
                             <div className="space-y-4">
                               <h4 className="font-medium">Action Timeline</h4>
                               <div className="grid gap-3">
-                                {component.actions.map((action, index) => (
+                                {component.actions.map((action: ContainerAction, index: number) => (
                                   <div
                                     key={index}
                                     className="flex items-start gap-3 p-3 border rounded-md bg-background"
                                   >
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full  bg-primary flex items-center justify-center text-primary-foreground font-medium">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium">
                                       {index + 1}
                                     </div>
                                     <div className="flex-1">
@@ -384,7 +369,7 @@ export default function ContainerDataViewer({ projcetName, runId }: ContainerDat
                                                 <div className="flex justify-between mb-1">
                                                   <span className="text-sm font-medium">{attrName}</span>
                                                 </div>
-                                                {Object.entries(attrValue).map(([key, value]) => (
+                                                {Object.entries(attrValue as Record<string, unknown>).map(([key, value]) => (
                                                   <div key={key} className="flex justify-between pl-2 mb-1">
                                                     <span className="text-sm text-muted-foreground">{key}:</span>
                                                     <span className="text-sm">{String(value)}</span>
@@ -406,7 +391,7 @@ export default function ContainerDataViewer({ projcetName, runId }: ContainerDat
                             <div className="space-y-6">
                               {getUniqueActionNames(component).map((actionName) => {
                                 const actionInstances = component.actions.filter(
-                                  (action) => action.action === actionName,
+                                  (action: ContainerAction) => action.action === actionName,
                                 )
 
                                 return (
@@ -419,7 +404,7 @@ export default function ContainerDataViewer({ projcetName, runId }: ContainerDat
                                     </div>
 
                                     <div className="grid gap-4">
-                                      {actionInstances.map((action, index) => (
+                                      {actionInstances.map((action: ContainerAction, index: number) => (
                                         <div key={index} className="border rounded-md overflow-hidden">
                                           <div className="bg-muted/30 p-3 flex justify-between items-center">
                                             <span className="font-medium">Occurrence {index + 1}</span>
@@ -450,7 +435,7 @@ export default function ContainerDataViewer({ projcetName, runId }: ContainerDat
                                                       <div className="flex justify-between mb-1">
                                                         <span className="text-sm font-medium">{attrName}</span>
                                                       </div>
-                                                      {Object.entries(attrValue).map(([key, value]) => (
+                                                      {Object.entries(attrValue as Record<string, unknown>).map(([key, value]) => (
                                                         <div key={key} className="flex justify-between pl-2 mb-1">
                                                           <span className="text-sm text-muted-foreground">{key}:</span>
                                                           <span className="text-sm">{String(value)}</span>
@@ -474,7 +459,8 @@ export default function ContainerDataViewer({ projcetName, runId }: ContainerDat
                       </div>
                     )}
                   </div>
-                ))}
+                ))
+              })()}
               </div>
             </CardContent>
           </Card>

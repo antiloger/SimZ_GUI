@@ -1,0 +1,16 @@
+[
+    {
+        "source": "5391b307-b77b-45d3-8a0b-1a99d14f02b1",
+        "sourceHandle": "848eb645-c8d4-497a-af05-7789bb73fa21-out",
+        "target": "c3617971-d268-486c-8b57-6855793f7f37",
+        "targetHandle": "testme-in",
+        "id": "xy-edge__5391b307-b77b-45d3-8a0b-1a99d14f02b1848eb645-c8d4-497a-af05-7789bb73fa21-out-c3617971-d268-486c-8b57-6855793f7f37testme-in"
+    },
+    {
+        "source": "c3617971-d268-486c-8b57-6855793f7f37",
+        "sourceHandle": "testme-out",
+        "target": "fd3b34f7-7dc5-45ea-a158-6b223e23b97e",
+        "targetHandle": "testme-in",
+        "id": "xy-edge__c3617971-d268-486c-8b57-6855793f7f37testme-out-fd3b34f7-7dc5-45ea-a158-6b223e23b97etestme-in"
+    }
+]

@@ -3,6 +3,7 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { ErrorDialog } from '@/components/default/error/errorDialog'
 import { useEffect } from 'react';
 import { useSocketStore } from '@/utils/socketIo'
+import { ThemeProvider } from '@/components/theme-provider'
 
 export const Route = createRootRoute({
   component: () => {
@@ -18,11 +19,11 @@ export const Route = createRootRoute({
     }, [connectSocket, disconnectSocket]);
 
     return (
-      <>
+      <ThemeProvider defaultTheme="system" storageKey="simz-ui-theme">
         <Outlet />
         {/* <TanStackRouterDevtools position='bottom-right' /> */}
         <ErrorDialog />
-      </>
+      </ThemeProvider>
     )
   },
 })

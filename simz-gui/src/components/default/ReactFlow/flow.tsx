@@ -8,6 +8,7 @@ import { useCallback } from "react";
 import { ViewPortData } from "@/types/flow";
 import PanelBottomCenter from "./panel-bottom-center";
 import DynCompEdge from "./dynamicEdge";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const flowSelector = (state) => ({
   nodes: state.nodes,
@@ -57,6 +58,9 @@ export default function Flow() {
         <Controls />
         <Panel position="top-right"><PanelTopRight /></Panel>
         <Panel position="bottom-center"> <PanelBottomCenter /> </Panel>
+        <Panel position="top-left">
+          <SidebarTrigger />
+        </Panel>
       </ReactFlow>
     </div>
   )

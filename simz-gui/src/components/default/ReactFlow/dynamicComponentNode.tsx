@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SimDataState, SimPropertyWindowStore } from "@/states/simDataState";
 import { CompDataI } from "@/types/component";
 import { Handle, Node, NodeProps, Position } from "@xyflow/react"
@@ -28,7 +29,7 @@ export type DynamicComponentNodeT = Node<
 >
 
 export default function DynamicComponentNode(props: NodeProps<DynamicComponentNodeT>) {
-  const { get_comp_by_id, componentData, getGenTypeById } = SimDataState()
+  const { get_comp_by_id, componentData, getGenTypeById, copy_new_comp, delete_comp } = SimDataState()
   const { setPropertyWindowOn, setPropertyWindowData } = SimPropertyWindowStore()
   const [content, setContent] = useState<CompDataI | null>(null);
   useEffect(() => {
@@ -41,9 +42,30 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
       setPropertyWindowOn(true)
     }
   }
+
+  const handelCopy = () => {
+    if (!content) {
+      return
+    }
+    if (!content.id) {
+      return
+    }
+    copy_new_comp(content.id)
+  }
+
+  const handleDelete = () => {
+    if (!content) {
+      return
+    }
+    if (!content.id) {
+      return
+    }
+    delete_comp(content.id)
+  }
+
   return (
     <div className="flex flex-col gap-y-2" onDoubleClick={onDoubleClick}>
-      <div className="flex flex-col rounded-lg w-[300px] border bg-white drop-shadow-lg " >
+      <div className="flex flex-col rounded-lg w-[300px] border bg-primary-foreground drop-shadow-lg " >
         <div className="h-[12px] rounded-t-lg" style={{ backgroundColor: content?.color ?? "black" }} ></div>
         <div className="flex flex-col p-3 rounded-lg "  >
           <div className="flex flex-row justify-between items-center " >
@@ -54,7 +76,16 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
               <h1 className="text-secondary-foreground" > {content?.typeName ?? "N/A"} </h1>
             </div>
             <div className="flex">
-              <Button variant="ghost"><MoreVertical /> </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Button variant="ghost"><MoreVertical /> </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={handelCopy} >Copy</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDelete} >Delete</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
           <div className="flex flex-col my-1" >
@@ -99,7 +130,7 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
         switch (c.flow) {
           case "inout":
             return (
-              <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" key={c.name} >
+              <div className="flex flex-row border rounded-lg bg-primary-foreground p-3 drop-shadow-lg" key={c.name} >
                 <Handle type="target" id={`${c.name}-in`} position={Position.Left} isConnectable={true} />
                 <Handle type="source" id={`${c.name}-out`} position={Position.Right} isConnectable={true} isConnectableStart={true} />
                 <div className="flex flex-row gap-x-2 items-center justify-between w-full" >
@@ -110,7 +141,7 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
             )
           case "in":
             return (
-              <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" key={c.name} >
+              <div className="flex flex-row border rounded-lg bg-primary-foreground p-3 drop-shadow-lg" key={c.name} >
                 <Handle type="target" id={`${c.name}-in`} position={Position.Left} isConnectable={true} />
                 <div className="flex flex-row gap-x-2 items-center justify-between w-full" >
 
@@ -121,7 +152,7 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
             )
           case "out":
             return (
-              <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" key={c.name} >
+              <div className="flex flex-row border rounded-lg bg-primary-foreground p-3 drop-shadow-lg" key={c.name} >
                 <Handle type="source" id={`${c.name}-out`} position={Position.Right} isConnectable={true} isConnectableStart={true} />
                 <div className="flex flex-row gap-x-2 items-center justify-between w-full" >
                   {c.name}
@@ -137,7 +168,7 @@ export default function DynamicComponentNode(props: NodeProps<DynamicComponentNo
         content?.GenData?.types?.map((t) => {
           const genDataSet = getGenTypeById(t)
           return (
-            <div className="flex flex-row border rounded-lg bg-white p-3 drop-shadow-lg" key={t} >
+            <div className="flex flex-row border rounded-lg bg-primary-foreground p-3 drop-shadow-lg" key={t} >
               <Handle type="source" id={`${t}-out`} position={Position.Right} isConnectable={true} isConnectableStart={true} />
               <div className="flex flex-row gap-x-2 items-center justify-between w-full" >
                 {genDataSet?.typeName}

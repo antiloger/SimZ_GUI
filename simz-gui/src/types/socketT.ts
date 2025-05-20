@@ -20,5 +20,5 @@ export interface EventListParams {
   search_query?: string;
   search_columns?: string[];
   filter_conditions?: { [key: string]: any },
-  include_columns: string[];
+  include_columns?: string[];
 }

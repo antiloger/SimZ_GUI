@@ -14,6 +14,9 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as LoginImport } from './routes/login'
+import { Route as DocsSimzConceptImport } from './routes/docs/simz-concept'
+import { Route as DocsCompFuncImport } from './routes/docs/comp-func'
+import { Route as DocsCodeArchImport } from './routes/docs/code-arch'
 import { Route as ProjectProjectidIndexImport } from './routes/project/$projectid/index'
 
 // Create Virtual Routes
@@ -40,6 +43,24 @@ const IndexLazyRoute = IndexLazyImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+
+const DocsSimzConceptRoute = DocsSimzConceptImport.update({
+  id: '/docs/simz-concept',
+  path: '/docs/simz-concept',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DocsCompFuncRoute = DocsCompFuncImport.update({
+  id: '/docs/comp-func',
+  path: '/docs/comp-func',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DocsCodeArchRoute = DocsCodeArchImport.update({
+  id: '/docs/code-arch',
+  path: '/docs/code-arch',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const ProjectProjectidIndexRoute = ProjectProjectidIndexImport.update({
   id: '/project/$projectid/',
@@ -72,6 +93,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TppLazyImport
       parentRoute: typeof rootRoute
     }
+    '/docs/code-arch': {
+      id: '/docs/code-arch'
+      path: '/docs/code-arch'
+      fullPath: '/docs/code-arch'
+      preLoaderRoute: typeof DocsCodeArchImport
+      parentRoute: typeof rootRoute
+    }
+    '/docs/comp-func': {
+      id: '/docs/comp-func'
+      path: '/docs/comp-func'
+      fullPath: '/docs/comp-func'
+      preLoaderRoute: typeof DocsCompFuncImport
+      parentRoute: typeof rootRoute
+    }
+    '/docs/simz-concept': {
+      id: '/docs/simz-concept'
+      path: '/docs/simz-concept'
+      fullPath: '/docs/simz-concept'
+      preLoaderRoute: typeof DocsSimzConceptImport
+      parentRoute: typeof rootRoute
+    }
     '/project/$projectid/': {
       id: '/project/$projectid/'
       path: '/project/$projectid'
@@ -88,6 +130,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/login': typeof LoginRoute
   '/tpp': typeof TppLazyRoute
+  '/docs/code-arch': typeof DocsCodeArchRoute
+  '/docs/comp-func': typeof DocsCompFuncRoute
+  '/docs/simz-concept': typeof DocsSimzConceptRoute
   '/project/$projectid': typeof ProjectProjectidIndexRoute
 }
 
@@ -95,6 +140,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/login': typeof LoginRoute
   '/tpp': typeof TppLazyRoute
+  '/docs/code-arch': typeof DocsCodeArchRoute
+  '/docs/comp-func': typeof DocsCompFuncRoute
+  '/docs/simz-concept': typeof DocsSimzConceptRoute
   '/project/$projectid': typeof ProjectProjectidIndexRoute
 }
 
@@ -103,15 +151,40 @@ export interface FileRoutesById {
   '/': typeof IndexLazyRoute
   '/login': typeof LoginRoute
   '/tpp': typeof TppLazyRoute
+  '/docs/code-arch': typeof DocsCodeArchRoute
+  '/docs/comp-func': typeof DocsCompFuncRoute
+  '/docs/simz-concept': typeof DocsSimzConceptRoute
   '/project/$projectid/': typeof ProjectProjectidIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/tpp' | '/project/$projectid'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/tpp'
+    | '/docs/code-arch'
+    | '/docs/comp-func'
+    | '/docs/simz-concept'
+    | '/project/$projectid'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/tpp' | '/project/$projectid'
-  id: '__root__' | '/' | '/login' | '/tpp' | '/project/$projectid/'
+  to:
+    | '/'
+    | '/login'
+    | '/tpp'
+    | '/docs/code-arch'
+    | '/docs/comp-func'
+    | '/docs/simz-concept'
+    | '/project/$projectid'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/tpp'
+    | '/docs/code-arch'
+    | '/docs/comp-func'
+    | '/docs/simz-concept'
+    | '/project/$projectid/'
   fileRoutesById: FileRoutesById
 }
 
@@ -119,6 +192,9 @@ export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   LoginRoute: typeof LoginRoute
   TppLazyRoute: typeof TppLazyRoute
+  DocsCodeArchRoute: typeof DocsCodeArchRoute
+  DocsCompFuncRoute: typeof DocsCompFuncRoute
+  DocsSimzConceptRoute: typeof DocsSimzConceptRoute
   ProjectProjectidIndexRoute: typeof ProjectProjectidIndexRoute
 }
 
@@ -126,6 +202,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   LoginRoute: LoginRoute,
   TppLazyRoute: TppLazyRoute,
+  DocsCodeArchRoute: DocsCodeArchRoute,
+  DocsCompFuncRoute: DocsCompFuncRoute,
+  DocsSimzConceptRoute: DocsSimzConceptRoute,
   ProjectProjectidIndexRoute: ProjectProjectidIndexRoute,
 }
 
@@ -142,6 +221,9 @@ export const routeTree = rootRoute
         "/",
         "/login",
         "/tpp",
+        "/docs/code-arch",
+        "/docs/comp-func",
+        "/docs/simz-concept",
         "/project/$projectid/"
       ]
     },
@@ -153,6 +235,15 @@ export const routeTree = rootRoute
     },
     "/tpp": {
       "filePath": "tpp.lazy.tsx"
+    },
+    "/docs/code-arch": {
+      "filePath": "docs/code-arch.tsx"
+    },
+    "/docs/comp-func": {
+      "filePath": "docs/comp-func.tsx"
+    },
+    "/docs/simz-concept": {
+      "filePath": "docs/simz-concept.tsx"
     },
     "/project/$projectid/": {
       "filePath": "project/$projectid/index.tsx"

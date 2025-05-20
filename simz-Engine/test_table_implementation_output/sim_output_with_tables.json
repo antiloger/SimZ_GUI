@@ -1,0 +1,350 @@
+{
+    "id": "test_sim",
+    "dashboradData": [],
+    "dashboardTable": [
+        {
+            "id": "test_table",
+            "title": "Test Table",
+            "description": "A test table for the new implementation",
+            "columns": [
+                {
+                    "id": "id",
+                    "header": "ID",
+                    "accessor": "id",
+                    "type": "string",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "left",
+                    "format": null
+                },
+                {
+                    "id": "name",
+                    "header": "Name",
+                    "accessor": "name",
+                    "type": "string",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "left",
+                    "format": null
+                },
+                {
+                    "id": "type",
+                    "header": "Type",
+                    "accessor": "type",
+                    "type": "string",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "left",
+                    "format": null
+                },
+                {
+                    "id": "value",
+                    "header": "Value",
+                    "accessor": "value",
+                    "type": "number",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "right",
+                    "format": null
+                }
+            ],
+            "data": [
+                {
+                    "id": "comp1",
+                    "name": "Component 1",
+                    "type": "generator",
+                    "value": 100
+                },
+                {
+                    "id": "comp2",
+                    "name": "Component 2",
+                    "type": "resource",
+                    "value": 75.5
+                },
+                {
+                    "id": "comp3",
+                    "name": "Component 3",
+                    "type": "resource",
+                    "value": 90.2
+                }
+            ],
+            "options": {
+                "showPagination": true,
+                "showSearch": true,
+                "showFilters": true,
+                "pageSize": 10,
+                "pageSizeOptions": [
+                    5,
+                    10,
+                    20,
+                    50
+                ],
+                "sortable": true,
+                "resizable": true,
+                "filterable": true,
+                "defaultSortField": "name",
+                "defaultSortDirection": "asc"
+            }
+        },
+        {
+            "id": "component_summary_table",
+            "title": "Component Summary",
+            "description": "Summary of components in the simulation",
+            "columns": [
+                {
+                    "id": "id",
+                    "header": "Id",
+                    "accessor": "id",
+                    "type": "string",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "left",
+                    "format": null
+                },
+                {
+                    "id": "name",
+                    "header": "Name",
+                    "accessor": "name",
+                    "type": "string",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "left",
+                    "format": null
+                },
+                {
+                    "id": "type",
+                    "header": "Type",
+                    "accessor": "type",
+                    "type": "string",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "left",
+                    "format": null
+                },
+                {
+                    "id": "utilization",
+                    "header": "Utilization",
+                    "accessor": "utilization",
+                    "type": "number",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "right",
+                    "format": null
+                },
+                {
+                    "id": "avg_processing_time",
+                    "header": "Avg Processing Time",
+                    "accessor": "avg_processing_time",
+                    "type": "number",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "right",
+                    "format": null
+                },
+                {
+                    "id": "capacity",
+                    "header": "Capacity",
+                    "accessor": "capacity",
+                    "type": "number",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "right",
+                    "format": null
+                },
+                {
+                    "id": "generation_count",
+                    "header": "Generation Count",
+                    "accessor": "generation_count",
+                    "type": "number",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "right",
+                    "format": null
+                }
+            ],
+            "data": [
+                {
+                    "id": "comp1",
+                    "name": "Generator 1",
+                    "type": "generator",
+                    "generation_count": 100,
+                    "avg_processing_time": 2.5
+                },
+                {
+                    "id": "comp2",
+                    "name": "Resource 1",
+                    "type": "resource",
+                    "capacity": 2,
+                    "utilization": 75.5,
+                    "avg_processing_time": 3.2
+                },
+                {
+                    "id": "comp3",
+                    "name": "Resource 2",
+                    "type": "resource",
+                    "capacity": 1,
+                    "utilization": 90.2,
+                    "avg_processing_time": 4.1
+                }
+            ],
+            "options": {
+                "showPagination": true,
+                "showSearch": true,
+                "showFilters": true,
+                "pageSize": 10,
+                "pageSizeOptions": [
+                    5,
+                    10,
+                    20,
+                    50
+                ],
+                "sortable": true,
+                "resizable": true,
+                "filterable": true,
+                "defaultSortField": "name",
+                "defaultSortDirection": "asc"
+            }
+        },
+        {
+            "id": "simulation_metrics_table",
+            "title": "Simulation Metrics",
+            "description": "Key metrics from the simulation run",
+            "columns": [
+                {
+                    "id": "category",
+                    "header": "Category",
+                    "accessor": "category",
+                    "type": "string",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "left",
+                    "format": null
+                },
+                {
+                    "id": "value",
+                    "header": "Value",
+                    "accessor": "value",
+                    "type": "number",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "right",
+                    "format": null
+                },
+                {
+                    "id": "unit",
+                    "header": "Unit",
+                    "accessor": "unit",
+                    "type": "string",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "left",
+                    "format": null
+                },
+                {
+                    "id": "metric",
+                    "header": "Metric",
+                    "accessor": "metric",
+                    "type": "string",
+                    "sortable": true,
+                    "filterable": true,
+                    "width": null,
+                    "minWidth": null,
+                    "maxWidth": null,
+                    "align": "left",
+                    "format": null
+                }
+            ],
+            "data": [
+                {
+                    "metric": "Simulation Duration",
+                    "value": 100.5,
+                    "unit": "time units",
+                    "category": "Time"
+                },
+                {
+                    "metric": "Total Components",
+                    "value": 10,
+                    "unit": "count",
+                    "category": "Components"
+                },
+                {
+                    "metric": "Total Containers",
+                    "value": 50,
+                    "unit": "count",
+                    "category": "Containers"
+                },
+                {
+                    "metric": "Average Processing Time",
+                    "value": 3.2,
+                    "unit": "time units",
+                    "category": "Processing"
+                },
+                {
+                    "metric": "Maximum Processing Time",
+                    "value": 8.5,
+                    "unit": "time units",
+                    "category": "Processing"
+                }
+            ],
+            "options": {
+                "showPagination": true,
+                "showSearch": true,
+                "showFilters": true,
+                "pageSize": 10,
+                "pageSizeOptions": [
+                    5,
+                    10,
+                    20,
+                    50
+                ],
+                "sortable": true,
+                "resizable": true,
+                "filterable": true,
+                "defaultSortField": "category",
+                "defaultSortDirection": "asc"
+            }
+        }
+    ]
+}

@@ -1,0 +1,78 @@
+{
+    "id": "12",
+    "name": "Unknown 12",
+    "type": "unknown",
+    "dashboradData": [
+        {
+            "type": "card",
+            "header": "Component Efficiency",
+            "description": "Ratio of productive actions to total actions",
+            "value": 0.0,
+            "value_suffix": "%",
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": {
+                "value": 0.0,
+                "direction": "down",
+                "label": "Efficiency Score"
+            },
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Component Utilization",
+            "description": "Percentage of time the component is active",
+            "value": 0.0,
+            "value_suffix": "%",
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": {
+                "value": 0.0,
+                "direction": "down",
+                "label": "Utilization Rate"
+            },
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "bar",
+            "header": "Action Counts",
+            "description": "Number of occurrences of each action type",
+            "series": [
+                {
+                    "name": "Count",
+                    "data": [
+                        {
+                            "x": "No Actions",
+                            "y": 0.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Count",
+                "x_axis_label": "Action",
+                "layout": "vertical",
+                "bar_type": "grouped",
+                "bar_size": null,
+                "bar_radius": null
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        }
+    ]
+}

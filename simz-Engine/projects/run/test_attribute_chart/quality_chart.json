@@ -1,0 +1,49 @@
+{
+    "type": "chart",
+    "subtype": "line",
+    "header": "Container Quality Evolution",
+    "description": "How quality changes as containers move through components",
+    "series": [
+        {
+            "name": "Container containe...",
+            "data": [
+                {
+                    "x": "10",
+                    "y": 95.0
+                },
+                {
+                    "x": "11",
+                    "y": 95.0
+                },
+                {
+                    "x": "12",
+                    "y": 90.0
+                },
+                {
+                    "x": "13",
+                    "y": 90.0
+                },
+                {
+                    "x": "14",
+                    "y": 85.0
+                }
+            ]
+        }
+    ],
+    "options": {
+        "showGrid": true,
+        "showLegend": true,
+        "showTooltip": true,
+        "yAxisLabel": "Quality Value",
+        "xAxisLabel": "Simulation Time",
+        "type": "linear",
+        "showDots": true,
+        "dotSize": 4,
+        "activeDotSize": 6,
+        "strokeWidth": 2
+    },
+    "size": {
+        "cols": 4,
+        "rows": 1
+    }
+}

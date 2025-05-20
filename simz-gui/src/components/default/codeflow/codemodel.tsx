@@ -59,6 +59,10 @@ export function CodeEditorModel({ componentId }: CodeEditorModelProps) {
     saveRunnerStr(componentId, runnerFile)
   }
 
+  const navigateTodocs = () => {
+    window.open('/docs/comp-func', '_blank');
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -84,7 +88,7 @@ export function CodeEditorModel({ componentId }: CodeEditorModelProps) {
             </TabsList>
           </Tabs>
           <div className="flex items-center gap-2">
-            <Button onClick={handleSave} variant="outline" size="sm">
+            <Button onClick={navigateTodocs} variant="outline" size="sm" >
               <FileText className="h-4 w-4 mr-2" />
               Documentation
             </Button>
@@ -95,8 +99,9 @@ export function CodeEditorModel({ componentId }: CodeEditorModelProps) {
           </div>
         </div>
 
-        <ScrollArea className="flex-grow h-[calc(100vh-12rem)]">
+        <ScrollArea className="bg-primary-foreground flex-grow h-[calc(100vh-12rem)]">
           <ReactCodeMirror
+            className="bg-primary-foreground"
             height="calc(100vh - 12rem)"
             value={runnerFile[currentFileKey]}
             onChange={handleCodeChange}

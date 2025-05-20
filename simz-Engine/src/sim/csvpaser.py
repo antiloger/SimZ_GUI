@@ -1,8 +1,9 @@
 from collections import Counter
 import json
+import os
 import pandas as pd
 import duckdb
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Set, Tuple, Union
 import numpy as np
 
 
@@ -27,28 +28,70 @@ class CSVScraper:
         self.load_data()
 
     def load_data(self) -> None:
-        """Load the CSV data and prepare it for querying."""
+        """
+        Load the CSV data and prepare it for querying.
+        Enhanced with better error handling and data validation.
+        """
         try:
-            self.df = pd.read_csv(self.csv_filepath)
+            # Check if file exists
+            if not os.path.exists(self.csv_filepath):
+                print(f"Warning: CSV file not found at {self.csv_filepath}")
+                self.df = pd.DataFrame()  # Create empty DataFrame
+                return
 
-            # Parse the JSON strings in values and PDV columns
-            self.df["values"] = self.df["values"].apply(
-                lambda x: json.loads(x.replace("'", '"')) if isinstance(x, str) else x
-            )
-            self.df["PDV"] = self.df["PDV"].apply(
-                lambda x: json.loads(x.replace("'", '"')) if isinstance(x, str) else x
-            )
+            # Read CSV with error handling
+            try:
+                self.df = pd.read_csv(self.csv_filepath)
+            except pd.errors.EmptyDataError:
+                print(f"Warning: CSV file is empty: {self.csv_filepath}")
+                self.df = pd.DataFrame()
+                return
+            except Exception as e:
+                print(f"Error reading CSV file: {e}")
+                self.df = pd.DataFrame()
+                return
+
+            # Check if DataFrame is empty
+            if self.df.empty:
+                print("Warning: No data found in CSV file")
+                return
+
+            # Ensure required columns exist
+            required_columns = ["time", "component_id", "component_type", "action", "values", "PDV"]
+            missing_columns = [col for col in required_columns if col not in self.df.columns]
+
+            if missing_columns:
+                print(f"Warning: Missing required columns: {missing_columns}")
+                # Add missing columns with default values
+                for col in missing_columns:
+                    self.df[col] = None
+
+            # Parse the JSON strings in values and PDV columns with better error handling
+            def safe_parse_json(x):
+                if not isinstance(x, str):
+                    return x
+                try:
+                    return json.loads(x.replace("'", '"'))
+                except (json.JSONDecodeError, AttributeError):
+                    return {}
+
+            self.df["values"] = self.df["values"].apply(safe_parse_json)
+            self.df["PDV"] = self.df["PDV"].apply(safe_parse_json)
 
             # Extract component IDs and types for easier access
             self.components_data = self._extract_components_data()
             self.containers_data = self._extract_containers_data()
 
             # Register the DataFrame as a view in DuckDB
-            self.conn.register("csv_data", self.df)
-            print(f"Data loaded successfully: {len(self.df)} rows")
+            try:
+                self.conn.register("csv_data", self.df)
+                print(f"Data loaded successfully: {len(self.df)} rows")
+            except Exception as e:
+                print(f"Warning: Could not register DataFrame with DuckDB: {e}")
+
         except Exception as e:
             print(f"Error loading data: {e}")
-            raise
+            self.df = pd.DataFrame()  # Create empty DataFrame as fallback
 
     def _extract_components_info(self) -> None:
         """Extract information about unique components and their actions"""
@@ -180,6 +223,52 @@ class CSVScraper:
             "max_time": int(result["max_time"].iloc[0]),
         }
 
+    def get_unique_container_ids(self) -> List[str]:
+        """
+        Get a list of all unique container IDs in the CSV data.
+        Uses a more robust approach to extract container IDs from PDV.
+
+        Returns:
+            List of unique container IDs
+        """
+        if self.df is None:
+            return []
+
+        try:
+            # Use a more robust query to extract container IDs
+            query = """
+            WITH extracted_data AS (
+                SELECT
+                    CASE
+                        WHEN PDV LIKE '%"containerId": "%' THEN regexp_extract(PDV, '"containerId": "([^"]+)"', 1)
+                        WHEN PDV LIKE "%'containerId': '%" THEN regexp_extract(PDV, "'containerId': '([^']+)'", 1)
+                        ELSE NULL
+                    END as container_id
+                FROM csv_data
+                WHERE PDV IS NOT NULL
+            )
+            SELECT DISTINCT container_id
+            FROM extracted_data
+            WHERE container_id IS NOT NULL
+            """
+
+            result = self.conn.execute(query).fetchdf()
+            container_ids = result["container_id"].tolist()
+            print(f"Found {len(container_ids)} unique container IDs using direct query")
+            return container_ids
+
+        except Exception as e:
+            print(f"Error getting unique container IDs: {e}")
+
+            # Fallback method using Python
+            container_ids = set()
+            for _, row in self.df.iterrows():
+                if isinstance(row.get("PDV"), dict) and "containerId" in row["PDV"]:
+                    container_ids.add(row["PDV"]["containerId"])
+
+            print(f"Found {len(container_ids)} unique container IDs using fallback method")
+            return list(container_ids)
+
     def get_container_stats(self) -> pd.DataFrame:
         """
         Extract container IDs and count their occurrences.
@@ -189,7 +278,7 @@ class CSVScraper:
         """
         # This query extracts containerId from the PDV JSON column
         query = """
-        SELECT 
+        SELECT
             json_extract(PDV, '$.containerId') as container_id,
             COUNT(*) as occurrence_count
         FROM csv_data
@@ -210,7 +299,7 @@ class CSVScraper:
             DataFrame with the component's action timeline
         """
         query = f"""
-        SELECT 
+        SELECT
             time,
             action,
             json_extract(values, '$.input_count') as input_count,
@@ -352,7 +441,7 @@ class CSVScraper:
             DataFrame with component statistics
         """
         query = """
-        SELECT 
+        SELECT
             component_id,
             component_type,
             COUNT(*) as action_count,
@@ -613,6 +702,7 @@ class CSVScraper:
     def count_containers_duckdb(self) -> Dict[str, Any]:
         """
         Count all unique containers using DuckDB query.
+        Enhanced with better error handling for malformed JSON.
 
         Returns:
             Dictionary with container count statistics
@@ -620,137 +710,279 @@ class CSVScraper:
         if self.df is None:
             return {"error": "No data loaded", "total_containers": 0}
 
-        # Query to get basic container statistics
-        query = """
-        SELECT 
-            json_extract(PDV, '$.containerId') as container_id,
-            COUNT(*) as occurrence_count,
-            MIN(time) as first_seen,
-            MAX(time) as last_seen,
-            MAX(time) - MIN(time) as lifespan
-        FROM csv_data
-        WHERE PDV IS NOT NULL
-        GROUP BY container_id
-        ORDER BY occurrence_count DESC
-        """
+        try:
+            # First, ensure we can extract container IDs properly
+            print("Extracting container IDs from CSV data...")
 
-        container_stats = self.conn.execute(query).fetchdf()
-
-        # Further process the results to get component and action counts
-        container_details = []
-
-        for _, container in container_stats.iterrows():
-            container_id = container["container_id"]
-
-            # Query to get unique components for this container
-            components_query = f"""
-            SELECT 
-                DISTINCT component_id
-            FROM csv_data
-            WHERE json_extract(PDV, '$.containerId') = '{container_id}'
-            """
-            components = self.conn.execute(components_query).fetchdf()
-
-            # Query to get unique actions for this container
-            actions_query = f"""
-            SELECT 
-                DISTINCT action
-            FROM csv_data
-            WHERE json_extract(PDV, '$.containerId') = '{container_id}'
-            """
-            actions = self.conn.execute(actions_query).fetchdf()
-
-            container_details.append(
-                {
-                    "container_id": container_id,
-                    "occurrence_count": int(container["occurrence_count"]),
-                    "first_seen": int(container["first_seen"]),
-                    "last_seen": int(container["last_seen"]),
-                    "lifespan": int(container["lifespan"]),
-                    "component_interactions": components["component_id"].tolist(),
-                    "component_interaction_count": len(components),
-                    "actions": actions["action"].tolist(),
-                    "action_count": len(actions),
-                }
+            # Query to get basic container statistics with better error handling
+            # Use string replacement to handle both single and double quotes in JSON
+            query = """
+            WITH extracted_data AS (
+                SELECT
+                    CASE
+                        WHEN PDV LIKE '%"containerId": "%' THEN regexp_extract(PDV, '"containerId": "([^"]+)"', 1)
+                        WHEN PDV LIKE "%'containerId': '%" THEN regexp_extract(PDV, "'containerId': '([^']+)'", 1)
+                        ELSE NULL
+                    END as container_id,
+                    time
+                FROM csv_data
+                WHERE PDV IS NOT NULL
             )
+            SELECT
+                container_id,
+                COUNT(*) as occurrence_count,
+                MIN(time) as first_seen,
+                MAX(time) as last_seen,
+                MAX(time) - MIN(time) as lifespan
+            FROM extracted_data
+            WHERE container_id IS NOT NULL
+            GROUP BY container_id
+            ORDER BY occurrence_count DESC
+            """
 
-        return {
-            "total_containers": len(container_stats),
-            "containers": container_details,
-            "container_with_most_occurrences": container_details[0]
-            if container_details
-            else None,
-            "container_with_longest_lifespan": max(
-                container_details, key=lambda x: x["lifespan"]
-            )
-            if container_details
-            else None,
-        }
+            container_stats = self.conn.execute(query).fetchdf()
+
+            # Further process the results to get component and action counts
+            container_details = []
+
+            for _, container in container_stats.iterrows():
+                try:
+                    container_id = container["container_id"]
+                    if container_id is None:
+                        continue
+
+                    # Query to get unique components for this container using the same extraction method
+                    components_query = f"""
+                    SELECT
+                        DISTINCT component_id
+                    FROM csv_data
+                    WHERE (PDV LIKE '%"containerId": "{container_id}"%' OR PDV LIKE "%'containerId': '{container_id}'%")
+                    """
+                    components = self.conn.execute(components_query).fetchdf()
+
+                    # Query to get unique actions for this container using the same extraction method
+                    actions_query = f"""
+                    SELECT
+                        DISTINCT action
+                    FROM csv_data
+                    WHERE (PDV LIKE '%"containerId": "{container_id}"%' OR PDV LIKE "%'containerId': '{container_id}'%")
+                    """
+                    actions = self.conn.execute(actions_query).fetchdf()
+
+                    # Safely convert values to integers with fallbacks
+                    try:
+                        occurrence_count = int(container["occurrence_count"])
+                    except (ValueError, TypeError):
+                        occurrence_count = 0
+
+                    try:
+                        first_seen = int(container["first_seen"])
+                    except (ValueError, TypeError):
+                        first_seen = 0
+
+                    try:
+                        last_seen = int(container["last_seen"])
+                    except (ValueError, TypeError):
+                        last_seen = 0
+
+                    try:
+                        lifespan = int(container["lifespan"])
+                    except (ValueError, TypeError):
+                        lifespan = 0
+
+                    container_details.append(
+                        {
+                            "container_id": container_id,
+                            "occurrence_count": occurrence_count,
+                            "first_seen": first_seen,
+                            "last_seen": last_seen,
+                            "lifespan": lifespan,
+                            "component_interactions": components["component_id"].tolist(),
+                            "component_interaction_count": len(components),
+                            "actions": actions["action"].tolist(),
+                            "action_count": len(actions),
+                        }
+                    )
+                except Exception as e:
+                    print(f"Warning: Error processing container: {e}")
+                    continue
+
+            # Create a safe result dictionary with proper fallbacks
+            result = {
+                "total_containers": len(container_details),
+                "containers": container_details,
+            }
+
+            # Safely add most occurrences container
+            if container_details:
+                result["container_with_most_occurrences"] = container_details[0]
+            else:
+                result["container_with_most_occurrences"] = None
+
+            # Safely add longest lifespan container
+            if container_details:
+                try:
+                    result["container_with_longest_lifespan"] = max(
+                        container_details, key=lambda x: x["lifespan"]
+                    )
+                except Exception:
+                    result["container_with_longest_lifespan"] = None
+            else:
+                result["container_with_longest_lifespan"] = None
+
+            return result
+
+        except Exception as e:
+            print(f"Error in count_containers_duckdb: {e}")
+            return {"error": str(e), "total_containers": 0}
 
     def _extract_components_data(self) -> Dict[str, Dict[str, Any]]:
-        """Extract component data from the DataFrame."""
+        """
+        Extract component data from the DataFrame.
+        Enhanced to handle dynamic data structures and missing fields.
+        """
         components = {}
         for _, row in self.df.iterrows():
-            comp_id = row["component_id"]
-            comp_type = row["component_type"]
+            # Safely extract component ID and type with fallbacks
+            comp_id = row.get("component_id", "unknown")
+            comp_type = row.get("component_type", "unknown")
 
+            if not comp_id or comp_id == "unknown":
+                continue  # Skip rows without valid component ID
+
+            # Initialize component entry if not exists
             if comp_id not in components:
                 components[comp_id] = {
                     "type": comp_type,
                     "actions": [],
                     "container_interactions": set(),
                     "processing_times": [],
+                    "metrics": {},  # For storing calculated metrics
                 }
 
-            # Add action to the component
+            # Add action to the component with safe extraction
             action_data = {
-                "time": row["time"],
-                "action": row["action"],
-                "values": row["values"] if isinstance(row["values"], dict) else {},
+                "time": row.get("time", 0),
+                "action": row.get("action", "unknown"),
             }
+
+            # Safely handle values field
+            if "values" in row and row["values"] is not None:
+                if isinstance(row["values"], dict):
+                    action_data["values"] = row["values"]
+                elif isinstance(row["values"], str):
+                    # Try to parse string as JSON if it's not already a dict
+                    try:
+                        action_data["values"] = json.loads(row["values"].replace("'", '"'))
+                    except (json.JSONDecodeError, AttributeError):
+                        action_data["values"] = {}
+                else:
+                    action_data["values"] = {}
+            else:
+                action_data["values"] = {}
+
+            # Add any additional fields that might be present
+            for key, value in row.items():
+                if key not in ["time", "component_id", "component_type", "action", "values", "PDV"]:
+                    if value is not None:
+                        action_data[key] = value
+
             components[comp_id]["actions"].append(action_data)
 
-            # Track container interactions
-            if isinstance(row["PDV"], dict) and "containerId" in row["PDV"]:
-                components[comp_id]["container_interactions"].add(
-                    row["PDV"]["containerId"]
-                )
+            # Track container interactions with safe extraction
+            if "PDV" in row and row["PDV"] is not None:
+                if isinstance(row["PDV"], dict) and "containerId" in row["PDV"]:
+                    components[comp_id]["container_interactions"].add(
+                        row["PDV"]["containerId"]
+                    )
+                elif isinstance(row["PDV"], str):
+                    # Try to parse string as JSON if it's not already a dict
+                    try:
+                        pdv_data = json.loads(row["PDV"].replace("'", '"'))
+                        if isinstance(pdv_data, dict) and "containerId" in pdv_data:
+                            components[comp_id]["container_interactions"].add(
+                                pdv_data["containerId"]
+                            )
+                    except (json.JSONDecodeError, AttributeError):
+                        pass
 
         return components
 
     def _extract_containers_data(self) -> Dict[str, Dict[str, Any]]:
-        """Extract container data from the DataFrame."""
+        """
+        Extract container data from the DataFrame.
+        Enhanced to handle dynamic data structures and missing fields.
+        """
         containers = {}
         for _, row in self.df.iterrows():
-            if isinstance(row["PDV"], dict) and "containerId" in row["PDV"]:
-                container_id = row["PDV"]["containerId"]
+            pdv_data = None
 
-                if container_id not in containers:
-                    containers[container_id] = {
-                        "types": {},
-                        "components_interacted": set(),
-                        "timeline": [],
-                    }
+            # Safely extract PDV data
+            if "PDV" in row and row["PDV"] is not None:
+                if isinstance(row["PDV"], dict):
+                    pdv_data = row["PDV"]
+                elif isinstance(row["PDV"], str):
+                    # Try to parse string as JSON if it's not already a dict
+                    try:
+                        pdv_data = json.loads(row["PDV"].replace("'", '"'))
+                    except (json.JSONDecodeError, AttributeError):
+                        pdv_data = None
 
-                # Add component to the container's interacted components
-                containers[container_id]["components_interacted"].add(
-                    row["component_id"]
-                )
+            # Skip if no valid PDV data or no containerId
+            if not pdv_data or not isinstance(pdv_data, dict) or "containerId" not in pdv_data:
+                continue
 
-                # Add to timeline
-                containers[container_id]["timeline"].append(
-                    {
-                        "time": row["time"],
-                        "component_id": row["component_id"],
-                        "action": row["action"],
-                    }
-                )
+            container_id = pdv_data["containerId"]
 
-                # Extract types data
-                if "types" in row["PDV"]:
-                    for type_id, type_data in row["PDV"]["types"].items():
-                        if type_id not in containers[container_id]["types"]:
-                            containers[container_id]["types"][type_id] = type_data
+            # Initialize container entry if not exists
+            if container_id not in containers:
+                containers[container_id] = {
+                    "types": {},
+                    "components_interacted": set(),
+                    "timeline": [],
+                    "first_seen": row.get("time", 0),
+                    "last_seen": row.get("time", 0),
+                    "attributes": {},  # For storing extracted attributes
+                }
+            else:
+                # Update last_seen time if this row has a later timestamp
+                if "time" in row and row["time"] > containers[container_id]["last_seen"]:
+                    containers[container_id]["last_seen"] = row["time"]
+
+            # Add component to the container's interacted components (with safe extraction)
+            if "component_id" in row and row["component_id"]:
+                containers[container_id]["components_interacted"].add(row["component_id"])
+
+            # Add to timeline with safe extraction
+            timeline_entry = {
+                "time": row.get("time", 0),
+                "component_id": row.get("component_id", "unknown"),
+                "action": row.get("action", "unknown"),
+            }
+
+            # Add values data if available
+            if "values" in row and isinstance(row["values"], dict):
+                timeline_entry["values"] = row["values"]
+
+            containers[container_id]["timeline"].append(timeline_entry)
+
+            # Extract types data with safe handling
+            if "types" in pdv_data and isinstance(pdv_data["types"], dict):
+                for type_id, type_data in pdv_data["types"].items():
+                    if type_id not in containers[container_id]["types"]:
+                        containers[container_id]["types"][type_id] = type_data
+
+                        # Extract attributes for easier access
+                        if isinstance(type_data, dict) and "attributes" in type_data:
+                            type_name = type_data.get("typeName", "unknown_type")
+                            if type_name not in containers[container_id]["attributes"]:
+                                containers[container_id]["attributes"][type_name] = {}
+
+                            # Extract attribute values
+                            if isinstance(type_data["attributes"], dict):
+                                for attr_name, attr_data in type_data["attributes"].items():
+                                    if isinstance(attr_data, dict) and "value" in attr_data:
+                                        containers[container_id]["attributes"][type_name][attr_name] = attr_data["value"]
 
         return containers
 
@@ -789,16 +1021,25 @@ class CSVScraper:
                 productive_actions = action_counts.get("GENERATE", 0)
 
             elif "resource" in self.components_data[comp_id]["type"]:
-                # For resources, efficiency is based on ENTER to Exit ratio
-                enters = action_counts.get("ENTER", 0)
-                exits = action_counts.get("Exit", 0)
+                # First try to use IN and OUT actions for efficiency
+                ins = action_counts.get("IN", 0)
+                outs = action_counts.get("OUT", 0)
 
-                if enters > 0:
-                    productive_actions = exits
-                    total_actions = enters
+                # If we have IN/OUT actions, use those for efficiency
+                if ins > 0:
+                    productive_actions = outs
+                    total_actions = ins
                 else:
-                    productive_actions = 0
-                    total_actions = 1  # Avoid division by zero
+                    # Fallback to ENTER/Exit if no IN/OUT actions
+                    enters = action_counts.get("ENTER", 0)
+                    exits = action_counts.get("Exit", 0)
+
+                    if enters > 0:
+                        productive_actions = exits
+                        total_actions = enters
+                    else:
+                        productive_actions = 0
+                        total_actions = 1  # Avoid division by zero
             else:
                 # Generic case
                 total_actions = len(actions)
@@ -817,6 +1058,44 @@ class CSVScraper:
             if not component_id
             else component_efficiency.get(component_id, 0.0)
         )
+
+    def calculate_all_processing_times(self) -> Dict[str, float]:
+        """
+        Calculate overall processing time metrics across all components.
+
+        Returns:
+            Dictionary with overall processing time statistics
+        """
+        # Get processing times for all components
+        all_component_times = self.calculate_processing_time()
+
+        # Collect all processing times into a single list
+        all_times = []
+        for comp_data in all_component_times.values():
+            if "count" in comp_data and comp_data["count"] > 0:
+                # If we have individual times, add them
+                if "times" in comp_data and comp_data["times"]:
+                    all_times.extend(comp_data["times"])
+
+        # Calculate statistics if we have times
+        if all_times:
+            return {
+                "mean": round(np.mean(all_times), 2),
+                "median": round(np.median(all_times), 2),
+                "min": round(min(all_times), 2),
+                "max": round(max(all_times), 2),
+                "count": len(all_times),
+                "times": all_times
+            }
+        else:
+            return {
+                "mean": 0,
+                "median": 0,
+                "min": 0,
+                "max": 0,
+                "count": 0,
+                "times": []
+            }
 
     def calculate_processing_time(
         self, component_id: Optional[str] = None
@@ -866,23 +1145,96 @@ class CSVScraper:
                     ]
 
             elif comp_type == "resource":
-                # For resources, processing time is ENTER to Exit time
-                # Create pairs of ENTER and Exit actions
-                enter_exit_pairs = []
-                current_enter = None
+                # Prioritize IN and OUT actions for processing time calculation
+                # as per user requirements
+                in_out_pairs = []
+                in_input_counts = {}  # Track input_count for IN actions
+                in_container_ids = {}  # Track container IDs for IN actions
 
+                # First pass: collect all IN actions with their input_count and container ID
                 for action in sorted_actions:
-                    if action["action"] == "ENTER":
-                        current_enter = action
-                    elif action["action"] == "Exit" and current_enter:
-                        enter_exit_pairs.append((current_enter, action))
-                        current_enter = None
+                    if action["action"] == "IN":
+                        # Get input_count if available
+                        input_count = None
+                        container_id = None
 
-                # Calculate processing time for each pair
-                times = [
-                    exit_action["time"] - enter_action["time"]
-                    for enter_action, exit_action in enter_exit_pairs
+                        if isinstance(action.get("values"), dict):
+                            input_count = action["values"].get("input_count")
+
+                        # Try to extract container ID from PDV if available
+                        pdv = action.get("PDV", {})
+                        if isinstance(pdv, dict) and "containerId" in pdv:
+                            container_id = pdv["containerId"]
+
+                        # Store by both input_count and container_id for better matching
+                        if input_count is not None:
+                            in_input_counts[input_count] = action
+
+                        if container_id is not None:
+                            in_container_ids[container_id] = action
+
+                # Second pass: match OUT actions with IN actions
+                for action in sorted_actions:
+                    if action["action"] == "OUT":
+                        matched = False
+
+                        # Try to match by input_count first
+                        input_count = None
+                        if isinstance(action.get("values"), dict):
+                            input_count = action["values"].get("input_count")
+
+                        if input_count is not None and input_count in in_input_counts:
+                            in_action = in_input_counts[input_count]
+                            # Only pair if OUT comes after IN
+                            if action["time"] > in_action["time"]:
+                                in_out_pairs.append((in_action, action))
+                                # Remove from tracking to avoid duplicate matches
+                                del in_input_counts[input_count]
+                                matched = True
+
+                        # If not matched by input_count, try to match by container ID
+                        if not matched:
+                            container_id = None
+                            pdv = action.get("PDV", {})
+                            if isinstance(pdv, dict) and "containerId" in pdv:
+                                container_id = pdv["containerId"]
+
+                            if container_id is not None and container_id in in_container_ids:
+                                in_action = in_container_ids[container_id]
+                                # Only pair if OUT comes after IN
+                                if action["time"] > in_action["time"]:
+                                    in_out_pairs.append((in_action, action))
+                                    # Remove from tracking to avoid duplicate matches
+                                    del in_container_ids[container_id]
+
+                # Calculate processing time for IN/OUT pairs
+                in_out_times = [
+                    out_action["time"] - in_action["time"]
+                    for in_action, out_action in in_out_pairs
                 ]
+
+                # If we found IN/OUT pairs, use those times
+                if in_out_times:
+                    print(f"Using {len(in_out_times)} IN/OUT pairs for processing time calculation for {comp_id}")
+                    times = in_out_times
+                else:
+                    # Fallback to ENTER/Exit pairs if no IN/OUT pairs were found
+                    print(f"No IN/OUT pairs found for {comp_id}, falling back to ENTER/Exit pairs")
+                    enter_exit_pairs = []
+                    current_enter = None
+
+                    for action in sorted_actions:
+                        if action["action"] == "ENTER":
+                            current_enter = action
+                        elif action["action"] == "Exit" and current_enter:
+                            enter_exit_pairs.append((current_enter, action))
+                            current_enter = None
+
+                    # Calculate processing time for ENTER/Exit pairs
+                    times = [
+                        exit_action["time"] - enter_action["time"]
+                        for enter_action, exit_action in enter_exit_pairs
+                    ]
 
             # Calculate statistics if we have times
             if times:
@@ -892,6 +1244,7 @@ class CSVScraper:
                     "min": round(min(times), 2),
                     "max": round(max(times), 2),
                     "count": len(times),
+                    "times": times  # Store the individual times for aggregation
                 }
             else:
                 processing_times[comp_id] = {
@@ -900,6 +1253,7 @@ class CSVScraper:
                     "min": 0,
                     "max": 0,
                     "count": 0,
+                    "times": []
                 }
 
         return (
@@ -1080,15 +1434,51 @@ class CSVScraper:
                 )
 
             elif comp_type == "resource":
-                # For resources, active time is ENTER to Exit time
-                current_enter = None
+                # First try to use IN and OUT actions for active time
+                in_input_counts = {}  # Track input_count for IN actions
 
+                # First pass: collect all IN actions with their input_count
                 for action in sorted_actions:
-                    if action["action"] == "ENTER":
-                        current_enter = action
-                    elif action["action"] == "Exit" and current_enter:
-                        active_time += action["time"] - current_enter["time"]
-                        current_enter = None
+                    if action["action"] == "IN":
+                        # Get input_count if available
+                        input_count = None
+                        if isinstance(action.get("values"), dict):
+                            input_count = action["values"].get("input_count")
+
+                        if input_count is not None:
+                            in_input_counts[input_count] = action
+
+                # Second pass: match OUT actions with IN actions by input_count
+                in_out_active_time = 0
+                for action in sorted_actions:
+                    if action["action"] == "OUT":
+                        # Get input_count if available
+                        input_count = None
+                        if isinstance(action.get("values"), dict):
+                            input_count = action["values"].get("input_count")
+
+                        # If we have a matching IN action with the same input_count
+                        if input_count is not None and input_count in in_input_counts:
+                            in_action = in_input_counts[input_count]
+                            # Only pair if OUT comes after IN
+                            if action["time"] > in_action["time"]:
+                                in_out_active_time += action["time"] - in_action["time"]
+                                # Remove from tracking to avoid duplicate matches
+                                del in_input_counts[input_count]
+
+                # If we found IN/OUT pairs, use that active time
+                if in_out_active_time > 0:
+                    active_time = in_out_active_time
+                else:
+                    # Fallback to ENTER/Exit pairs if no IN/OUT pairs were found
+                    current_enter = None
+
+                    for action in sorted_actions:
+                        if action["action"] == "ENTER":
+                            current_enter = action
+                        elif action["action"] == "Exit" and current_enter:
+                            active_time += action["time"] - current_enter["time"]
+                            current_enter = None
 
             # Calculate utilization as a percentage
             if total_time > 0:
@@ -1259,6 +1649,172 @@ class CSVScraper:
 
         return report
 
+    def get_container_count_timeline(self) -> Dict[str, Any]:
+        """
+        Calculate the number of containers being processed at each time point in the simulation.
+
+        This method tracks when containers enter and exit processing (using IN and OUT actions)
+        to determine how many containers are in the system at each time point.
+
+        Returns:
+            Dictionary with timeline data showing container counts at each time point
+        """
+        if self.df is None:
+            return {"error": "No data loaded"}
+
+        print("Generating container count timeline data...")
+
+        # Get time range
+        time_range = self.get_time_range()
+        min_time = time_range.get("min_time", 0)
+        max_time = time_range.get("max_time", 100)
+
+        # Create timeline with appropriate time steps
+        # If the simulation is very long, use larger time steps
+        time_span = max_time - min_time
+        if time_span > 1000:
+            # Use larger time steps for very long simulations
+            step_size = max(1, time_span // 500)  # Limit to ~500 data points
+        else:
+            step_size = 1
+
+        timeline = list(range(min_time, max_time + 1, step_size))
+
+        # Initialize container count at each time point
+        container_counts = {t: 0 for t in timeline}
+
+        # Track container entry and exit events
+        container_events = []
+
+        # Process all container events from the CSV data
+        for _, row in self.df.iterrows():
+            # Skip rows without PDV or containerId
+            if not isinstance(row["PDV"], dict) or "containerId" not in row["PDV"]:
+                continue
+
+            container_id = row["PDV"]["containerId"]
+            action = row["action"]
+            time = row["time"]
+
+            # Track when containers enter processing (IN action)
+            if action == "IN":
+                container_events.append({"time": time, "event": "enter", "container_id": container_id})
+
+            # Track when containers exit processing (OUT action)
+            elif action == "OUT":
+                container_events.append({"time": time, "event": "exit", "container_id": container_id})
+
+        # Sort events by time
+        container_events.sort(key=lambda x: x["time"])
+
+        # Process events to calculate container count at each time point
+        active_containers = set()
+        last_count = 0
+        last_time = min_time
+
+        for event in container_events:
+            time = event["time"]
+            container_id = event["container_id"]
+
+            # Update counts for all time points between last_time and current time
+            for t in timeline:
+                if last_time <= t < time:
+                    container_counts[t] = len(active_containers)
+
+            # Update active containers based on event type
+            if event["event"] == "enter":
+                active_containers.add(container_id)
+            elif event["event"] == "exit" and container_id in active_containers:
+                active_containers.remove(container_id)
+
+            last_time = time
+            last_count = len(active_containers)
+
+        # Fill in remaining time points after the last event
+        for t in timeline:
+            if t >= last_time:
+                container_counts[t] = last_count
+
+        # Format data for chart
+        data_points = [{"x": t, "y": container_counts[t]} for t in timeline]
+
+        return {
+            "timeline": timeline,
+            "container_counts": container_counts,
+            "data_points": data_points,
+            "max_count": max(container_counts.values()) if container_counts else 0
+        }
+
+    def get_gentype_distribution(self) -> Dict[str, Any]:
+        """
+        Analyze the distribution of GenTypes in the simulation.
+
+        This method identifies all GenTypes created during the simulation and
+        calculates their percentage distribution.
+
+        Returns:
+            Dictionary with GenType distribution data
+        """
+        if self.df is None:
+            return {"error": "No data loaded"}
+
+        print("Analyzing GenType distribution...")
+
+        # Track GenType occurrences
+        gentype_counts = {}
+
+        # Process all rows to identify GenTypes
+        for _, row in self.df.iterrows():
+            # Skip rows without PDV
+            if not isinstance(row["PDV"], dict) or "types" not in row["PDV"]:
+                continue
+
+            # Extract types data
+            types_data = row["PDV"]["types"]
+
+            # Handle different formats of types data
+            if isinstance(types_data, dict):
+                # Format: {"type1": {...}, "type2": {...}}
+                for type_name, type_data in types_data.items():
+                    # Extract the actual type name from the data if available
+                    if isinstance(type_data, dict) and "typeName" in type_data:
+                        actual_type_name = type_data["typeName"]
+                    else:
+                        actual_type_name = type_name
+
+                    if actual_type_name not in gentype_counts:
+                        gentype_counts[actual_type_name] = 0
+                    gentype_counts[actual_type_name] += 1
+            elif isinstance(types_data, list):
+                # Format: [{"name": "type1", ...}, {"name": "type2", ...}]
+                for type_item in types_data:
+                    if isinstance(type_item, dict):
+                        # Try different possible field names for type name
+                        type_name = type_item.get("name") or type_item.get("typeName")
+                        if type_name:
+                            if type_name not in gentype_counts:
+                                gentype_counts[type_name] = 0
+                            gentype_counts[type_name] += 1
+
+        # Calculate total count
+        total_count = sum(gentype_counts.values())
+
+        # Calculate percentages
+        gentype_percentages = {}
+        for type_name, count in gentype_counts.items():
+            percentage = (count / total_count * 100) if total_count > 0 else 0
+            gentype_percentages[type_name] = round(percentage, 2)
+
+        # Format data for pie chart
+        data_points = [{"x": type_name, "y": percentage} for type_name, percentage in gentype_percentages.items()]
+
+        return {
+            "counts": gentype_counts,
+            "percentages": gentype_percentages,
+            "data_points": data_points,
+            "total_count": total_count
+        }
+
     def get_component_processing_time_chart_data(self) -> Dict[str, Any]:
         """
         Extract and format component processing time data for line chart visualization.
@@ -1267,11 +1823,17 @@ class CSVScraper:
         data suitable for creating a line chart where each component is represented
         as a line showing its processing time.
 
+        Prioritizes IN/OUT action pairs for processing time calculation as per requirements.
+
+        Creates a continuous timeline showing component processing states.
+
         Returns:
             Dictionary with component processing time data formatted for line charts
         """
         if self.df is None:
             return {"error": "No data loaded"}
+
+        print("Generating component processing time chart data...")
 
         # Initialize result structure
         result = {
@@ -1279,6 +1841,7 @@ class CSVScraper:
             "time_range": self.get_time_range(),
             "component_types": {},
             "chart_data": {"labels": [], "datasets": []},
+            "continuous_data": {},  # For continuous timeline representation
         }
 
         # Get unique components
@@ -1286,16 +1849,26 @@ class CSVScraper:
             ["component_id", "component_type"]
         ].drop_duplicates()
 
+        print(f"Found {len(unique_components)} unique components in the CSV data")
+
         # Initialize data structure for each component
         for _, row in unique_components.iterrows():
             comp_id = row["component_id"]
             comp_type = row["component_type"]
 
+            # Use a more readable name format
+            if len(comp_id) > 8:
+                display_name = f"{comp_type} ({comp_id[:8]}...)"
+            else:
+                display_name = f"{comp_type} ({comp_id})"
+
             result["components"][comp_id] = {
                 "type": comp_type,
                 "processing_data": [],
-                "name": f"{comp_type} ({comp_id[:8]}...)",
+                "name": display_name,
             }
+
+            print(f"Initialized component: {display_name} (ID: {comp_id}, Type: {comp_type})")
 
             # Track component types
             if comp_type not in result["component_types"]:
@@ -1335,42 +1908,156 @@ class CSVScraper:
                     )
 
             elif comp_type == "resource":
-                # For resources, track ENTER to Exit time
-                # Create a dictionary to track enter times for containers
-                container_enter_times = {}
+                # IMPORTANT: For resource components, we MUST use IN and OUT actions for processing time
+                # as per user requirements
+                print(f"Processing resource component: {comp_id}")
 
+                # Create dictionaries to track container processing
+                container_in_times = {}
+                container_in_input_counts = {}
+
+                # Count IN and OUT actions for debugging
+                in_count = len(comp_data[comp_data["action"] == "IN"])
+                out_count = len(comp_data[comp_data["action"] == "OUT"])
+                print(f"Component {comp_id} has {in_count} IN actions and {out_count} OUT actions")
+
+                # First pass: collect all IN actions with their input_count and container_id
                 for _, row in comp_data.iterrows():
+                    if row["action"] != "IN":
+                        continue
+
                     # Get container ID
                     container_id = None
                     if isinstance(row["PDV"], dict) and "containerId" in row["PDV"]:
                         container_id = row["PDV"]["containerId"]
+                    else:
+                        continue  # Skip if no container ID
 
-                    if container_id:
-                        if row["action"] == "ENTER":
-                            # Record enter time for this container
-                            container_enter_times[container_id] = row["time"]
-                        elif (
-                            row["action"] == "Exit"
-                            and container_id in container_enter_times
-                        ):
-                            # Calculate processing time
-                            enter_time = container_enter_times[container_id]
-                            exit_time = row["time"]
-                            processing_time = exit_time - enter_time
+                    # Get input_count if available
+                    input_count = None
+                    if isinstance(row["values"], dict):
+                        input_count = row["values"].get("input_count")
+
+                    # Record IN time by both container_id and input_count for better matching
+                    container_in_times[container_id] = row["time"]
+
+                    if input_count is not None:
+                        container_in_input_counts[(container_id, input_count)] = row["time"]
+                        print(f"Recorded IN action for container {container_id} with input_count {input_count} at time {row['time']}")
+                    else:
+                        print(f"Recorded IN action for container {container_id} without input_count at time {row['time']}")
+
+                # Second pass: match OUT actions with IN actions
+                matched_pairs = 0
+                for _, row in comp_data.iterrows():
+                    if row["action"] != "OUT":
+                        continue
+
+                    # Get container ID
+                    container_id = None
+                    if isinstance(row["PDV"], dict) and "containerId" in row["PDV"]:
+                        container_id = row["PDV"]["containerId"]
+                    else:
+                        continue  # Skip if no container ID
+
+                    # Get input_count if available
+                    input_count = None
+                    if isinstance(row["values"], dict):
+                        input_count = row["values"].get("input_count")
+
+                    # Try to match by container_id and input_count first (more precise)
+                    matched = False
+                    if input_count is not None and (container_id, input_count) in container_in_input_counts:
+                        in_time = container_in_input_counts[(container_id, input_count)]
+                        out_time = row["time"]
+
+                        # Only calculate if OUT comes after IN
+                        if out_time > in_time:
+                            processing_time = out_time - in_time
+                            matched_pairs += 1
+
+                            print(f"Matched OUT action for container {container_id} with input_count {input_count} - processing time: {processing_time}")
 
                             # Add data point
-                            result["components"][comp_id]["processing_data"].append(
-                                {
-                                    "time": enter_time,  # Use enter time as the reference point
-                                    "processing_time": processing_time,
-                                    "container_id": container_id,
-                                    "action": "PROCESS",  # Custom action to represent processing
-                                    "exit_time": exit_time,
-                                }
-                            )
+                            result["components"][comp_id]["processing_data"].append({
+                                "time": in_time,  # Use IN time as the reference point
+                                "processing_time": processing_time,
+                                "container_id": container_id,
+                                "action": "PROCESS",  # Custom action to represent processing
+                                "exit_time": out_time,
+                                "input_count": input_count
+                            })
+
+                            # Remove from tracking to avoid duplicate matches
+                            del container_in_input_counts[(container_id, input_count)]
+                            if container_id in container_in_times:
+                                del container_in_times[container_id]
+
+                            matched = True
+
+                    # Fallback to just container_id if no input_count match
+                    if not matched and container_id in container_in_times:
+                        in_time = container_in_times[container_id]
+                        out_time = row["time"]
+
+                        # Only calculate if OUT comes after IN
+                        if out_time > in_time:
+                            processing_time = out_time - in_time
+                            matched_pairs += 1
+
+                            print(f"Matched OUT action for container {container_id} by container ID only - processing time: {processing_time}")
+
+                            # Add data point
+                            result["components"][comp_id]["processing_data"].append({
+                                "time": in_time,  # Use IN time as the reference point
+                                "processing_time": processing_time,
+                                "container_id": container_id,
+                                "action": "PROCESS",  # Custom action to represent processing
+                                "exit_time": out_time
+                            })
 
                             # Remove from tracking
-                            del container_enter_times[container_id]
+                            del container_in_times[container_id]
+
+                print(f"Successfully matched {matched_pairs} IN/OUT pairs for component {comp_id}")
+
+                # If no IN/OUT pairs were found, fallback to ENTER/Exit
+                if not result["components"][comp_id]["processing_data"]:
+                    # Create a dictionary to track enter times for containers
+                    container_enter_times = {}
+
+                    for _, row in comp_data.iterrows():
+                        # Get container ID
+                        container_id = None
+                        if isinstance(row["PDV"], dict) and "containerId" in row["PDV"]:
+                            container_id = row["PDV"]["containerId"]
+
+                        if container_id:
+                            if row["action"] == "ENTER":
+                                # Record enter time for this container
+                                container_enter_times[container_id] = row["time"]
+                            elif (
+                                row["action"] == "Exit"
+                                and container_id in container_enter_times
+                            ):
+                                # Calculate processing time
+                                enter_time = container_enter_times[container_id]
+                                exit_time = row["time"]
+                                processing_time = exit_time - enter_time
+
+                                # Add data point
+                                result["components"][comp_id]["processing_data"].append(
+                                    {
+                                        "time": enter_time,  # Use enter time as the reference point
+                                        "processing_time": processing_time,
+                                        "container_id": container_id,
+                                        "action": "PROCESS",  # Custom action to represent processing
+                                        "exit_time": exit_time,
+                                    }
+                                )
+
+                                # Remove from tracking
+                                del container_enter_times[container_id]
 
                     # Also track in_time and out_time from values
                     in_time = None
@@ -1411,39 +2098,115 @@ class CSVScraper:
                 sum(processing_times) / len(processing_times) if processing_times else 0
             )
 
-        # Prepare chart data in a format suitable for line charts
-        # Create a unified timeline for all components
-        all_times = []
-        for comp_id, comp_data in result["components"].items():
-            for entry in comp_data["processing_data"]:
-                all_times.append(entry["time"])
+        # Create a continuous timeline for all simulation times
+        time_range = result["time_range"]
+        min_time = time_range.get("min_time", 0)
+        max_time = time_range.get("max_time", 100)
 
-        # Sort and deduplicate times
-        all_times = sorted(list(set(all_times)))
+        # Create a more granular timeline for better visualization
+        all_times = list(range(min_time, max_time + 1))
         result["chart_data"]["labels"] = all_times
 
-        # Create datasets for each component
+        print(f"Created continuous timeline from {min_time} to {max_time}")
+
+        # Track component processing states over time
+        component_states = {}
+
+        # Initialize component states
         for comp_id, comp_data in result["components"].items():
-            # Create a mapping of time to processing time for this component
-            time_to_processing = {
-                entry["time"]: entry["processing_time"]
-                for entry in comp_data["processing_data"]
+            component_states[comp_id] = {
+                "name": comp_data["name"],
+                "type": comp_data["type"],
+                "processing_state": [0] * len(all_times),  # 0 = idle, 1 = processing
+                "active_containers": {},  # Track containers being processed at each time
             }
 
-            # Create dataset
-            dataset = {
-                "label": comp_data["name"],
-                "data": [time_to_processing.get(time, None) for time in all_times],
+        # Fill in processing states based on IN/OUT pairs
+        for comp_id, comp_data in result["components"].items():
+            print(f"Creating continuous timeline for component {comp_id}")
+
+            # Process each IN/OUT pair to mark active processing periods
+            for entry in comp_data["processing_data"]:
+                in_time = entry["time"]
+                out_time = entry.get("exit_time", in_time + entry["processing_time"])
+                container_id = entry.get("container_id", "unknown")
+
+                # Find indices in the timeline
+                try:
+                    start_idx = all_times.index(in_time)
+                    # Ensure out_time is within the timeline range
+                    end_idx = min(all_times.index(out_time) if out_time in all_times else len(all_times)-1, len(all_times)-1)
+
+                    # Mark the component as processing during this period
+                    for i in range(start_idx, end_idx + 1):
+                        component_states[comp_id]["processing_state"][i] = 1
+
+                        # Track which container is being processed
+                        if i not in component_states[comp_id]["active_containers"]:
+                            component_states[comp_id]["active_containers"][i] = []
+                        component_states[comp_id]["active_containers"][i].append(container_id)
+
+                    print(f"  Marked processing from time {in_time} to {out_time} for container {container_id}")
+                except ValueError as e:
+                    print(f"  Warning: Could not mark processing time for {comp_id}: {e}")
+
+        # Create datasets for continuous processing state visualization
+        for comp_id, state_data in component_states.items():
+            # Create dataset for processing state (0 or 1)
+            state_dataset = {
+                "label": state_data["name"],
+                "data": state_data["processing_state"],
                 "component_id": comp_id,
-                "component_type": comp_data["type"],
+                "component_type": state_data["type"],
             }
 
-            result["chart_data"]["datasets"].append(dataset)
+            result["chart_data"]["datasets"].append(state_dataset)
 
-        # Add a simplified format for direct chart use
-        result["line_chart_data"] = {"components": [], "timeline": all_times}
+        # Store the continuous data for additional charts
+        result["continuous_data"] = component_states
 
-        # Group by component type
+        # Create a new format for the continuous processing time chart
+        result["continuous_chart_data"] = {
+            "timeline": all_times,
+            "components": []
+        }
+
+        # Group by component type for the continuous chart
+        for comp_type, comp_ids in result["component_types"].items():
+            component_group = {"type": comp_type, "components": []}
+
+            for comp_id in comp_ids:
+                if comp_id in component_states:
+                    state_data = component_states[comp_id]
+                    comp_data = result["components"][comp_id]
+
+                    # Create component data with continuous processing state
+                    component = {
+                        "id": comp_id,
+                        "name": state_data["name"],
+                        "processing_state": state_data["processing_state"],
+                        "avg_processing_time": comp_data.get("avg_processing_time", 0),
+                    }
+
+                    component_group["components"].append(component)
+
+            result["continuous_chart_data"]["components"].append(component_group)
+
+        # Also keep the original discrete data points for reference
+        # Create a unified timeline for all discrete data points
+        discrete_times = []
+        for comp_id, comp_data in result["components"].items():
+            for entry in comp_data["processing_data"]:
+                discrete_times.append(entry["time"])
+
+        # Sort and deduplicate discrete times
+        discrete_times = sorted(list(set(discrete_times)))
+        result["discrete_chart_data"] = {
+            "timeline": discrete_times,
+            "components": []
+        }
+
+        # Group by component type for the discrete chart
         for comp_type, comp_ids in result["component_types"].items():
             component_group = {"type": comp_type, "components": []}
 
@@ -1461,13 +2224,13 @@ class CSVScraper:
                     "id": comp_id,
                     "name": comp_data["name"],
                     "processing_times": [
-                        time_to_processing.get(time, 0) for time in all_times
+                        time_to_processing.get(time, 0) for time in discrete_times
                     ],
-                    "avg_processing_time": comp_data["avg_processing_time"],
+                    "avg_processing_time": comp_data.get("avg_processing_time", 0),
                 }
 
                 component_group["components"].append(component)
 
-            result["line_chart_data"]["components"].append(component_group)
+            result["discrete_chart_data"]["components"].append(component_group)
 
         return result
