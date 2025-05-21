@@ -360,6 +360,15 @@ class GenContainer(BaseModel):
         """
         return self.Data.get(type_name)
 
+    def get_by_name(self, name: str) -> Optional[GenTypes]:
+        """
+        Get a GenTypes instance by name.
+        """
+        for key, value in self.Data.items():
+            if value.typeName == name:
+                return value
+        return None
+
     def insert_data(self, data: Dict[str, GenTypes]) -> None:
         """
         Insert multiple GenTypes instances.
@@ -406,10 +415,7 @@ class GenContainer(BaseModel):
         Ensures the output is valid JSON.
         """
         # Create a clean dictionary with only the needed fields
-        result = {
-            "containerId": self.containerId,
-            "types": {}
-        }
+        result = {"containerId": self.containerId, "types": {}}
 
         # Process each GenType in the Data dictionary
         for key, gen in self.Data.items():
@@ -432,7 +438,6 @@ class GenContainer(BaseModel):
             if gen.typeName == type_name:
                 return True
         return False
-
 
 
 # -----------------------------

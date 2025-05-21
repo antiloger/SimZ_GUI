@@ -5,6 +5,18 @@ from typing import Any, List, Dict, Optional
 import duckdb
 
 
+def log_console(message: str, logger_console: bool = False) -> None:
+    """
+    Utility function to control console output.
+
+    Args:
+        message: The message to print
+        logger_console: Whether to print the message to the console (default: False)
+    """
+    if logger_console:
+        print(message)
+
+
 class CsvLogger:
     """
     A simple, efficient CSV logger leveraging Python's built-in buffering and DuckDB.
@@ -52,7 +64,7 @@ class CsvLogger:
             # Basic error handling: print to stderr
             import sys
 
-            print(f"[CsvLogger] Error writing event: {e}", file=sys.stderr)
+            log_console(f"[CsvLogger] Error writing event: {e}", logger_console=False)
 
     def flush(self) -> None:
         """Flush the I/O buffer to disk."""
@@ -62,7 +74,7 @@ class CsvLogger:
         except Exception as e:
             import sys
 
-            print(f"[CsvLogger] Error flushing file: {e}", file=sys.stderr)
+            log_console(f"[CsvLogger] Error flushing file: {e}", logger_console=False)
 
     def close(self) -> None:
         """Flush and close the file handle."""

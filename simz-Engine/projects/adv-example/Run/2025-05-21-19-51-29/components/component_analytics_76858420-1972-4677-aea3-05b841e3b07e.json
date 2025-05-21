@@ -1,0 +1,1119 @@
+{
+    "id": "76858420-1972-4677-aea3-05b841e3b07e",
+    "name": "Resource 76858420-1972-4677-aea3-05b841e3b07e",
+    "type": "resource",
+    "dashboradData": [
+        {
+            "type": "card",
+            "header": "Component Utilization",
+            "description": "Percentage of time the component is active",
+            "value": 2.94,
+            "value_suffix": "%",
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": {
+                "value": 2.94,
+                "direction": "down",
+                "label": "Utilization Rate"
+            },
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Component Efficiency",
+            "description": "Ratio of productive actions to total actions",
+            "value": 104.0,
+            "value_suffix": "%",
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": {
+                "value": 104.0,
+                "direction": "up",
+                "label": "Efficiency Score"
+            },
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "bar",
+            "header": "Processing Time Statistics",
+            "description": "Time between IN and OUT actions (based on 39 pairs)",
+            "series": [
+                {
+                    "name": "Processing Time",
+                    "data": [
+                        {
+                            "x": "Mean",
+                            "y": 11.35897435897436
+                        },
+                        {
+                            "x": "Median",
+                            "y": 12.0
+                        },
+                        {
+                            "x": "Min",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "Max",
+                            "y": 15.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Time",
+                "x_axis_label": "Statistic",
+                "layout": "vertical",
+                "bar_type": "grouped",
+                "bar_size": null,
+                "bar_radius": null
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "bar",
+            "header": "Queue Statistics",
+            "description": "Statistics about queue length",
+            "series": [
+                {
+                    "name": "Queue Length",
+                    "data": [
+                        {
+                            "x": "Average",
+                            "y": 17.333333333333332
+                        },
+                        {
+                            "x": "Maximum",
+                            "y": 30.0
+                        },
+                        {
+                            "x": "Minimum",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Median",
+                            "y": 18.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Queue Length",
+                "x_axis_label": "Statistic",
+                "layout": "vertical",
+                "bar_type": "grouped",
+                "bar_size": null,
+                "bar_radius": null
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "line",
+            "header": "Queue Length Timeline",
+            "description": "Queue length over time during QUEUED, IN, and OUT actions",
+            "series": [
+                {
+                    "name": "Queue Length",
+                    "data": [
+                        {
+                            "x": "122",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "122",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "124",
+                            "y": 4.0
+                        },
+                        {
+                            "x": "124",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "124",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "124",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "125",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "129",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "130",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "131",
+                            "y": 4.0
+                        },
+                        {
+                            "x": "134",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "134",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "136",
+                            "y": 4.0
+                        },
+                        {
+                            "x": "136",
+                            "y": 4.0
+                        },
+                        {
+                            "x": "136",
+                            "y": 4.0
+                        },
+                        {
+                            "x": "137",
+                            "y": 5.0
+                        },
+                        {
+                            "x": "137",
+                            "y": 6.0
+                        },
+                        {
+                            "x": "138",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "138",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "142",
+                            "y": 7.0
+                        },
+                        {
+                            "x": "143",
+                            "y": 8.0
+                        },
+                        {
+                            "x": "143",
+                            "y": 9.0
+                        },
+                        {
+                            "x": "144",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "144",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "149",
+                            "y": 9.0
+                        },
+                        {
+                            "x": "149",
+                            "y": 9.0
+                        },
+                        {
+                            "x": "149",
+                            "y": 9.0
+                        },
+                        {
+                            "x": "150",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "150",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "151",
+                            "y": 10.0
+                        },
+                        {
+                            "x": "151",
+                            "y": 11.0
+                        },
+                        {
+                            "x": "154",
+                            "y": 12.0
+                        },
+                        {
+                            "x": "157",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "157",
+                            "y": 13.0
+                        },
+                        {
+                            "x": "157",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "159",
+                            "y": 14.0
+                        },
+                        {
+                            "x": "160",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "164",
+                            "y": 14.0
+                        },
+                        {
+                            "x": "164",
+                            "y": 14.0
+                        },
+                        {
+                            "x": "164",
+                            "y": 14.0
+                        },
+                        {
+                            "x": "166",
+                            "y": 15.0
+                        },
+                        {
+                            "x": "169",
+                            "y": 16.0
+                        },
+                        {
+                            "x": "172",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "172",
+                            "y": 17.0
+                        },
+                        {
+                            "x": "174",
+                            "y": 18.0
+                        },
+                        {
+                            "x": "177",
+                            "y": 18.0
+                        },
+                        {
+                            "x": "177",
+                            "y": 18.0
+                        },
+                        {
+                            "x": "177",
+                            "y": 18.0
+                        },
+                        {
+                            "x": "181",
+                            "y": 19.0
+                        },
+                        {
+                            "x": "182",
+                            "y": 20.0
+                        },
+                        {
+                            "x": "188",
+                            "y": 21.0
+                        },
+                        {
+                            "x": "190",
+                            "y": 22.0
+                        },
+                        {
+                            "x": "192",
+                            "y": 22.0
+                        },
+                        {
+                            "x": "192",
+                            "y": 21.0
+                        },
+                        {
+                            "x": "195",
+                            "y": 22.0
+                        },
+                        {
+                            "x": "196",
+                            "y": 23.0
+                        },
+                        {
+                            "x": "201",
+                            "y": 24.0
+                        },
+                        {
+                            "x": "207",
+                            "y": 24.0
+                        },
+                        {
+                            "x": "207",
+                            "y": 23.0
+                        },
+                        {
+                            "x": "209",
+                            "y": 24.0
+                        },
+                        {
+                            "x": "217",
+                            "y": 25.0
+                        },
+                        {
+                            "x": "218",
+                            "y": 25.0
+                        },
+                        {
+                            "x": "218",
+                            "y": 24.0
+                        },
+                        {
+                            "x": "222",
+                            "y": 25.0
+                        },
+                        {
+                            "x": "229",
+                            "y": 26.0
+                        },
+                        {
+                            "x": "231",
+                            "y": 26.0
+                        },
+                        {
+                            "x": "231",
+                            "y": 25.0
+                        },
+                        {
+                            "x": "236",
+                            "y": 26.0
+                        },
+                        {
+                            "x": "242",
+                            "y": 27.0
+                        },
+                        {
+                            "x": "246",
+                            "y": 27.0
+                        },
+                        {
+                            "x": "246",
+                            "y": 26.0
+                        },
+                        {
+                            "x": "249",
+                            "y": 27.0
+                        },
+                        {
+                            "x": "257",
+                            "y": 28.0
+                        },
+                        {
+                            "x": "258",
+                            "y": 28.0
+                        },
+                        {
+                            "x": "258",
+                            "y": 27.0
+                        },
+                        {
+                            "x": "265",
+                            "y": 28.0
+                        },
+                        {
+                            "x": "270",
+                            "y": 29.0
+                        },
+                        {
+                            "x": "272",
+                            "y": 29.0
+                        },
+                        {
+                            "x": "272",
+                            "y": 28.0
+                        },
+                        {
+                            "x": "277",
+                            "y": 29.0
+                        },
+                        {
+                            "x": "283",
+                            "y": 29.0
+                        },
+                        {
+                            "x": "283",
+                            "y": 28.0
+                        },
+                        {
+                            "x": "285",
+                            "y": 29.0
+                        },
+                        {
+                            "x": "291",
+                            "y": 30.0
+                        },
+                        {
+                            "x": "294",
+                            "y": 30.0
+                        },
+                        {
+                            "x": "294",
+                            "y": 29.0
+                        },
+                        {
+                            "x": "299",
+                            "y": 30.0
+                        },
+                        {
+                            "x": "307",
+                            "y": 30.0
+                        },
+                        {
+                            "x": "307",
+                            "y": 30.0
+                        },
+                        {
+                            "x": "307",
+                            "y": 30.0
+                        },
+                        {
+                            "x": "317",
+                            "y": 30.0
+                        },
+                        {
+                            "x": "317",
+                            "y": 29.0
+                        },
+                        {
+                            "x": "331",
+                            "y": 29.0
+                        },
+                        {
+                            "x": "331",
+                            "y": 28.0
+                        },
+                        {
+                            "x": "345",
+                            "y": 28.0
+                        },
+                        {
+                            "x": "345",
+                            "y": 27.0
+                        },
+                        {
+                            "x": "359",
+                            "y": 27.0
+                        },
+                        {
+                            "x": "359",
+                            "y": 26.0
+                        },
+                        {
+                            "x": "369",
+                            "y": 26.0
+                        },
+                        {
+                            "x": "369",
+                            "y": 25.0
+                        },
+                        {
+                            "x": "381",
+                            "y": 25.0
+                        },
+                        {
+                            "x": "381",
+                            "y": 24.0
+                        },
+                        {
+                            "x": "393",
+                            "y": 24.0
+                        },
+                        {
+                            "x": "393",
+                            "y": 23.0
+                        },
+                        {
+                            "x": "408",
+                            "y": 23.0
+                        },
+                        {
+                            "x": "408",
+                            "y": 22.0
+                        },
+                        {
+                            "x": "418",
+                            "y": 22.0
+                        },
+                        {
+                            "x": "418",
+                            "y": 21.0
+                        },
+                        {
+                            "x": "433",
+                            "y": 21.0
+                        },
+                        {
+                            "x": "433",
+                            "y": 20.0
+                        },
+                        {
+                            "x": "448",
+                            "y": 20.0
+                        },
+                        {
+                            "x": "448",
+                            "y": 19.0
+                        },
+                        {
+                            "x": "459",
+                            "y": 19.0
+                        },
+                        {
+                            "x": "459",
+                            "y": 18.0
+                        },
+                        {
+                            "x": "470",
+                            "y": 18.0
+                        },
+                        {
+                            "x": "470",
+                            "y": 17.0
+                        },
+                        {
+                            "x": "481",
+                            "y": 17.0
+                        },
+                        {
+                            "x": "481",
+                            "y": 16.0
+                        },
+                        {
+                            "x": "492",
+                            "y": 16.0
+                        },
+                        {
+                            "x": "492",
+                            "y": 15.0
+                        },
+                        {
+                            "x": "505",
+                            "y": 15.0
+                        },
+                        {
+                            "x": "505",
+                            "y": 14.0
+                        },
+                        {
+                            "x": "519",
+                            "y": 14.0
+                        },
+                        {
+                            "x": "519",
+                            "y": 13.0
+                        },
+                        {
+                            "x": "532",
+                            "y": 13.0
+                        },
+                        {
+                            "x": "532",
+                            "y": 12.0
+                        },
+                        {
+                            "x": "542",
+                            "y": 12.0
+                        },
+                        {
+                            "x": "542",
+                            "y": 11.0
+                        },
+                        {
+                            "x": "553",
+                            "y": 11.0
+                        },
+                        {
+                            "x": "553",
+                            "y": 10.0
+                        },
+                        {
+                            "x": "567",
+                            "y": 10.0
+                        },
+                        {
+                            "x": "567",
+                            "y": 9.0
+                        },
+                        {
+                            "x": "580",
+                            "y": 9.0
+                        },
+                        {
+                            "x": "580",
+                            "y": 8.0
+                        },
+                        {
+                            "x": "593",
+                            "y": 8.0
+                        },
+                        {
+                            "x": "593",
+                            "y": 7.0
+                        },
+                        {
+                            "x": "606",
+                            "y": 7.0
+                        },
+                        {
+                            "x": "606",
+                            "y": 6.0
+                        },
+                        {
+                            "x": "621",
+                            "y": 6.0
+                        },
+                        {
+                            "x": "621",
+                            "y": 5.0
+                        },
+                        {
+                            "x": "632",
+                            "y": 5.0
+                        },
+                        {
+                            "x": "632",
+                            "y": 4.0
+                        },
+                        {
+                            "x": "646",
+                            "y": 4.0
+                        },
+                        {
+                            "x": "646",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "660",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "660",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "675",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "675",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "686",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "686",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "700",
+                            "y": 0.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Queue Length",
+                "x_axis_label": "Simulation Time",
+                "type": "linear",
+                "show_dots": true,
+                "dot_size": 4,
+                "active_dot_size": 6,
+                "stroke_width": 2
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "line",
+            "header": "Container Processing Times",
+            "description": "Processing time for each container (44 containers)",
+            "series": [
+                {
+                    "name": "Processing Time",
+                    "data": [
+                        {
+                            "x": "Container 1",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "Container 2",
+                            "y": 5.0
+                        },
+                        {
+                            "x": "Container 3",
+                            "y": 6.0
+                        },
+                        {
+                            "x": "Container 4",
+                            "y": 7.0
+                        },
+                        {
+                            "x": "Container 5",
+                            "y": 8.0
+                        },
+                        {
+                            "x": "Container 6",
+                            "y": 12.0
+                        },
+                        {
+                            "x": "Container 7",
+                            "y": 13.0
+                        },
+                        {
+                            "x": "Container 8",
+                            "y": 15.0
+                        },
+                        {
+                            "x": "Container 9",
+                            "y": 17.0
+                        },
+                        {
+                            "x": "Container 10",
+                            "y": 21.0
+                        },
+                        {
+                            "x": "Container 11",
+                            "y": 23.0
+                        },
+                        {
+                            "x": "Container 12",
+                            "y": 26.0
+                        },
+                        {
+                            "x": "Container 13",
+                            "y": 41.0
+                        },
+                        {
+                            "x": "Container 14",
+                            "y": 53.0
+                        },
+                        {
+                            "x": "Container 15",
+                            "y": 61.0
+                        },
+                        {
+                            "x": "Container 16",
+                            "y": 72.0
+                        },
+                        {
+                            "x": "Container 17",
+                            "y": 82.0
+                        },
+                        {
+                            "x": "Container 18",
+                            "y": 92.0
+                        },
+                        {
+                            "x": "Container 19",
+                            "y": 103.0
+                        },
+                        {
+                            "x": "Container 20",
+                            "y": 111.0
+                        },
+                        {
+                            "x": "Container 21",
+                            "y": 120.0
+                        },
+                        {
+                            "x": "Container 22",
+                            "y": 130.0
+                        },
+                        {
+                            "x": "Container 23",
+                            "y": 136.0
+                        },
+                        {
+                            "x": "Container 24",
+                            "y": 149.0
+                        },
+                        {
+                            "x": "Container 25",
+                            "y": 157.0
+                        },
+                        {
+                            "x": "Container 26",
+                            "y": 169.0
+                        },
+                        {
+                            "x": "Container 27",
+                            "y": 174.0
+                        },
+                        {
+                            "x": "Container 28",
+                            "y": 185.0
+                        },
+                        {
+                            "x": "Container 29",
+                            "y": 192.0
+                        },
+                        {
+                            "x": "Container 30",
+                            "y": 199.0
+                        },
+                        {
+                            "x": "Container 31",
+                            "y": 201.0
+                        },
+                        {
+                            "x": "Container 32",
+                            "y": 211.0
+                        },
+                        {
+                            "x": "Container 33",
+                            "y": 219.0
+                        },
+                        {
+                            "x": "Container 34",
+                            "y": 223.0
+                        },
+                        {
+                            "x": "Container 35",
+                            "y": 228.0
+                        },
+                        {
+                            "x": "Container 36",
+                            "y": 232.0
+                        },
+                        {
+                            "x": "Container 37",
+                            "y": 235.0
+                        },
+                        {
+                            "x": "Container 38",
+                            "y": 240.0
+                        },
+                        {
+                            "x": "Container 39",
+                            "y": 249.0
+                        },
+                        {
+                            "x": "Container 40",
+                            "y": 255.0
+                        },
+                        {
+                            "x": "Container 41",
+                            "y": 257.0
+                        },
+                        {
+                            "x": "Container 42",
+                            "y": 262.0
+                        },
+                        {
+                            "x": "Container 43",
+                            "y": 268.0
+                        },
+                        {
+                            "x": "Container 44",
+                            "y": 273.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Processing Time (time units)",
+                "x_axis_label": "Container",
+                "type": "linear",
+                "show_dots": true,
+                "dot_size": 4,
+                "active_dot_size": 6,
+                "stroke_width": 2
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "bar",
+            "header": "Processing Time Distribution",
+            "description": "Distribution of processing times (39 data points)",
+            "series": [
+                {
+                    "name": "Count",
+                    "data": [
+                        {
+                            "x": "2.0-4.6",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "4.6-7.2",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "7.2-9.8",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "9.8-12.4",
+                            "y": 15.0
+                        },
+                        {
+                            "x": "12.4-15.0",
+                            "y": 18.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Count",
+                "x_axis_label": "Processing Time Range",
+                "layout": "vertical",
+                "bar_type": "grouped",
+                "bar_size": null,
+                "bar_radius": null
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Optimization Score",
+            "description": "Overall resource optimization level",
+            "value": 42.0,
+            "value_suffix": "/100",
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": {
+                "value": 42.0,
+                "direction": "down",
+                "label": "Average Optimization"
+            },
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "bar",
+            "header": "Optimization Metrics",
+            "description": "Factors contributing to resource optimization score",
+            "series": [
+                {
+                    "name": "Score",
+                    "data": [
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 100.0
+                        },
+                        {
+                            "x": "Processing Speed",
+                            "y": 50.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 30.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 7.6
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 0.0
+                        }
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Weight (%)",
+                    "data": [
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 25.0
+                        },
+                        {
+                            "x": "Processing Speed",
+                            "y": 25.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 10.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 20.0
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 20.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Value",
+                "x_axis_label": "Metric",
+                "layout": "vertical",
+                "bar_type": "grouped",
+                "bar_size": null,
+                "bar_radius": null
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        }
+    ],
+    "dashboardTable": []
+}

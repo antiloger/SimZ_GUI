@@ -1,0 +1,776 @@
+{
+    "42d72e61-314c-4bf7-b781-b3124da9ebb7": {
+        "id": "42d72e61-314c-4bf7-b781-b3124da9ebb7",
+        "compName": "soda_generator",
+        "typeName": "Generator",
+        "category": "generator",
+        "color": "#9C27B0",
+        "notification": [],
+        "inputData": {
+            "gen_count": 10
+        },
+        "customInput": {
+            "time_e": {
+                "inputName": "time_e",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "d5147158-357d-4563-a61a-64f6f879fbf7",
+                "visible": true,
+                "defaultValue": 5
+            },
+            "time_s": {
+                "inputName": "time_s",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "532b9d60-9923-4149-89b4-ed61813edfc9",
+                "visible": true,
+                "defaultValue": 3
+            },
+            "error_rate": {
+                "inputName": "error_rate",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "fbe811c0-0851-41c3-a215-a42db2473b8e",
+                "visible": true,
+                "defaultValue": 2
+            }
+        },
+        "connectors": [],
+        "Runners": {
+            "run": "\n# u must return input if not the resource process not gonna work\ndef main():\n    print(\"Running main application\")\n    \nif __name__ == \"__main__\":\n    main()",
+            "generator": "import random\n\ndef generate(ctx):\n    \"\"\"\n    Generate soda containers with random properties.\n    \n    Args:\n        ctx: The generator component instance (self)\n        \n    Returns:\n        A GenContainer with soda type\n    \"\"\"\n    # Get custom input parameters if available\n    time_s = int(ctx.var.get(\"time_s\"))  # Default processing time start: 1\n    time_e = ctx.var.get(\"time_e\")  # Default processing time end: 3\n    error_rate = ctx.var.get(\"error_rate\")  # Default error rate: 5%\n    \n    # Create a new soda entity with random properties\n    attributes = {\n        \"amount\": 200,  # ml\n        \"unit\": \"ml\",\n        \"ph\": round(random.uniform(2.8, 4.5), 1),  # pH between 2.8 and 3.2\n        \"Brix\": round(random.uniform(9.5, 13.5), 1)  # Brix between 9.5 and 10.5\n    }\n    \n    # Create the container\n    container = ctx.create_entity(\"soda\", attributes)\n    \n    # Simulate processing time\n    processing_time = random.randint(time_s, time_e)\n    yield ctx.env.timeout(processing_time)\n    \n    return container",
+            "model": "class Model:\n    def __init__(self):\n        self.name = \"Default Model\"\n        \n    def train(self, data):\n        print(f\"Training {self.name} with data\")\n        \n    def predict(self, input_data):\n        return \"Prediction result\"",
+            "event": "# Event handling functions\n\ndef process_event(event_data):\n    print(\"Processing event data\")\n    return event_data"
+        },
+        "GenData": {
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            },
+            "types": [
+                "e9c9bb7a-8d3c-4c62-ac96-d6a62560f260"
+            ]
+        }
+    },
+    "1cbdc5ec-fb53-49d6-aee6-0defcf7454db": {
+        "id": "1cbdc5ec-fb53-49d6-aee6-0defcf7454db",
+        "compName": "Soda_Quality_Checker",
+        "typeName": "Resource",
+        "category": "resource",
+        "color": "#d4a82f",
+        "notification": [],
+        "inputData": {
+            "capacity": 1,
+            "default_timeout": 0
+        },
+        "customInput": {
+            "time_s": {
+                "inputName": "time_s",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "0f05c2c5-45b2-4e26-b2b8-765d2bc10982",
+                "visible": true,
+                "defaultValue": 4
+            },
+            "time_e": {
+                "inputName": "time_e",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "d43c2c6e-85cd-44e5-8efd-c636648c9d99",
+                "visible": true,
+                "defaultValue": 6
+            },
+            "ph_lvl": {
+                "inputName": "ph_lvl",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "e6981430-f51e-4c86-a370-8f1d6e6926fe",
+                "visible": true,
+                "defaultValue": 3
+            },
+            "brix_lvl": {
+                "inputName": "brix_lvl",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "2fc2c2fa-e589-419b-bbab-601d07df4308",
+                "visible": true,
+                "defaultValue": 2
+            }
+        },
+        "connectors": [
+            {
+                "id": "40f9ec24-c794-4b38-9202-305c8c23babe",
+                "name": "soda_flow",
+                "type": [
+                    "soda"
+                ],
+                "flow": "inout",
+                "validation": ""
+            }
+        ],
+        "Runners": {
+            "run": "import random\ndef soda_flow(ctx, input):\n    \"\"\"\n    Check the quality of soda.\n    \n    Args:\n        ctx: The resource component instance (self)\n        input: The input GenContainer with soda\n        \n    Returns:\n        The processed GenContainer\n    \"\"\"\n    # Get custom input parameters\n    time_s = ctx.var.get(\"time_s\")  # Default processing time start: 1\n    time_e = ctx.var.get(\"time_e\")  # Default processing time end: 3\n    ph_lvl = ctx.var.get(\"ph_lvl\")  # Default pH level: 3.0\n    brix_lvl = ctx.var.get(\"brix_lvl\")  # Default Brix level: 10.0\n    \n    # Get soda attributes\n    soda_type = input.get(\"soda\")\n    if not soda_type:\n        print(\"Error: No soda type found in container\")\n        return input\n    \n    # Check pH and Brix levels\n    ph = soda_type.get_attribute_value(\"ph\")\n    brix = soda_type.get_attribute_value(\"Brix\")\n    \n    # Simulate quality check\n    processing_time = random.randint(time_s, time_e)\n    yield ctx.env.timeout(processing_time)\n    \n    # Update soda attributes if needed (e.g., adjust pH or Brix)\n    if abs(ph - ph_lvl) > 0.3:\n        ctx.send_genOutput_next(input, \"soda_flow_err\")\n    \n    if abs(brix - brix_lvl) > 0.5:\n        ctx.send_genOutput_next(input, \"soda_flow_err\")\n    \n    return input",
+            "generator": "def generate_data():\n    print(\"Generating data...\")\n    return {\"status\": \"success\"}",
+            "model": "class Model:\n    def __init__(self):\n        self.name = \"Default Model\"\n        \n    def train(self, data):\n        print(f\"Training {self.name} with data\")\n        \n    def predict(self, input_data):\n        return \"Prediction result\"",
+            "event": "# Event handling functions\n\ndef process_event(event_data):\n    print(\"Processing event data\")\n    return event_data"
+        },
+        "GenData": {
+            "types": [],
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            }
+        }
+    },
+    "aa801711-b138-4f66-bba3-781043cedb2e": {
+        "id": "aa801711-b138-4f66-bba3-781043cedb2e",
+        "compName": "Bottel_filling_1",
+        "typeName": "Resource",
+        "category": "resource",
+        "color": "#d4a82f",
+        "notification": [],
+        "inputData": {
+            "capacity": 1,
+            "default_timeout": 0
+        },
+        "customInput": {
+            "time_s": {
+                "inputName": "time_s",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "1ece5e84-eacd-4979-904c-7a076bbdd2ab",
+                "visible": true,
+                "defaultValue": 5
+            },
+            "time_e": {
+                "inputName": "time_e",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "80d9477a-46d8-4264-a117-2a83f0712f95",
+                "visible": true,
+                "defaultValue": 8
+            },
+            "error_rate": {
+                "inputName": "error_rate",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "849d59c9-de18-4638-afc0-bae18693ae1a",
+                "visible": true,
+                "defaultValue": 2
+            }
+        },
+        "connectors": [
+            {
+                "id": "97e000f2-c876-4ffe-a4fb-2748e7c51643",
+                "name": "soda_flow",
+                "type": [
+                    "soda"
+                ],
+                "flow": "inout",
+                "validation": ""
+            }
+        ],
+        "Runners": {
+            "run": "import random\n\ndef soda_flow(ctx, input):\n    \"\"\"\n    Fill bottles with soda.\n    \n    Args:\n        ctx: The resource component instance (self)\n        input: The input GenContainer with soda\n        \n    Returns:\n        A new GenContainer with soda_bottel type\n    \"\"\"\n    # Get custom input parameters\n    time_s = ctx.var.get(\"time_s\")  # Default processing time start: 2\n    time_e = ctx.var.get(\"time_e\")  # Default processing time end: 5\n    error_rate = ctx.var.get(\"error_rate\")  # Default error rate: 2%\n    \n    # Get soda attributes\n    soda_type = input.get(\"soda\")\n    if not soda_type:\n        print(\"Error: No soda type found in container\")\n        return input\n    \n    # Check if the soda has been final checked\n    if not soda_type.has_attribute(\"final_checked\") or not soda_type.get_attribute_value(\"final_checked\"):\n        print(\"Warning: Soda has not passed final quality check\")\n    \n    # Simulate bottle filling\n    processing_time = random.uniform(time_s, time_e)\n    yield ctx.env.timeout(processing_time)\n    \n    # Create a new bottle with soda\n    is_damaged = random.random() < error_rate\n    attributes = {\n        \"amount\": f\"{soda_type.get_attribute_value('amount')}{soda_type.get_attribute_value('unit')}\",\n        \"isDamage\": is_damaged\n    }\n    \n    # Create a new container with soda_bottel type\n    bottle_container = ctx.create_entity(\"soda_bottel\", attributes)\n    \n    # Set the target handler for the new container to route it to the next component\n    bottle_container = ctx.send_genOutput_next(bottle_container, \"soda_bottel\")\n    \n    return bottle_container",
+            "generator": "def generate_data():\n    print(\"Generating data...\")\n    return {\"status\": \"success\"}",
+            "model": "class Model:\n    def __init__(self):\n        self.name = \"Default Model\"\n        \n    def train(self, data):\n        print(f\"Training {self.name} with data\")\n        \n    def predict(self, input_data):\n        return \"Prediction result\"",
+            "event": "# Event handling functions\n\ndef process_event(event_data):\n    print(\"Processing event data\")\n    return event_data"
+        },
+        "GenData": {
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            },
+            "types": [
+                "e13e9fa4-eb95-4ea0-b5cc-870c09451398"
+            ]
+        }
+    },
+    "ad612409-b4a2-4283-ae82-9c78f3f38c23": {
+        "id": "ad612409-b4a2-4283-ae82-9c78f3f38c23",
+        "compName": "Bottel_Checker",
+        "typeName": "Resource",
+        "category": "resource",
+        "color": "#d4a82f",
+        "notification": [],
+        "inputData": {
+            "capacity": 1,
+            "default_timeout": 0
+        },
+        "customInput": {
+            "timeout": {
+                "inputName": "timeout",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "462ba67b-747e-4a12-a3d4-0a5f58a8eb3c",
+                "visible": true,
+                "defaultValue": 3
+            }
+        },
+        "connectors": [
+            {
+                "id": "416914b1-6b61-4546-8e37-298161dc2316",
+                "name": "bottel_flow",
+                "type": [
+                    "soda_bottel"
+                ],
+                "flow": "inout",
+                "validation": ""
+            }
+        ],
+        "Runners": {
+            "run": "import random\n\ndef bottel_flow(ctx, input):\n    \"\"\"\n    Check bottles for damage.\n    \n    Args:\n        ctx: The resource component instance (self)\n        input: The input GenContainer with soda_bottel\n        \n    Returns:\n        The processed GenContainer\n    \"\"\"\n    # Get custom input parameters\n    timeout = ctx.var.get(\"timeout\")  # Default timeout: 2\n    \n    # Get bottle attributes\n    bottle_type = input.get(\"soda_bottel\")\n    if not bottle_type:\n        print(\"Error: No soda_bottel type found in container\")\n        return input\n    \n    # Check if bottle is damaged\n    is_damaged = bottle_type.get_attribute_value(\"isDamage\")\n    \n    # Simulate bottle checking\n    yield ctx.env.timeout(timeout)\n    \n    # If bottle is damaged, route it to the damage_bottel component\n    if is_damaged:\n        # Mark the bottle as checked\n        if not bottle_type.has_attribute(\"checked\"):\n            bottle_type.create_attribute(\"checked\", \"bool\", True)\n        else:\n            bottle_type.update_value(\"checked\", True)\n        \n        # Route to damage_bottel component\n        # We'll use the existing flow to handle this routing\n        return ctx.send_genOutput_next(input, \"bottel_flow_err\")\n    else:\n        # For undamaged bottles, continue normal flow\n        # Mark the bottle as checked\n        if not bottle_type.has_attribute(\"checked\"):\n            bottle_type.create_attribute(\"checked\", \"bool\", True)\n        else:\n            bottle_type.update_value(\"checked\", True)\n        \n        return input",
+            "generator": "def generate_data():\n    print(\"Generating data...\")\n    return {\"status\": \"success\"}",
+            "model": "class Model:\n    def __init__(self):\n        self.name = \"Default Model\"\n        \n    def train(self, data):\n        print(f\"Training {self.name} with data\")\n        \n    def predict(self, input_data):\n        return \"Prediction result\"",
+            "event": "# Event handling functions\n\ndef process_event(event_data):\n    print(\"Processing event data\")\n    return event_data"
+        },
+        "GenData": {
+            "types": [],
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            }
+        }
+    },
+    "b5938eb5-0542-4085-a17e-a273c0f81e91": {
+        "id": "b5938eb5-0542-4085-a17e-a273c0f81e91",
+        "compName": "Labeling_Machine_1",
+        "typeName": "Resource",
+        "category": "resource",
+        "color": "#d4a82f",
+        "notification": [],
+        "inputData": {
+            "capacity": 1,
+            "default_timeout": 0
+        },
+        "customInput": {
+            "time_s": {
+                "inputName": "time_s",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "508dbc20-9a89-46e9-9ba9-2e1a61fe262a",
+                "visible": true,
+                "defaultValue": 6
+            },
+            "time_e": {
+                "inputName": "time_e",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "ad137931-bac1-4791-814c-3db21fb64386",
+                "visible": true,
+                "defaultValue": 9
+            }
+        },
+        "connectors": [
+            {
+                "id": "34572b93-badb-4d3f-b06e-95dca85ced9e",
+                "name": "bottel_flow",
+                "type": [
+                    "soda_bottel"
+                ],
+                "flow": "inout",
+                "validation": ""
+            }
+        ],
+        "Runners": {
+            "run": "import random\n\ndef bottel_flow(ctx, input):\n    \"\"\"\n    Label bottles.\n    \n    Args:\n        ctx: The resource component instance (self)\n        input: The input GenContainer with soda_bottel\n        \n    Returns:\n        The processed GenContainer\n    \"\"\"\n    # Get custom input parameters\n    time_s = ctx.var.get(\"time_s\")  # Default processing time start: 1\n    time_e = ctx.var.get(\"time_e\")  # Default processing time end: 3\n    \n    # Get bottle attributes\n    bottle_type = input.get(\"soda_bottel\")\n    if not bottle_type:\n        print(\"Error: No soda_bottel type found in container\")\n        return input\n    \n    # Simulate labeling\n    processing_time = random.uniform(time_s, time_e)\n    yield ctx.env.timeout(processing_time)\n    \n    # Add a label attribute to the bottle\n    if not bottle_type.has_attribute(\"labeled\"):\n        bottle_type.create_attribute(\"labeled\", \"bool\", True)\n    else:\n        bottle_type.update_value(\"labeled\", True)\n    \n    return input",
+            "generator": "def generate_data():\n    print(\"Generating data...\")\n    return {\"status\": \"success\"}",
+            "model": "class Model:\n    def __init__(self):\n        self.name = \"Default Model\"\n        \n    def train(self, data):\n        print(f\"Training {self.name} with data\")\n        \n    def predict(self, input_data):\n        return \"Prediction result\"",
+            "event": "# Event handling functions\n\ndef process_event(event_data):\n    print(\"Processing event data\")\n    return event_data"
+        },
+        "GenData": {
+            "types": [],
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            }
+        }
+    },
+    "e75be29c-c61d-4446-8cbc-1aa055d44edb": {
+        "id": "e75be29c-c61d-4446-8cbc-1aa055d44edb",
+        "compName": "Bottel_Queue",
+        "typeName": "Resource",
+        "category": "resource",
+        "color": "#d4a82f",
+        "notification": [],
+        "inputData": {
+            "capacity": 1,
+            "default_timeout": 0
+        },
+        "customInput": {
+            "max_queue": {
+                "inputName": "max_queue",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "fcd3c11e-3c5e-4483-92bb-f59dfa208520",
+                "visible": true,
+                "defaultValue": 3
+            }
+        },
+        "connectors": [
+            {
+                "id": "d481d989-f818-464d-b421-4ab367d305a5",
+                "name": "bottel_flow",
+                "type": [
+                    "soda_bottel"
+                ],
+                "flow": "inout",
+                "validation": ""
+            }
+        ],
+        "Runners": {
+            "run": "import random\n\ndef bottel_flow(ctx, input):\n    \"\"\"\n    Queue bottles.\n    \n    Args:\n        ctx: The resource component instance (self)\n        input: The input GenContainer with soda_bottel\n        \n    Returns:\n        The processed GenContainer\n    \"\"\"\n    # Get custom input parameters\n    max_queue = ctx.var.get(\"max_queue\")  # Default max queue: 20\n    \n    # Get bottle attributes\n    bottle_type = input.get(\"soda_bottel\")\n    if not bottle_type:\n        print(\"Error: No soda_bottel type found in container\")\n        return input\n    \n    # Check if bottle has been labeled\n    if not bottle_type.has_attribute(\"labeled\") or not bottle_type.get_attribute_value(\"labeled\"):\n        print(\"Warning: Bottle has not been labeled\")\n    \n    # Simulate queuing\n    # For simplicity, we'll just add a small delay\n    yield ctx.env.timeout(1)\n    \n    # Add queue position attribute to the bottle\n    queue_position = random.randint(1, max_queue)\n    if not bottle_type.has_attribute(\"queue_position\"):\n        bottle_type.create_attribute(\"queue_position\", \"number\", queue_position)\n    else:\n        bottle_type.update_value(\"queue_position\", queue_position)\n    \n    return input",
+            "generator": "def generate_data():\n    print(\"Generating data...\")\n    return {\"status\": \"success\"}",
+            "model": "class Model:\n    def __init__(self):\n        self.name = \"Default Model\"\n        \n    def train(self, data):\n        print(f\"Training {self.name} with data\")\n        \n    def predict(self, input_data):\n        return \"Prediction result\"",
+            "event": "# Event handling functions\n\ndef process_event(event_data):\n    print(\"Processing event data\")\n    return event_data"
+        },
+        "GenData": {
+            "types": [],
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            }
+        }
+    },
+    "08835fcb-f104-4e84-8335-d9fb8eb8250f": {
+        "id": "08835fcb-f104-4e84-8335-d9fb8eb8250f",
+        "compName": "Packing_Mechine",
+        "typeName": "Resource",
+        "category": "resource",
+        "color": "#d4a82f",
+        "notification": [],
+        "inputData": {
+            "capacity": 10,
+            "default_timeout": 0
+        },
+        "customInput": {
+            "num_of_bottel": {
+                "inputName": "num_of_bottel",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "1e98977f-b08b-476c-9a3f-f6a0e4bc24f5",
+                "visible": true,
+                "defaultValue": 10
+            },
+            "timeout": {
+                "inputName": "timeout",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "412a1e25-3ab1-4365-afde-87bafe51d0db",
+                "visible": true,
+                "defaultValue": 5
+            }
+        },
+        "connectors": [
+            {
+                "id": "9cd84f8c-a970-4f39-b0df-8f34543aa019",
+                "name": "bottel_flow",
+                "type": [
+                    "soda_bottel"
+                ],
+                "flow": "in",
+                "validation": ""
+            }
+        ],
+        "Runners": {
+            "run": "import random\n\ndef bottel_flow(ctx, input):\n    \"\"\"\n    Pack bottles into packages.\n    \n    Args:\n        ctx: The resource component instance (self)\n        input: The input GenContainer with soda_bottel\n        \n    Returns:\n        A new GenContainer with Bottel_Package type\n    \"\"\"\n    # Get custom input parameters\n    num_of_bottel = ctx.var.get(\"num_of_bottel\")  # Default bottles per package: 20\n    timeout = ctx.var.get(\"timeout\")  # Default timeout: 5\n    \n    # Get bottle attributes\n    bottle_type = input.get(\"soda_bottel\")\n    if not bottle_type:\n        print(\"Error: No soda_bottel type found in container\")\n        return input\n    \n    # Initialize or get the bottle queue\n    if ctx.var.get(\"bottle_queue\") is None:\n        ctx.var.set(\"bottle_queue\", deque())\n    bottle_queue = ctx.var.get(\"bottle_queue\")\n    \n    # Add the current bottle to the queue\n    bottle_queue.append(input)\n    \n    # If we don't have enough bottles yet, just wait and return None\n    if len(bottle_queue) < num_of_bottel:\n        yield ctx.env.timeout(1)  # Short wait\n        return None\n    \n    # We have enough bottles, create a package\n    # Simulate packing\n    yield ctx.env.timeout(timeout)\n    \n    # Remove bottles from the queue\n    for _ in range(num_of_bottel):\n        bottle_queue.popleft()\n    \n    # Create a new package\n    static_package_id = getattr(ctx, \"package_id\", 0)\n    ctx.package_id = static_package_id + 1\n    \n    attributes = {\n        \"amount\": num_of_bottel,\n        \"weight\": round(num_of_bottel * 0.25, 2),  # Assuming each bottle weighs 0.25 kg\n        \"id\": static_package_id\n    }\n    \n    # Create a new container with Bottel_Package type\n    package_container = ctx.create_entity(\"Bottel_Package\", attributes)\n    \n    # Set the target handler for the new container to route it to the next component\n    package_container = ctx.send_genOutput_next(package_container, \"Bottel_Package\")\n    \n    return package_container",
+            "generator": "def generate_data():\n    print(\"Generating data...\")\n    return {\"status\": \"success\"}",
+            "model": "class Model:\n    def __init__(self):\n        self.name = \"Default Model\"\n        \n    def train(self, data):\n        print(f\"Training {self.name} with data\")\n        \n    def predict(self, input_data):\n        return \"Prediction result\"",
+            "event": "# Event handling functions\n\ndef process_event(event_data):\n    print(\"Processing event data\")\n    return event_data"
+        },
+        "GenData": {
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            },
+            "types": [
+                "c0f894e6-9c75-4f94-a59b-0c5b6b4c6c12"
+            ]
+        }
+    },
+    "b84b4564-ab20-4e60-be37-d65195f4b9fe": {
+        "id": "b84b4564-ab20-4e60-be37-d65195f4b9fe",
+        "compName": "To_Store",
+        "typeName": "Resource",
+        "category": "resource",
+        "color": "#d4a82f",
+        "notification": [],
+        "inputData": {
+            "capacity": 1,
+            "default_timeout": 0
+        },
+        "customInput": {
+            "timeout": {
+                "inputName": "timeout",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "7bda6172-c6a4-451e-9c4c-38d81d24d617",
+                "visible": true,
+                "defaultValue": 6
+            }
+        },
+        "connectors": [
+            {
+                "id": "0f95891c-52f6-4016-8095-0c8311a15005",
+                "name": "package_flow",
+                "type": [
+                    "Bottel_Package"
+                ],
+                "flow": "in",
+                "validation": ""
+            }
+        ],
+        "Runners": {
+            "run": "import random\n\ndef package_flow(ctx, input):\n    \"\"\"\n    Process packages to store.\n    \n    Args:\n        ctx: The resource component instance (self)\n        input: The input GenContainer with Bottel_Package\n        \n    Returns:\n        The processed GenContainer\n    \"\"\"\n    # Get custom input parameters\n    timeout = ctx.var.get(\"timeout\")  # Default timeout: 3\n    \n    # Get package attributes\n    package_type = input.get(\"Bottel_Package\")\n    if not package_type:\n        print(\"Error: No Bottel_Package type found in container\")\n        return input\n    \n    # Simulate storing\n    yield ctx.env.timeout(timeout)\n    \n    # Add stored attribute to the package\n    if not package_type.has_attribute(\"stored\"):\n        package_type.create_attribute(\"stored\", \"bool\", True)\n    else:\n        package_type.update_value(\"stored\", True)\n    \n    # Add timestamp attribute to the package\n    if not package_type.has_attribute(\"store_time\"):\n        package_type.create_attribute(\"store_time\", \"number\", ctx.env.now)\n    else:\n        package_type.update_value(\"store_time\", ctx.env.now)\n    \n    return input",
+            "generator": "def generate_data():\n    print(\"Generating data...\")\n    return {\"status\": \"success\"}",
+            "model": "class Model:\n    def __init__(self):\n        self.name = \"Default Model\"\n        \n    def train(self, data):\n        print(f\"Training {self.name} with data\")\n        \n    def predict(self, input_data):\n        return \"Prediction result\"",
+            "event": "# Event handling functions\n\ndef process_event(event_data):\n    print(\"Processing event data\")\n    return event_data"
+        },
+        "GenData": {
+            "types": [],
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            }
+        }
+    },
+    "595ceb03-7912-4926-918a-d45e2af5732f": {
+        "id": "595ceb03-7912-4926-918a-d45e2af5732f",
+        "compName": "liquid_cleaner",
+        "typeName": "Resource",
+        "category": "resource",
+        "color": "#d4a82f",
+        "notification": [],
+        "inputData": {
+            "capacity": 1,
+            "default_timeout": 0
+        },
+        "customInput": {
+            "timeout": {
+                "inputName": "timeout",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "929658f8-9eb9-4027-94b1-8ad15ee488d6",
+                "visible": true,
+                "defaultValue": 4
+            }
+        },
+        "connectors": [
+            {
+                "id": "c0be235d-7f3b-4070-a860-35a76ff42f1b",
+                "name": "soda_flow_err",
+                "type": [
+                    "soda"
+                ],
+                "flow": "inout",
+                "validation": ""
+            }
+        ],
+        "Runners": {
+            "run": "import random\n\ndef soda_flow_err(ctx, input):\n    \"\"\"\n    Clean the soda liquid before further processing.\n    \n    Args:\n        ctx: The resource component instance (self)\n        input: The input GenContainer with soda\n        \n    Returns:\n        The processed GenContainer\n    \"\"\"\n    # Get soda attributes\n    soda_type = input.get(\"soda\")\n    if not soda_type:\n        print(\"Error: No soda type found in container\")\n        return input\n    \n    # Simulate cleaning process\n    yield ctx.env.timeout(2)  # Default timeout of 2 time units\n    \n    # Add a \"cleaned\" attribute to the soda\n    if not soda_type.has_attribute(\"cleaned\"):\n        soda_type.create_attribute(\"cleaned\", \"bool\", True)\n    else:\n        soda_type.update_value(\"cleaned\", True)\n    \n    # Slightly adjust pH as part of the cleaning process\n    current_ph = soda_type.get_attribute_value(\"ph\")\n    soda_type.update_value(\"ph\", 4)  # Reduce pH slightly\n    soda_type.update_value(\"ph\", 10)  # Reduce pH slightly\n    return input",
+            "generator": "def generate_data():\n    print(\"Generating data...\")\n    return {\"status\": \"success\"}",
+            "model": "class Model:\n    def __init__(self):\n        self.name = \"Default Model\"\n        \n    def train(self, data):\n        print(f\"Training {self.name} with data\")\n        \n    def predict(self, input_data):\n        return \"Prediction result\"",
+            "event": "# Event handling functions\n\ndef process_event(event_data):\n    print(\"Processing event data\")\n    return event_data"
+        },
+        "GenData": {
+            "types": [],
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            }
+        }
+    },
+    "afe7eb29-668b-4f24-bca3-ba6dceedbce7": {
+        "id": "afe7eb29-668b-4f24-bca3-ba6dceedbce7",
+        "compName": "soda_quality_checker_1",
+        "typeName": "Resource",
+        "category": "resource",
+        "color": "#d4a82f",
+        "notification": [],
+        "inputData": {
+            "capacity": 1,
+            "default_timeout": 0
+        },
+        "customInput": {
+            "time_s": {
+                "inputName": "time_s",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "1156fd74-571e-4958-97ce-a5d8b29a9d7d",
+                "visible": true,
+                "defaultValue": 4
+            },
+            "time_e": {
+                "inputName": "time_e",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "ccb4ff9a-a114-4d1a-bdf5-c5edfd8b72b2",
+                "visible": true,
+                "defaultValue": 7
+            },
+            "ph_lvl": {
+                "inputName": "ph_lvl",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "fc8e2914-0808-46c9-808a-6c00a40f3471",
+                "visible": true,
+                "defaultValue": 3
+            },
+            "brix_lvl": {
+                "inputName": "brix_lvl",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "1b1d3672-e408-4b94-aa4d-170193a1b4e5",
+                "visible": true,
+                "defaultValue": 2
+            }
+        },
+        "connectors": [
+            {
+                "id": "28e64305-d662-4038-bff5-b4923c417546",
+                "name": "soda_flow_err",
+                "type": [
+                    "soda"
+                ],
+                "flow": "inout",
+                "validation": ""
+            }
+        ],
+        "Runners": {
+            "run": "import random\n\ndef soda_flow_err(ctx, input):\n    \"\"\"\n    Check the quality of soda.\n    \n    Args:\n        ctx: The resource component instance (self)\n        input: The input GenContainer with soda\n        \n    Returns:\n        The processed GenContainer\n    \"\"\"\n    # Get custom input parameters\n    time_s = ctx.var.get(\"time_s\")  # Default processing time start: 1\n    time_e = ctx.var.get(\"time_e\")  # Default processing time end: 3\n    ph_lvl = ctx.var.get(\"ph_lvl\")  # Default pH level: 3.0\n    brix_lvl = ctx.var.get(\"brix_lvl\")  # Default Brix level: 10.0\n    \n    # Get soda attributes\n    soda_type = input.get(\"soda\")\n    if not soda_type:\n        print(\"Error: No soda type found in container\")\n        return input\n    \n    # Check pH and Brix levels\n    ph = soda_type.get_attribute_value(\"ph\")\n    brix = soda_type.get_attribute_value(\"Brix\")\n    \n    # Simulate quality check\n    processing_time = random.uniform(time_s, time_e)\n    yield ctx.env.timeout(processing_time)\n    \n    # Update soda attributes if needed (e.g., adjust pH or Brix)\n    if abs(ph - ph_lvl) > 0.3:\n        ctx.send_genOutput_next(bottle_container, \"soda_flow_err\")\n    \n    if abs(brix - brix_lvl) > 0.5:\n        soda_type.update_value(\"Brix\", brix_lvl)\n    \n    return input",
+            "generator": "def generate_data():\n    print(\"Generating data...\")\n    return {\"status\": \"success\"}",
+            "model": "class Model:\n    def __init__(self):\n        self.name = \"Default Model\"\n        \n    def train(self, data):\n        print(f\"Training {self.name} with data\")\n        \n    def predict(self, input_data):\n        return \"Prediction result\"",
+            "event": "# Event handling functions\n\ndef process_event(event_data):\n    print(\"Processing event data\")\n    return event_data"
+        },
+        "GenData": {
+            "types": [],
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            }
+        }
+    },
+    "ba005ed8-23bd-4b8e-af85-ee3f7543b0fd": {
+        "id": "ba005ed8-23bd-4b8e-af85-ee3f7543b0fd",
+        "compName": "damage_bottel",
+        "typeName": "Resource",
+        "category": "resource",
+        "color": "#d4a82f",
+        "notification": [],
+        "inputData": {
+            "capacity": 1,
+            "default_timeout": 0
+        },
+        "customInput": {
+            "timeout": {
+                "inputName": "timeout",
+                "fieldType": "number",
+                "description": "",
+                "required": false,
+                "id": "609edb8b-aa6f-4000-ac95-6ba8dd5282a0",
+                "visible": true,
+                "defaultValue": 5
+            }
+        },
+        "connectors": [
+            {
+                "id": "95de0f08-c308-4213-8677-626959a11291",
+                "name": "bottel_flow_err",
+                "type": [
+                    "soda_bottel"
+                ],
+                "flow": "in",
+                "validation": ""
+            }
+        ],
+        "Runners": {
+            "run": "import random\n\ndef bottel_flow(ctx, input):\n    \"\"\"\n    Handle damaged bottles.\n    \n    Args:\n        ctx: The resource component instance (self)\n        input: The input GenContainer with soda_bottel\n        \n    Returns:\n        The processed GenContainer\n    \"\"\"\n    # Get custom input parameters\n    timeout = ctx.var.get(\"timeout\")  # Default timeout: 3\n    \n    # Get bottle attributes\n    bottle_type = input.get(\"soda_bottel\")\n    if not bottle_type:\n        print(\"Error: No soda_bottel type found in container\")\n        return input\n    \n    # Check if bottle is damaged\n    is_damaged = bottle_type.get_attribute_value(\"isDamage\")\n    \n    # Simulate damage handling\n    yield ctx.env.timeout(timeout)\n    \n    # Fix the damaged bottle\n    if is_damaged:\n        bottle_type.update_value(\"isDamage\", False)\n        \n        # Add a repaired attribute\n        if not bottle_type.has_attribute(\"repaired\"):\n            bottle_type.create_attribute(\"repaired\", \"bool\", True)\n        else:\n            bottle_type.update_value(\"repaired\", True)\n    \n    return input",
+            "generator": "def generate_data():\n    print(\"Generating data...\")\n    return {\"status\": \"success\"}",
+            "model": "class Model:\n    def __init__(self):\n        self.name = \"Default Model\"\n        \n    def train(self, data):\n        print(f\"Training {self.name} with data\")\n        \n    def predict(self, input_data):\n        return \"Prediction result\"",
+            "event": "# Event handling functions\n\ndef process_event(event_data):\n    print(\"Processing event data\")\n    return event_data"
+        },
+        "GenData": {
+            "types": [],
+            "config": {
+                "genFn": "timestep",
+                "config": {
+                    "intervalTime": 0,
+                    "noItem": 0,
+                    "isIntervalTimeRandom": false,
+                    "IntervalTimeRandom": {
+                        "from": 0,
+                        "to": 0
+                    },
+                    "timePerNoItem": 0,
+                    "isTimePerNoItemRandom": false,
+                    "TimePerNoItemRandom": {
+                        "from": 0,
+                        "to": 0
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,499 @@
+{
+    "id": "c8d9e68a-1819-44bd-a5a2-bbb25eb7f650",
+    "name": "Resource c8d9e68a-1819-44bd-a5a2-bbb25eb7f650",
+    "type": "resource",
+    "dashboradData": [
+        {
+            "type": "card",
+            "header": "Component Utilization",
+            "description": "Percentage of time the component is active",
+            "value": 3.76,
+            "value_suffix": "%",
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": {
+                "value": 3.76,
+                "direction": "down",
+                "label": "Utilization Rate"
+            },
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Component Efficiency",
+            "description": "Ratio of productive actions to total actions",
+            "value": 100.0,
+            "value_suffix": "%",
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": {
+                "value": 100.0,
+                "direction": "up",
+                "label": "Efficiency Score"
+            },
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "bar",
+            "header": "Processing Time Statistics",
+            "description": "Time between IN and OUT actions (based on 10 pairs)",
+            "series": [
+                {
+                    "name": "Processing Time",
+                    "data": [
+                        {
+                            "x": "Mean",
+                            "y": 6.3
+                        },
+                        {
+                            "x": "Median",
+                            "y": 6.0
+                        },
+                        {
+                            "x": "Min",
+                            "y": 5.0
+                        },
+                        {
+                            "x": "Max",
+                            "y": 8.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Time",
+                "x_axis_label": "Statistic",
+                "layout": "vertical",
+                "bar_type": "grouped",
+                "bar_size": null,
+                "bar_radius": null
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "bar",
+            "header": "Queue Statistics",
+            "description": "Statistics about queue length",
+            "series": [
+                {
+                    "name": "Queue Length",
+                    "data": [
+                        {
+                            "x": "Average",
+                            "y": 1.8
+                        },
+                        {
+                            "x": "Maximum",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "Minimum",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Median",
+                            "y": 2.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Queue Length",
+                "x_axis_label": "Statistic",
+                "layout": "vertical",
+                "bar_type": "grouped",
+                "bar_size": null,
+                "bar_radius": null
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "line",
+            "header": "Queue Length Timeline",
+            "description": "Queue length over time during QUEUED, IN, and OUT actions",
+            "series": [
+                {
+                    "name": "Queue Length",
+                    "data": [
+                        {
+                            "x": "704",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "704",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "707",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "711",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "711",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "711",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "716",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "717",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "717",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "721",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "724",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "724",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "726",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "730",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "730",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "731",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "735",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "735",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "735",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "740",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "743",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "743",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "743",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "749",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "749",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "755",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "755",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "762",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "762",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "767",
+                            "y": 0.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Queue Length",
+                "x_axis_label": "Simulation Time",
+                "type": "linear",
+                "show_dots": true,
+                "dot_size": 4,
+                "active_dot_size": 6,
+                "stroke_width": 2
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "line",
+            "header": "Container Processing Times",
+            "description": "Processing time for each container (10 containers)",
+            "series": [
+                {
+                    "name": "Processing Time",
+                    "data": [
+                        {
+                            "x": "Container 1",
+                            "y": 7.0
+                        },
+                        {
+                            "x": "Container 2",
+                            "y": 10.0
+                        },
+                        {
+                            "x": "Container 3",
+                            "y": 13.0
+                        },
+                        {
+                            "x": "Container 4",
+                            "y": 14.0
+                        },
+                        {
+                            "x": "Container 5",
+                            "y": 14.0
+                        },
+                        {
+                            "x": "Container 6",
+                            "y": 17.0
+                        },
+                        {
+                            "x": "Container 7",
+                            "y": 18.0
+                        },
+                        {
+                            "x": "Container 8",
+                            "y": 20.0
+                        },
+                        {
+                            "x": "Container 9",
+                            "y": 22.0
+                        },
+                        {
+                            "x": "Container 10",
+                            "y": 24.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Processing Time (time units)",
+                "x_axis_label": "Container",
+                "type": "linear",
+                "show_dots": true,
+                "dot_size": 4,
+                "active_dot_size": 6,
+                "stroke_width": 2
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "bar",
+            "header": "Processing Time Distribution",
+            "description": "Distribution of processing times (10 data points)",
+            "series": [
+                {
+                    "name": "Count",
+                    "data": [
+                        {
+                            "x": "5.0-5.6",
+                            "y": 2.0
+                        },
+                        {
+                            "x": "5.6-6.2",
+                            "y": 4.0
+                        },
+                        {
+                            "x": "6.2-6.8",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "6.8-7.4",
+                            "y": 3.0
+                        },
+                        {
+                            "x": "7.4-8.0",
+                            "y": 1.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Count",
+                "x_axis_label": "Processing Time Range",
+                "layout": "vertical",
+                "bar_type": "grouped",
+                "bar_size": null,
+                "bar_radius": null
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Optimization Score",
+            "description": "Overall resource optimization level",
+            "value": 42.0,
+            "value_suffix": "/100",
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": {
+                "value": 42.0,
+                "direction": "down",
+                "label": "Average Optimization"
+            },
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "bar",
+            "header": "Optimization Metrics",
+            "description": "Factors contributing to resource optimization score",
+            "series": [
+                {
+                    "name": "Score",
+                    "data": [
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 100.0
+                        },
+                        {
+                            "x": "Processing Speed",
+                            "y": 50.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 30.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 7.6
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 0.0
+                        }
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Weight (%)",
+                    "data": [
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 25.0
+                        },
+                        {
+                            "x": "Processing Speed",
+                            "y": 25.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 10.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 20.0
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 20.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": "Value",
+                "x_axis_label": "Metric",
+                "layout": "vertical",
+                "bar_type": "grouped",
+                "bar_size": null,
+                "bar_radius": null
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        }
+    ],
+    "dashboardTable": []
+}

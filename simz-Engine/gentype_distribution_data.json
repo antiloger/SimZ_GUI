@@ -1,6 +1,6 @@
 {
     "counts": {
-        "product": 200
+        "product": 10
     },
     "percentages": {
         "product": 100.0
@@ -11,5 +11,5 @@
             "y": 100.0
         }
     ],
-    "total_count": 200
+    "total_count": 10
 }

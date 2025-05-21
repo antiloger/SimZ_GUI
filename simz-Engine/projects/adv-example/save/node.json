@@ -1,0 +1,156 @@
+[
+    {
+        "id": "a3f1c817-a9a8-4287-b14b-61a17ba374d4",
+        "type": "dynComp",
+        "data": {
+            "name": "soda_generator",
+            "id": "a3f1c817-a9a8-4287-b14b-61a17ba374d4",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": 119.72764502688258,
+            "y": 228.7326618626347
+        },
+        "measured": {
+            "width": 300,
+            "height": 377
+        },
+        "selected": false,
+        "dragging": false
+    },
+    {
+        "id": "c8d9e68a-1819-44bd-a5a2-bbb25eb7f650",
+        "type": "dynComp",
+        "data": {
+            "name": "Soda_Quality_Checker",
+            "id": "c8d9e68a-1819-44bd-a5a2-bbb25eb7f650",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": 571.6938964126862,
+            "y": 130.82769855548702
+        },
+        "measured": {
+            "width": 300,
+            "height": 473
+        },
+        "selected": false,
+        "dragging": false
+    },
+    {
+        "id": "76858420-1972-4677-aea3-05b841e3b07e",
+        "type": "dynComp",
+        "data": {
+            "name": "Bottel_filling_1",
+            "id": "76858420-1972-4677-aea3-05b841e3b07e",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": 1879.2950069769784,
+            "y": 173.35370642200655
+        },
+        "measured": {
+            "width": 300,
+            "height": 483
+        },
+        "selected": true,
+        "dragging": false
+    },
+    {
+        "id": "e23db431-81d2-4478-b67a-c5c116125634",
+        "type": "dynComp",
+        "data": {
+            "name": "liquid_cleaner",
+            "id": "e23db431-81d2-4478-b67a-c5c116125634",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": 1193.2484776952606,
+            "y": 116.09710648653052
+        },
+        "measured": {
+            "width": 300,
+            "height": 329
+        },
+        "selected": false,
+        "dragging": false
+    },
+    {
+        "id": "4c37fcb3-2215-4fe3-ba3b-15da007c06b0",
+        "type": "dynComp",
+        "data": {
+            "name": "Labeling_Machine_1",
+            "id": "4c37fcb3-2215-4fe3-ba3b-15da007c06b0",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": 2410.752209024727,
+            "y": 275.9497288930048
+        },
+        "measured": {
+            "width": 300,
+            "height": 377
+        },
+        "selected": false,
+        "dragging": false
+    },
+    {
+        "id": "42cb5e35-6d26-4992-ab8d-6f8ff0231e6c",
+        "type": "dynComp",
+        "data": {
+            "name": "Bottel_Queue",
+            "id": "42cb5e35-6d26-4992-ab8d-6f8ff0231e6c",
+            "type": "queue",
+            "color": "green",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": 2933.719414034098,
+            "y": 323.07717476574567
+        },
+        "measured": {
+            "width": 300,
+            "height": 329
+        },
+        "selected": false,
+        "dragging": false
+    },
+    {
+        "id": "1e9b9784-5e5c-40a6-ad26-32e9cab87a04",
+        "type": "dynComp",
+        "data": {
+            "name": "Labeling_Machine_1 (Copy)",
+            "id": "1e9b9784-5e5c-40a6-ad26-32e9cab87a04",
+            "type": "Resource",
+            "color": "#d4a82f",
+            "notify": false,
+            "data": []
+        },
+        "position": {
+            "x": 2412,
+            "y": 715.5
+        },
+        "measured": {
+            "width": 300,
+            "height": 377
+        },
+        "selected": false,
+        "dragging": false
+    }
+]

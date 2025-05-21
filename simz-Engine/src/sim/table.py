@@ -29,6 +29,18 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, Field
 
 
+def log_console(message: str, logger_console: bool = False) -> None:
+    """
+    Utility function to control console output.
+
+    Args:
+        message: The message to print
+        logger_console: Whether to print the message to the console (default: False)
+    """
+    if logger_console:
+        print(message)
+
+
 class TableProps(BaseModel):
     """
     Properties for the dynamic table component.

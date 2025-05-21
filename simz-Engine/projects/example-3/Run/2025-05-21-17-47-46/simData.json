@@ -1,0 +1,1109 @@
+{
+    "id": "2025-05-21-17-47-46",
+    "dashboradData": [
+        {
+            "type": "card",
+            "header": "Simulation Time (last record)",
+            "description": "ending time of the simulation",
+            "value": 40.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Total Components",
+            "description": "Total number of components in the simulation",
+            "value": 11.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Total Containers",
+            "description": "Total number of Containers in the simulation",
+            "value": 10.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "card",
+            "header": "Total GenTypes",
+            "description": "Total number of GenTypes in the simulation",
+            "value": 3.0,
+            "value_suffix": null,
+            "value_prefix": null,
+            "value_formatting": "number",
+            "icon": null,
+            "trend": null,
+            "size": {
+                "cols": 1,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "pie",
+            "header": "GenType Distribution",
+            "description": "Percentage breakdown of different GenTypes in the simulation. Pie segments represent the percentage of each GenType in the system.",
+            "series": [
+                {
+                    "name": "GenType Distribution",
+                    "data": [
+                        {
+                            "x": "soda",
+                            "y": 100.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_legend": true,
+                "show_tooltip": true,
+                "inner_radius": 0,
+                "outer_radius": "90%",
+                "padding_angle": 0.0,
+                "show_labels": true,
+                "label_type": "percent"
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "pie",
+            "header": "Component Categories",
+            "description": "Distribution of component categories. Pie segments represent the percentage of each component type in the simulation.",
+            "series": [
+                {
+                    "name": "Categories",
+                    "data": [
+                        {
+                            "x": "generator",
+                            "y": 100.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_legend": true,
+                "show_tooltip": true,
+                "inner_radius": 0,
+                "outer_radius": "90%",
+                "padding_angle": 0.0,
+                "show_labels": true,
+                "label_type": "percent"
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "bar",
+            "header": "Action Counts",
+            "description": "Counts of actions performed by components. X-axis: Action types (IN, OUT, QUEUED, etc.). Y-axis: Number of occurrences.",
+            "series": [
+                {
+                    "name": "Actions",
+                    "data": [
+                        {
+                            "x": "OUT",
+                            "y": 10.0
+                        },
+                        {
+                            "x": "IN",
+                            "y": 10.0
+                        },
+                        {
+                            "x": "GENERATE",
+                            "y": 10.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": null,
+                "x_axis_label": null,
+                "layout": "vertical",
+                "bar_type": "grouped",
+                "bar_size": null,
+                "bar_radius": null
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "line",
+            "header": "Average Efficiency Times (components)",
+            "description": "Efficiency of components over time. X-axis: Component names. Y-axis: Efficiency values (0-1 scale).",
+            "series": [
+                {
+                    "name": "components",
+                    "data": [
+                        {
+                            "x": "soda_generator",
+                            "y": 1.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": null,
+                "x_axis_label": null,
+                "type": "linear",
+                "show_dots": true,
+                "dot_size": 4,
+                "active_dot_size": 6,
+                "stroke_width": 2
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "line",
+            "header": "Average Processing Time (components)",
+            "description": "Processing times of components over time. X-axis: Component names. Y-axis: Average processing time (time units).",
+            "series": [
+                {
+                    "name": "components",
+                    "data": [
+                        {
+                            "x": "soda_generator",
+                            "y": 4.11
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": null,
+                "x_axis_label": null,
+                "type": "linear",
+                "show_dots": true,
+                "dot_size": 4,
+                "active_dot_size": 6,
+                "stroke_width": 2
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "radar",
+            "header": "Component Optimization Comparison",
+            "description": "Comparison of optimization metrics across all components. Each axis represents a different optimization metric (0-100 scale). Higher values indicate better performance.",
+            "series": [
+                {
+                    "name": "Generator 42d72e61-314c-4bf7-b781-b3124da9ebb7 (generator)",
+                    "data": [
+                        {
+                            "x": "Processing Speed",
+                            "y": 80.0
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 100.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 80.0
+                        }
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Resource 1cbdc5ec-fb53-49d6-aee6-0defcf7454db (resource)",
+                    "data": [
+                        {
+                            "x": "Processing Speed",
+                            "y": 50.0
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 7.6
+                        },
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 100.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 30.0
+                        }
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Resource aa801711-b138-4f66-bba3-781043cedb2e (resource)",
+                    "data": [
+                        {
+                            "x": "Processing Speed",
+                            "y": 50.0
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 7.6
+                        },
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 100.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 30.0
+                        }
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Resource ad612409-b4a2-4283-ae82-9c78f3f38c23 (resource)",
+                    "data": [
+                        {
+                            "x": "Processing Speed",
+                            "y": 50.0
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 7.6
+                        },
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 100.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 30.0
+                        }
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Resource b5938eb5-0542-4085-a17e-a273c0f81e91 (resource)",
+                    "data": [
+                        {
+                            "x": "Processing Speed",
+                            "y": 50.0
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 7.6
+                        },
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 100.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 30.0
+                        }
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Resource e75be29c-c61d-4446-8cbc-1aa055d44edb (resource)",
+                    "data": [
+                        {
+                            "x": "Processing Speed",
+                            "y": 50.0
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 7.6
+                        },
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 100.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 30.0
+                        }
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Resource 08835fcb-f104-4e84-8335-d9fb8eb8250f (resource)",
+                    "data": [
+                        {
+                            "x": "Processing Speed",
+                            "y": 50.0
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 7.6
+                        },
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 100.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 30.0
+                        }
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Resource b84b4564-ab20-4e60-be37-d65195f4b9fe (resource)",
+                    "data": [
+                        {
+                            "x": "Processing Speed",
+                            "y": 50.0
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 7.6
+                        },
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 100.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 30.0
+                        }
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Resource 595ceb03-7912-4926-918a-d45e2af5732f (resource)",
+                    "data": [
+                        {
+                            "x": "Processing Speed",
+                            "y": 50.0
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 7.6
+                        },
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 100.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 30.0
+                        }
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Resource afe7eb29-668b-4f24-bca3-ba6dceedbce7 (resource)",
+                    "data": [
+                        {
+                            "x": "Processing Speed",
+                            "y": 50.0
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 7.6
+                        },
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 100.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 30.0
+                        }
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Resource ba005ed8-23bd-4b8e-af85-ee3f7543b0fd (resource)",
+                    "data": [
+                        {
+                            "x": "Processing Speed",
+                            "y": 50.0
+                        },
+                        {
+                            "x": "Resource Utilization",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "Throughput Rate",
+                            "y": 7.6
+                        },
+                        {
+                            "x": "Flow Efficiency",
+                            "y": 100.0
+                        },
+                        {
+                            "x": "Workflow Impact",
+                            "y": 30.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "max_value": 100.0,
+                "fill_opacity": 0.6,
+                "stroke_width": 2
+            },
+            "size": {
+                "cols": 2,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "area",
+            "header": "Component Processing State Over Time",
+            "description": "Shows when each component is actively processing (1) or idle (0). X-axis: Simulation time. Y-axis: Processing state where 1 means active and 0 means idle.",
+            "series": [
+                {
+                    "name": "generator (42d72e61...)",
+                    "data": [
+                        {
+                            "x": "3",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "4",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "5",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "6",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "7",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "8",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "9",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "10",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "11",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "12",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "13",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "14",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "15",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "16",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "17",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "18",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "19",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "20",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "21",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "22",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "23",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "24",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "25",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "26",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "27",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "28",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "29",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "30",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "31",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "32",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "33",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "34",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "35",
+                            "y": 1.0
+                        },
+                        {
+                            "x": "36",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "37",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "38",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "39",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "40",
+                            "y": 1.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": null,
+                "x_axis_label": null,
+                "stacked": false,
+                "type": "linear"
+            },
+            "size": {
+                "cols": 4,
+                "rows": 1
+            }
+        },
+        {
+            "type": "chart",
+            "subtype": "line",
+            "header": "Container Count Timeline",
+            "description": "Number of containers being processed at each time point. X-axis: Simulation time. Y-axis: Number of containers in the system.",
+            "series": [
+                {
+                    "name": "Container Count",
+                    "data": [
+                        {
+                            "x": "3",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "4",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "5",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "6",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "7",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "8",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "9",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "10",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "11",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "12",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "13",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "14",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "15",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "16",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "17",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "18",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "19",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "20",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "21",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "22",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "23",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "24",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "25",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "26",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "27",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "28",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "29",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "30",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "31",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "32",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "33",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "34",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "35",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "36",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "37",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "38",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "39",
+                            "y": 0.0
+                        },
+                        {
+                            "x": "40",
+                            "y": 0.0
+                        }
+                    ],
+                    "color": null
+                }
+            ],
+            "options": {
+                "show_grid": true,
+                "show_legend": true,
+                "show_tooltip": true,
+                "y_axis_label": null,
+                "x_axis_label": null,
+                "type": "linear",
+                "show_dots": true,
+                "dot_size": 4,
+                "active_dot_size": 6,
+                "stroke_width": 2
+            },
+            "size": {
+                "cols": 4,
+                "rows": 1
+            }
+        }
+    ],
+    "dashboardTable": [
+        {
+            "id": "simulation_metrics_table",
+            "data": [
+                {
+                    "metric": "Simulation Duration",
+                    "value": 40,
+                    "unit": "time units",
+                    "category": "Time"
+                },
+                {
+                    "metric": "Total Components",
+                    "value": 11,
+                    "unit": "count",
+                    "category": "Components"
+                },
+                {
+                    "metric": "Total Containers",
+                    "value": 10,
+                    "unit": "count",
+                    "category": "Containers"
+                },
+                {
+                    "metric": "Average Processing Time",
+                    "value": 4.11,
+                    "unit": "time units",
+                    "category": "Processing"
+                },
+                {
+                    "metric": "Maximum Processing Time",
+                    "value": 5,
+                    "unit": "time units",
+                    "category": "Processing"
+                }
+            ],
+            "title": "Simulation Metrics",
+            "description": "Key metrics from the simulation run",
+            "columnOrder": [
+                "category",
+                "value",
+                "metric",
+                "unit"
+            ],
+            "columnLabels": {
+                "value": "Value",
+                "metric": "Metric",
+                "category": "Category",
+                "unit": "Unit"
+            }
+        },
+        {
+            "id": "component_comparison_table",
+            "data": [
+                {
+                    "id": "42d72e61-314c-4bf7-b781-b3124da9ebb7",
+                    "name": "Generator 42d72e61-314c-4bf7-b781-b3124da9ebb7",
+                    "type": "generator",
+                    "efficiency": 100.0,
+                    "avg_processing_time": 4.11,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 9,
+                    "utilization": 27.0,
+                    "optimization_score": 53.0,
+                    "generation_count": 0
+                },
+                {
+                    "id": "1cbdc5ec-fb53-49d6-aee6-0defcf7454db",
+                    "name": "Resource 1cbdc5ec-fb53-49d6-aee6-0defcf7454db",
+                    "type": "resource",
+                    "efficiency": 0.0,
+                    "avg_processing_time": 0.0,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 0,
+                    "utilization": 0.0,
+                    "optimization_score": 42.0
+                },
+                {
+                    "id": "aa801711-b138-4f66-bba3-781043cedb2e",
+                    "name": "Resource aa801711-b138-4f66-bba3-781043cedb2e",
+                    "type": "resource",
+                    "efficiency": 0.0,
+                    "avg_processing_time": 0.0,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 0,
+                    "utilization": 0.0,
+                    "optimization_score": 42.0
+                },
+                {
+                    "id": "ad612409-b4a2-4283-ae82-9c78f3f38c23",
+                    "name": "Resource ad612409-b4a2-4283-ae82-9c78f3f38c23",
+                    "type": "resource",
+                    "efficiency": 0.0,
+                    "avg_processing_time": 0.0,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 0,
+                    "utilization": 0.0,
+                    "optimization_score": 42.0
+                },
+                {
+                    "id": "b5938eb5-0542-4085-a17e-a273c0f81e91",
+                    "name": "Resource b5938eb5-0542-4085-a17e-a273c0f81e91",
+                    "type": "resource",
+                    "efficiency": 0.0,
+                    "avg_processing_time": 0.0,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 0,
+                    "utilization": 0.0,
+                    "optimization_score": 42.0
+                },
+                {
+                    "id": "e75be29c-c61d-4446-8cbc-1aa055d44edb",
+                    "name": "Resource e75be29c-c61d-4446-8cbc-1aa055d44edb",
+                    "type": "resource",
+                    "efficiency": 0.0,
+                    "avg_processing_time": 0.0,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 0,
+                    "utilization": 0.0,
+                    "optimization_score": 42.0
+                },
+                {
+                    "id": "08835fcb-f104-4e84-8335-d9fb8eb8250f",
+                    "name": "Resource 08835fcb-f104-4e84-8335-d9fb8eb8250f",
+                    "type": "resource",
+                    "efficiency": 0.0,
+                    "avg_processing_time": 0.0,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 0,
+                    "utilization": 0.0,
+                    "optimization_score": 42.0
+                },
+                {
+                    "id": "b84b4564-ab20-4e60-be37-d65195f4b9fe",
+                    "name": "Resource b84b4564-ab20-4e60-be37-d65195f4b9fe",
+                    "type": "resource",
+                    "efficiency": 0.0,
+                    "avg_processing_time": 0.0,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 0,
+                    "utilization": 0.0,
+                    "optimization_score": 42.0
+                },
+                {
+                    "id": "595ceb03-7912-4926-918a-d45e2af5732f",
+                    "name": "Resource 595ceb03-7912-4926-918a-d45e2af5732f",
+                    "type": "resource",
+                    "efficiency": 0.0,
+                    "avg_processing_time": 0.0,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 0,
+                    "utilization": 0.0,
+                    "optimization_score": 42.0
+                },
+                {
+                    "id": "afe7eb29-668b-4f24-bca3-ba6dceedbce7",
+                    "name": "Resource afe7eb29-668b-4f24-bca3-ba6dceedbce7",
+                    "type": "resource",
+                    "efficiency": 0.0,
+                    "avg_processing_time": 0.0,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 0,
+                    "utilization": 0.0,
+                    "optimization_score": 42.0
+                },
+                {
+                    "id": "ba005ed8-23bd-4b8e-af85-ee3f7543b0fd",
+                    "name": "Resource ba005ed8-23bd-4b8e-af85-ee3f7543b0fd",
+                    "type": "resource",
+                    "efficiency": 0.0,
+                    "avg_processing_time": 0.0,
+                    "in_out_processing_time": 0.0,
+                    "processing_count": 0,
+                    "utilization": 0.0,
+                    "optimization_score": 42.0
+                }
+            ],
+            "title": "Component Performance Comparison",
+            "description": "Comparison of key performance indicators across all components",
+            "columnOrder": [
+                "id",
+                "name",
+                "type",
+                "efficiency",
+                "optimization_score",
+                "avg_processing_time",
+                "in_out_processing_time",
+                "processing_count",
+                "utilization",
+                "generation_count"
+            ],
+            "columnLabels": {
+                "id": "ID",
+                "name": "Name",
+                "type": "Type",
+                "efficiency": "Efficiency (%)",
+                "optimization_score": "Optimization Score",
+                "avg_processing_time": "Avg. Processing Time",
+                "in_out_processing_time": "IN/OUT Processing Time",
+                "processing_count": "Processed Count",
+                "utilization": "Utilization (%)",
+                "generation_count": "Generation Count",
+                "avg_queue_length": "Avg. Queue Length",
+                "max_queue_length": "Max Queue Length"
+            }
+        }
+    ]
+}

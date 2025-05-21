@@ -15,6 +15,18 @@ from src.sim.csvpaser import CSVScraper
 from src.utils.env_manager import env_manager
 
 
+def log_console(message: str, logger_console: bool = False) -> None:
+    """
+    Utility function to control console output.
+
+    Args:
+        message: The message to print
+        logger_console: Whether to print the message to the console (default: False)
+    """
+    if logger_console:
+        print(message)
+
+
 class SocketManager:
     """
     SocketManager handles Socket.IO server operations for real-time communication
@@ -65,7 +77,7 @@ class SocketManager:
         @self.sio.event
         def connect(sid, environ):
             """Handle client connection."""
-            print(f"Client connected: {sid}")
+            log_console(f"Client connected: {sid}", logger_console=False)
             self.clients[sid] = {
                 "connected_at": time.time(),
                 "current_project": None,
@@ -75,14 +87,14 @@ class SocketManager:
         @self.sio.event
         def disconnect(sid):
             """Handle client disconnection."""
-            print(f"Client disconnected: {sid}")
+            log_console(f"Client disconnected: {sid}", logger_console=False)
             if sid in self.clients:
                 del self.clients[sid]
 
         @self.sio.event
         def ping(sid):
             """Handle ping event."""
-            print(f"Ping received from {sid}")
+            log_console(f"Ping received from {sid}", logger_console=False)
             return "pong"
 
     def register_event_handler(self, event: str, handler: Callable):
@@ -218,7 +230,7 @@ class SocketManager:
                     return {"error": "Project name is required"}
 
                 runs = self.project_manager.list_runs(project_name)
-                print(runs)
+                log_console(f"{runs}", logger_console=False)
                 return {"runs": runs}
 
             except Exception as e:
@@ -528,11 +540,11 @@ class SocketManager:
 
                     # Use context manager to ensure proper cleanup of CSVScraper
                     csv_file_path = f"{project_path}/Run/{run_id}/{run_id}.csv"
-                    print(f"[SIM] Opening CSV file: {csv_file_path}")
+                    log_console(f"[SIM] Opening CSV file: {csv_file_path}", logger_console=False)
                     csvOutput = CSVScraper(csv_file_path)
 
                     # Generate component-specific analytics
-                    print("[SIM] Generating component-specific analytics...")
+                    log_console("[SIM] Generating component-specific analytics...", logger_console=False)
                     component_insights = sim_builder.generate_component_insights(
                         csvOutput
                     )
@@ -542,30 +554,32 @@ class SocketManager:
                     sim_builder.save_component_analytics(
                         output_path, component_insights
                     )
-                    print(
-                        f"[SIM] Component analytics saved to {output_path}/components/"
+                    log_console(
+                        f"[SIM] Component analytics saved to {output_path}/components/",
+                        logger_console=False
                     )
 
                     # Save component ID-name mappings
-                    print("[SIM] Saving component ID-name mappings...")
+                    log_console("[SIM] Saving component ID-name mappings...", logger_console=False)
                     sim_builder.save_component_names(output_path)
-                    print(
-                        f"[SIM] Component names saved to {output_path}/component_names.json"
+                    log_console(
+                        f"[SIM] Component names saved to {output_path}/component_names.json",
+                        logger_console=False
                     )
 
                     # Generate overall simulation output
-                    print("[SIM] Generating simulation output...")
+                    log_console("[SIM] Generating simulation output...", logger_console=False)
                     outputData = sim_builder.output(csvOutput)
 
-                    print("[SIM] Saving simulation output...")
+                    log_console("[SIM] Saving simulation output...", logger_console=False)
                     sim_builder.save_simulation_output(output_path, outputData)
-                    print(f"[SIM] Output saved to {output_path}/simData.json")
+                    log_console(f"[SIM] Output saved to {output_path}/simData.json", logger_console=False)
 
                     # Clean up simulation resources properly
-                    print("[SIM] Cleaning up simulation resources...")
+                    log_console("[SIM] Cleaning up simulation resources...", logger_console=False)
                     sim_builder.cleanup()
                     self.emit("sim_run_status", {"status": "completed"}, sid)
-                    print("[DATA] Simulation completed successfully")
+                    log_console("[DATA] Simulation completed successfully", logger_console=False)
 
                     # Safely access env.now with error handling
                     try:
@@ -576,7 +590,7 @@ class SocketManager:
                             sid,
                         )
                     except Exception as e:
-                        print(f"Warning: Could not access simulation time: {e}")
+                        log_console(f"Warning: Could not access simulation time: {e}", logger_console=False)
                         self.emit(
                             "sim_update",
                             {"status": "[SIM] Simulation completed"},
@@ -592,7 +606,7 @@ class SocketManager:
                     gc.collect()
 
                 except Exception as e:
-                    print(f"Simulation error: {e}")
+                    log_console(f"Simulation error: {e}", logger_console=False)
                     self.emit("sim_run_status", {"status": "error"}, sid)
                     self.emit(
                         "sim_update",
@@ -626,7 +640,7 @@ class SocketManager:
 
                 paser = CSVScraper(run_path)
 
-                print(f"[REQData] {table_data}")
+                log_console(f"[REQData] {table_data}", logger_console=False)
 
                 page = table_data.get("page", 1)
                 page_size = table_data.get("page_size", 10)
@@ -652,7 +666,7 @@ class SocketManager:
                 jsonStr = simplejson.dumps(data, ignore_nan=True)
                 clean_data = json.loads(jsonStr)
 
-                print(f"[RESData] {clean_data}")
+                log_console(f"[RESData] {clean_data}", logger_console=False)
                 return {"data": clean_data}
 
             except Exception as e:
@@ -690,7 +704,7 @@ class SocketManager:
                 "tables": sim_data.get("dashboardTable", [])
             }
 
-            print(f"[SIM_DATA] Returning charts and tables for {project_name}/{run_id}")
+            log_console(f"[SIM_DATA] Returning charts and tables for {project_name}/{run_id}", logger_console=False)
             return {"data": response_data}
 
         @self.sio.event
@@ -709,7 +723,7 @@ class SocketManager:
                 return {"error": "Run path not found"}
             inst = ContainerScraper(run_path)
             data = inst.analyze_container_workflow_enhanced(container_id)
-            print(f"[RESData] {data}")
+            log_console(f"[RESData] {data}", logger_console=False)
             return {"data": data}
 
         @self.sio.event
@@ -742,7 +756,7 @@ class SocketManager:
 
                 # Get the run path (which is the CSV file path)
                 csv_file_path = self.project_manager.get_run_path(project_name, run_id)
-                print(f"CSV file path: {csv_file_path}")
+                log_console(f"CSV file path: {csv_file_path}", logger_console=False)
                 if csv_file_path is None:
                     return {"error": "Run path not found"}
 
@@ -750,7 +764,7 @@ class SocketManager:
                 # The CSV file path is like: projects/test-min/Run/2025-05-18-13-57-00/2025-05-18-13-57-00.csv
                 # We need: projects/test-min/Run/2025-05-18-13-57-00/
                 run_dir_path = str(Path(csv_file_path).parent)
-                print(f"Run directory path: {run_dir_path}")
+                log_console(f"Run directory path: {run_dir_path}", logger_console=False)
 
                 # Check if component analytics file exists
                 component_file_path = (
@@ -761,8 +775,8 @@ class SocketManager:
                 if not component_file_path.exists():
                     # If file doesn't exist, generate analytics on-the-fly
                     # We already have the CSV file path from above
-                    print(f"Component analytics file not found, generating on-the-fly")
-                    print(f"Using CSV file: {csv_file_path}")
+                    log_console(f"Component analytics file not found, generating on-the-fly", logger_console=False)
+                    log_console(f"Using CSV file: {csv_file_path}", logger_console=False)
                     if not Path(csv_file_path).exists():
                         return {"error": "CSV file not found"}
 
@@ -799,7 +813,7 @@ class SocketManager:
                         analytics_data = component_insights.model_dump()
                     except AttributeError:
                         # Fall back to dict() for older versions, but with a warning
-                        print("Warning: Using deprecated dict() method. Update to model_dump()")
+                        log_console("Warning: Using deprecated dict() method. Update to model_dump()", logger_console=False)
                         analytics_data = component_insights.dict()
 
                     # Save for future use
@@ -819,7 +833,7 @@ class SocketManager:
                     return {"data": analytics_data}
 
             except Exception as e:
-                print(f"Error getting component analytics: {e}")
+                log_console(f"Error getting component analytics: {e}", logger_console=False)
                 return {"error": str(e)}
 
         @self.sio.event
@@ -879,7 +893,7 @@ class SocketManager:
                 return {"components": component_ids}
 
             except Exception as e:
-                print(f"Error listing component analytics: {e}")
+                log_console(f"Error listing component analytics: {e}", logger_console=False)
                 return {"error": str(e)}
 
         @self.sio.event
@@ -934,7 +948,7 @@ class SocketManager:
                     }
 
             except Exception as e:
-                print(f"Error getting component names: {e}")
+                log_console(f"Error getting component names: {e}", logger_console=False)
                 return {"error": str(e)}
 
     def run(self, host: Optional[str] = None, port: Optional[str] = None):
@@ -955,5 +969,5 @@ class SocketManager:
         host = host or self.config.get("HOST")
         port = port or self.config.get("PORT")
 
-        print(f"Socket.IO server running on http://{host}:{port}")
+        log_console(f"Socket.IO server running on http://{host}:{port}", logger_console=False)
         eventlet.wsgi.server(eventlet.listen((host, port)), self.app)

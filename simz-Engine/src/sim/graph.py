@@ -7,6 +7,18 @@ import matplotlib.patches as mpatches
 import os
 
 
+def log_console(message: str, logger_console: bool = False) -> None:
+    """
+    Utility function to control console output.
+
+    Args:
+        message: The message to print
+        logger_console: Whether to print the message to the console (default: False)
+    """
+    if logger_console:
+        print(message)
+
+
 class Edge(BaseModel):
     source: str
     sourceHandle: str
@@ -106,7 +118,7 @@ class WorkflowGraph:
 
         Args:
             source_component_id: ID of the source component
-        source_handle_id: ID of the source handle
+            source_handle_id: ID of the source handle
 
         Returns:
             A tuple of (target_component_id, target_handle_id) if a connection exists, None otherwise
@@ -123,6 +135,40 @@ class WorkflowGraph:
 
         # No connection found for this source handle
         return None
+
+    def find_all_connection_targets(
+        self, source_component_id: str, source_handle_id: str
+    ) -> List[List[str]]:
+        """
+        Find all target components and handles connected to a specific source component and handle.
+
+        This method retrieves all targets that are connected to the specified source component
+        and source handle, which is useful for workflows with multiple outgoing connections
+        from a single source handle.
+
+        Args:
+            source_component_id: ID of the source component
+            source_handle_id: ID of the source handle
+
+        Returns:
+            A list of [target_component_id, target_handle_id] pairs for all connections
+            from the specified source. Returns an empty list if no connections exist or
+            if the source component doesn't exist in the graph.
+        """
+        targets = []
+
+        # Check if the source component exists in the graph
+        if not self.graph.has_node(source_component_id):
+            log_console(f"Source component {source_component_id} not found in graph", logger_console=False)
+            return targets
+
+        # Look through all outgoing edges from the source component
+        for _, target, data in self.graph.out_edges(source_component_id, data=True):
+            # Check if this edge uses the specified source handle
+            if data["sourceHandle"] == source_handle_id:
+                targets.append([target, data["targetHandle"]])
+
+        return targets
 
     def get_roots(self) -> List[str]:
         """Get all nodes with no incoming edges (starting points)."""
@@ -368,7 +414,7 @@ class WorkflowGraph:
 
             # Save the figure
             plt.savefig(save_path, format=save_format, dpi=dpi, bbox_inches="tight")
-            print(f"Graph visualization saved to {save_path}")
+            log_console(f"Graph visualization saved to {save_path}", logger_console=False)
 
         plt.show()
 
@@ -432,3 +478,5 @@ workflow = WorkflowGraph(json_str)
 # print("Component Handles:", comp)
 # out = workflow.find_connection_target("ef74a71f-c33c-4fe3-bd5b-bf312710caad", "jkj-out")
 # print("Node Outputs:", out)
+# all_targets = workflow.find_all_connection_targets("ef74a71f-c33c-4fe3-bd5b-bf312710caad", "jkj-out")
+# print("All Connection Targets:", all_targets)

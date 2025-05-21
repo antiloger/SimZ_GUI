@@ -135,7 +135,7 @@
       "type": "chart",
       "subtype": "line",
       "header": "Queue Length Timeline",
-      "description": "Queue length at each time point when a container is queued",
+      "description": "Queue length over time during QUEUED, IN, and OUT actions",
       "series": [
         {
           "name": "Queue Length",
@@ -166,6 +166,52 @@
         "show_tooltip": true,
         "y_axis_label": "Queue Length",
         "x_axis_label": "Simulation Time",
+        "type": "linear",
+        "show_dots": true,
+        "dot_size": 4,
+        "active_dot_size": 6,
+        "stroke_width": 2
+      },
+      "size": {
+        "cols": 2,
+        "rows": 1
+      }
+    },
+    {
+      "type": "chart",
+      "subtype": "line",
+      "header": "Container Processing Times",
+      "description": "Processing time for each container (4 containers)",
+      "series": [
+        {
+          "name": "Processing Time",
+          "data": [
+            {
+              "x": "Container 1",
+              "y": 7.0
+            },
+            {
+              "x": "Container 2",
+              "y": 12.0
+            },
+            {
+              "x": "Container 3",
+              "y": 7.0
+            },
+            {
+              "x": "Container 4",
+              "y": 12.0
+            }
+          ],
+          "color": null
+        }
+      ],
+      "options": {
+        "show_grid": true,
+        "show_legend": true,
+        "show_tooltip": true,
+        "y_axis_label": "Processing Time (time units)",
+        "x_axis_label": "Container",
         "type": "linear",
         "show_dots": true,
         "dot_size": 4,

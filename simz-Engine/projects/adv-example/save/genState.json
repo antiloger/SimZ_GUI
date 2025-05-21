@@ -1,0 +1,38 @@
+{
+    "69ecaf06-f805-43a6-bf8d-a7541a17018a": {
+        "typeName": "soda",
+        "genComponentId": "a3f1c817-a9a8-4287-b14b-61a17ba374d4",
+        "attributes": {
+            "amount": {
+                "type": "number",
+                "value": 200
+            },
+            "unit": {
+                "type": "string",
+                "value": "ml"
+            },
+            "ph": {
+                "type": "number",
+                "value": 3
+            },
+            "Brix": {
+                "type": "number",
+                "value": 10
+            }
+        }
+    },
+    "fcd65bf8-640f-489c-997f-177a462bded9": {
+        "typeName": "soda_bottle",
+        "genComponentId": "76858420-1972-4677-aea3-05b841e3b07e",
+        "attributes": {
+            "amount": {
+                "type": "string",
+                "value": "200ml"
+            },
+            "isDamage": {
+                "type": "bool",
+                "value": false
+            }
+        }
+    }
+}

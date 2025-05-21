@@ -1,0 +1,58 @@
+[
+    {
+        "source": "a3f1c817-a9a8-4287-b14b-61a17ba374d4",
+        "sourceHandle": "69ecaf06-f805-43a6-bf8d-a7541a17018a-out",
+        "target": "c8d9e68a-1819-44bd-a5a2-bbb25eb7f650",
+        "targetHandle": "soda_flow-in",
+        "id": "xy-edge__a3f1c817-a9a8-4287-b14b-61a17ba374d469ecaf06-f805-43a6-bf8d-a7541a17018a-out-c8d9e68a-1819-44bd-a5a2-bbb25eb7f650soda_flow-in"
+    },
+    {
+        "source": "c8d9e68a-1819-44bd-a5a2-bbb25eb7f650",
+        "sourceHandle": "soda_flow-out",
+        "target": "76858420-1972-4677-aea3-05b841e3b07e",
+        "targetHandle": "soda_flow-in",
+        "id": "xy-edge__c8d9e68a-1819-44bd-a5a2-bbb25eb7f650soda_flow-out-76858420-1972-4677-aea3-05b841e3b07esoda_flow-in"
+    },
+    {
+        "source": "c8d9e68a-1819-44bd-a5a2-bbb25eb7f650",
+        "sourceHandle": "soda_flow-out",
+        "target": "e23db431-81d2-4478-b67a-c5c116125634",
+        "targetHandle": "soda_flow_err-in",
+        "id": "xy-edge__c8d9e68a-1819-44bd-a5a2-bbb25eb7f650soda_flow-out-e23db431-81d2-4478-b67a-c5c116125634soda_flow_err-in"
+    },
+    {
+        "source": "e23db431-81d2-4478-b67a-c5c116125634",
+        "sourceHandle": "soda_flow_err-out",
+        "target": "76858420-1972-4677-aea3-05b841e3b07e",
+        "targetHandle": "soda_flow-in",
+        "id": "xy-edge__e23db431-81d2-4478-b67a-c5c116125634soda_flow_err-out-76858420-1972-4677-aea3-05b841e3b07esoda_flow-in"
+    },
+    {
+        "source": "76858420-1972-4677-aea3-05b841e3b07e",
+        "sourceHandle": "fcd65bf8-640f-489c-997f-177a462bded9-out",
+        "target": "4c37fcb3-2215-4fe3-ba3b-15da007c06b0",
+        "targetHandle": "bottle_flow-in",
+        "id": "xy-edge__76858420-1972-4677-aea3-05b841e3b07efcd65bf8-640f-489c-997f-177a462bded9-out-4c37fcb3-2215-4fe3-ba3b-15da007c06b0bottle_flow-in"
+    },
+    {
+        "source": "4c37fcb3-2215-4fe3-ba3b-15da007c06b0",
+        "sourceHandle": "bottle_flow-out",
+        "target": "42cb5e35-6d26-4992-ab8d-6f8ff0231e6c",
+        "targetHandle": "bottle_flow-in",
+        "id": "xy-edge__4c37fcb3-2215-4fe3-ba3b-15da007c06b0bottle_flow-out-42cb5e35-6d26-4992-ab8d-6f8ff0231e6cbottle_flow-in"
+    },
+    {
+        "source": "76858420-1972-4677-aea3-05b841e3b07e",
+        "sourceHandle": "fcd65bf8-640f-489c-997f-177a462bded9-out",
+        "target": "1e9b9784-5e5c-40a6-ad26-32e9cab87a04",
+        "targetHandle": "bottle_flow-in",
+        "id": "xy-edge__76858420-1972-4677-aea3-05b841e3b07efcd65bf8-640f-489c-997f-177a462bded9-out-1e9b9784-5e5c-40a6-ad26-32e9cab87a04bottle_flow-in"
+    },
+    {
+        "source": "1e9b9784-5e5c-40a6-ad26-32e9cab87a04",
+        "sourceHandle": "bottle_flow-out",
+        "target": "42cb5e35-6d26-4992-ab8d-6f8ff0231e6c",
+        "targetHandle": "bottle_flow-in",
+        "id": "xy-edge__1e9b9784-5e5c-40a6-ad26-32e9cab87a04bottle_flow-out-42cb5e35-6d26-4992-ab8d-6f8ff0231e6cbottle_flow-in"
+    }
+]

@@ -11,7 +11,7 @@ from typing import (
 )
 import simpy
 from src.sim.codeExec import CodeExec
-from src.sim.db import CsvLogger
+from src.sim.db import CsvLogger, log_console
 from src.sim.graph import WorkflowGraph
 from src.sim.kvstorage import KVStorage
 from src.sim.sim_types import (
@@ -50,7 +50,10 @@ class Component(ABC):
     ):
         # Check if class resources are initialized
         if not Component._initialized:
-            print("WARNING: Component class resources are not initialized yet!")
+            log_console(
+                "WARNING: Component class resources are not initialized yet!",
+                logger_console=True,
+            )
 
         self.env = env
         self.name = name
@@ -73,8 +76,8 @@ class Component(ABC):
         self.executor = CodeExec(compData.Runners, Component, GenContainer)
         # Register this component instance in the class registry
         self._register()
-        print(">> %%", self.executor.run_funcs)
-        print(">> %%", self.executor.generator_funcs)
+        log_console(f">> %% {self.executor.run_funcs}", logger_console=True)
+        log_console(f">> %% {self.executor.generator_funcs}", logger_console=True)
 
         # Run startup method if it exists in the event code base
         self.run_startup()
@@ -82,8 +85,9 @@ class Component(ABC):
     def _register(self):
         """Register this component in the class registry."""
         Component.registry[self.compId] = self
-        print(
-            f"Registered component {self.compId} of type {self.__class__.__name__} in registry"
+        log_console(
+            f"Registered component {self.compId} of type {self.__class__.__name__} in registry",
+            logger_console=True,
         )
 
     @classmethod
@@ -101,31 +105,35 @@ class Component(ABC):
         cls.genState = gen_ref
         Component.genState = gen_ref  # Ensure base class has it too
         Component._initialized = True
-        print(f"Set GenState reference for {cls.__name__}")
+        log_console(f"Set GenState reference for {cls.__name__}", logger_console=True)
 
     @classmethod
     def set_workflow(cls, workflow: WorkflowGraph):
         cls.workflow = workflow
         Component.workflow = workflow  # Ensure base class has it too
         Component._initialized = True
-        print(f"Set workflow reference for {cls.__name__}")
+        log_console(f"Set workflow reference for {cls.__name__}", logger_console=True)
 
     @classmethod
     def set_logger(cls, logger: CsvLogger):
         cls.logger = logger
         Component.logger = logger  # Ensure base class has it too
         Component._initialized = True
-        print(f"Set logger reference for {cls.__name__}")
+        log_console(f"Set logger reference for {cls.__name__}", logger_console=True)
 
     @classmethod
     def comp_from_registery(cls, compId: str) -> Optional["Component"]:
         """Retrieve a component by its ID from the registry."""
         comp = cls.registry.get(compId)
         if comp is None:
-            print(
-                f"Component with ID {compId} not found in registry. Registry has {len(cls.registry)} components."
+            log_console(
+                f"Component with ID {compId} not found in registry. Registry has {len(cls.registry)} components.",
+                logger_console=True,
             )
-            print(f"Available components: {list(cls.registry.keys())}")
+            log_console(
+                f"Available components: {list(cls.registry.keys())}",
+                logger_console=True,
+            )
         return comp
 
     @classmethod
@@ -141,13 +149,17 @@ class Component(ABC):
     @classmethod
     def check_registry(cls):
         """Check and print registry information for debugging."""
-        print(f"Registry contains {len(cls.registry)} components.")
-        print(f"Registry keys: {list(cls.registry.keys())}")
-        print(
-            f"Registry values types: {[type(v).__name__ for v in cls.registry.values()]}"
+        log_console(
+            f"Registry contains {len(cls.registry)} components.", logger_console=True
+        )
+        log_console(f"Registry keys: {list(cls.registry.keys())}", logger_console=True)
+        log_console(
+            f"Registry values types: {[type(v).__name__ for v in cls.registry.values()]}",
+            logger_console=True,
         )
 
     def targetHandlerFind(self, output: GenContainer) -> Optional[str]:
+        print(f"OOPPOPO targetHandlerFind: {output}")
         types_gen = output.get_name_in_Data()
         if len(types_gen) == 1:
             return f"{types_gen[0]}-out"
@@ -156,7 +168,7 @@ class Component(ABC):
     def getGenType(self, name: str) -> Optional[Dict[str, GenTypes]]:
         gen_data = self.genState.get_by_name(name)
         if gen_data is None:
-            print(f"GenType {name} not found in GenState.")
+            log_console(f"GenType {name} not found in GenState.", logger_console=True)
             return None
         return gen_data
 
@@ -173,18 +185,24 @@ class Component(ABC):
             try:
                 # Run the startup method and pass self as the component parameter
                 result = startup_func(self)
-                print(f"Startup method executed for component {self.compId}")
+                log_console(
+                    f"Startup method executed for component {self.compId}",
+                    logger_console=True,
+                )
                 return result
             except Exception as e:
-                print(
-                    f"Error executing startup method for component {self.compId}: {e}"
+                log_console(
+                    f"Error executing startup method for component {self.compId}: {e}",
+                    logger_console=True,
                 )
         return None
 
     def create_default_container(self, genTypeName) -> GenContainer:
         gen_data = self.genState.get_by_name(genTypeName)
         if gen_data is None:
-            print(f"GenType {genTypeName} not found in GenState.")
+            log_console(
+                f"GenType {genTypeName} not found in GenState.", logger_console=True
+            )
             raise ValueError("GenType not found in GenState.")
 
         return GenContainer(
@@ -211,13 +229,14 @@ class Component(ABC):
         Returns:
             The input GenContainer with the target handler set
         """
+        print(f"send_genOutput_next: {input}, {genType}")
         # Set the component ID if not already set
         if input.targetComp is None:
             input.targetComp = self.compId
 
         # If a specific function name is provided, use it to set the target handler
         # Check if there's a source handler in the workflow graph that matches the genType with "-out" suffix
-        source_handle_id = f"{genType}-out"
+        source_handle_id = f"{genType}-in"
 
         # Check if this component has this source handle in the workflow graph
         component_handles = self.workflow.get_component_handles(self.compId)
@@ -229,15 +248,24 @@ class Component(ABC):
             input.targetHandler = source_handle_id
 
         # Print debug info
-        print(
-            f"Using source handler: {input.targetHandler} for component {self.compId}"
+        log_console(
+            f"Using source handler: {input.targetHandler} for component {self.compId}",
+            logger_console=True,
         )
 
         return input
 
+    def set_next_target(
+        self, input: GenContainer, comp_id: str, handler: str
+    ) -> GenContainer:
+        input.Flag = "SKIP_TARGET"
+        input.targetComp = comp_id
+        input.targetHandler = f"{handler}-in"
+        return input
+
     def _next(self, output: Optional[GenContainer] = None):
         if output is None:
-            print("Output is None, cannot proceed.")
+            log_console("Output is None, cannot proceed.", logger_console=True)
             return
         if output.targetComp is None:
             output.targetComp = self.compId
@@ -248,31 +276,50 @@ class Component(ABC):
                 return
             output.targetHandler = str_hand
 
-        output_list = self.workflow.find_connection_target(
-            source_component_id=output.targetComp,
-            source_handle_id=output.targetHandler,
-        )
-
-        if output_list is None:
-            print(
-                f"Connection not found for source component {output.targetComp} and handler {output.targetHandler}."
+        if output.Flag != "SKIP_TARGET":
+            output_list = self.workflow.find_connection_target(
+                source_component_id=output.targetComp,
+                source_handle_id=output.targetHandler,
             )
-            return
 
-        output.set_next_target(
-            comp=output_list[0],
-            handler=output_list[1],
-        )
+            if output_list is None:
+                log_console(
+                    f"Connection not found for source component {output.targetComp} and handler {output.targetHandler}.",
+                    logger_console=True,
+                )
+                return
 
-        # Check registry explicitly before proceeding
-        print(
-            f"Looking for component {output_list[0]} in registry with {self.get_registry_size()} components"
-        )
-        next_comp_ref = self.comp_from_registery(output_list[0])
-        if next_comp_ref is None:
-            print(f"Component with ID {output_list[0]} not found in registry.")
-            return
-        self.env.process(next_comp_ref.run(output))
+            output.set_next_target(
+                comp=output_list[0],
+                handler=output_list[1],
+            )
+
+            # Check registry explicitly before proceeding
+            log_console(
+                f"Looking for component {output_list[0]} in registry with {self.get_registry_size()} components",
+                logger_console=True,
+            )
+            next_comp_ref = self.comp_from_registery(output_list[0])
+            if next_comp_ref is None:
+                log_console(
+                    f"Component with ID {output_list[0]} not found in registry.",
+                    logger_console=True,
+                )
+                return
+
+            self.env.process(next_comp_ref.run(output))
+        elif output.Flag == "SKIP_TARGET":
+            log_console(f"SKIP_TARGET{output}", True)
+            output.Flag = "IDEL"
+            next_comp_ref = self.comp_from_registery(output.targetComp)
+            if next_comp_ref is None:
+                log_console(
+                    f"Component with ID {output.targetComp} not found in registry.",
+                    logger_console=True,
+                )
+                return
+            log_console(f"LSKIP_TARGET{output}", True)
+            self.env.process(next_comp_ref.run(output))
 
     def random(self, from_val: int, to_val: int):
         """Generate a random integer between from_val and to_val."""
@@ -284,27 +331,35 @@ class Component(ABC):
 
     def create_container(self, genType: str, data: Dict[str, Any]) -> GenContainer:
         """Create a new GenContainer with the specified genType and data."""
-        print(f"Creating container for genType: {genType} with data: {data}")
+        log_console(
+            f"Creating container for genType: {genType} with data: {data}",
+            logger_console=True,
+        )
         gen_data = self.genState.get_by_name(genType)
         if gen_data is None:
-            print(f"GenType {genType} not found in GenState.")
+            log_console(
+                f"GenType {genType} not found in GenState.", logger_console=True
+            )
             raise ValueError("GenType not found in GenState.")
         container = GenContainer(
             Data=gen_data,
             targetComp=self.compId,
-            targetHandler=None,
+            targetHandler=next(iter(gen_data)),
         )
         genid = container.get_name_in_Data()[0]
-        print(f"1 11 1 1Container created: {container}")
-        print(f"1 11 1 1att created: {data}")
+        log_console(f"1 11 1 1Container created: {container}", logger_console=True)
+        log_console(f"1 11 1 1att created: {data}", logger_console=True)
         container.set_targetHandler(f"{genid}-out")
         try:
             for key, value in data.items():
-                print(f"Updating container with key: {key}, value: {value}")
+                log_console(
+                    f"Updating container with key: {key}, value: {value}",
+                    logger_console=True,
+                )
                 container.Data[genid].update_value(key, value)
         except Exception as e:
-            print(f"Error updating container data: {e}")
-        print(f"Container created: {container}")
+            log_console(f"Error updating container data: {e}", logger_console=True)
+        log_console(f"Container created: {container}", logger_console=True)
         return container
 
     @abstractmethod
@@ -374,7 +429,7 @@ class Component(ABC):
             result = run_func(context)
             return result
         except Exception as e:
-            print(f"Error compiling code: {e}")
+            log_console(f"Error compiling code: {e}", logger_console=True)
             return None
 
     def timeout(self, duration: int):
@@ -413,10 +468,11 @@ class Component(ABC):
         # Try to get the CSV scraper from the analytics system
         try:
             from src.sim.csvpaser import CSVScraper
+
             csv_file = f"output/{self.compId}_data.csv"
             return CSVScraper(csv_file)
         except Exception as e:
-            print(f"Error getting CSV data: {e}")
+            log_console(f"Error getting CSV data: {e}", logger_console=True)
             return None
 
     def get_processing_times(self, csv_scraper=None) -> List[Dict[str, Any]]:
@@ -454,11 +510,11 @@ class Component(ABC):
             # Get processing times from the CSV data
             processing_data = csv_data.get_processing_times(self.compId)
             return [
-                {'time': entry.get('time', 0), 'duration': entry.get('duration', 0)}
+                {"time": entry.get("time", 0), "duration": entry.get("duration", 0)}
                 for entry in processing_data
             ]
         except Exception as e:
-            print(f"Error getting processing times: {e}")
+            log_console(f"Error getting processing times: {e}", logger_console=True)
             return []
 
     def get_action_counts(self, csv_scraper=None) -> Dict[str, int]:
@@ -494,13 +550,13 @@ class Component(ABC):
             # Count actions
             action_counts = {}
             for event in events:
-                action = event.get('action')
+                action = event.get("action")
                 if action:
                     action_counts[action] = action_counts.get(action, 0) + 1
 
             return action_counts
         except Exception as e:
-            print(f"Error getting action counts: {e}")
+            log_console(f"Error getting action counts: {e}", logger_console=True)
             return {}
 
     def get_queue_length_timeline(self, csv_scraper=None) -> List[Dict[str, Any]]:
@@ -541,15 +597,19 @@ class Component(ABC):
             # Extract queue length data
             queue_data = []
             for event in events:
-                if 'values' in event and 'queue_length' in event['values']:
-                    queue_data.append({
-                        'time': event.get('time', 0),
-                        'length': event['values']['queue_length']
-                    })
+                if "values" in event and "queue_length" in event["values"]:
+                    queue_data.append(
+                        {
+                            "time": event.get("time", 0),
+                            "length": event["values"]["queue_length"],
+                        }
+                    )
 
             return queue_data
         except Exception as e:
-            print(f"Error getting queue length timeline: {e}")
+            log_console(
+                f"Error getting queue length timeline: {e}", logger_console=True
+            )
             return []
 
     def get_container_metrics(self, csv_scraper=None) -> List[Dict[str, Any]]:
@@ -584,54 +644,61 @@ class Component(ABC):
             # Extract container data
             container_data = {}
             for event in events:
-                if 'PDV' in event and event['PDV'] and 'containerId' in event['PDV']:
-                    container_id = event['PDV']['containerId']
-                    action = event.get('action')
-                    time = event.get('time', 0)
+                if "PDV" in event and event["PDV"] and "containerId" in event["PDV"]:
+                    container_id = event["PDV"]["containerId"]
+                    action = event.get("action")
+                    time = event.get("time", 0)
 
                     # Initialize container entry if not exists
                     if container_id not in container_data:
                         container_data[container_id] = {
-                            'container_id': container_id,
-                            'actions': []
+                            "container_id": container_id,
+                            "actions": [],
                         }
 
                     # Add action data
-                    container_data[container_id]['actions'].append({
-                        'action': action,
-                        'time': time
-                    })
+                    container_data[container_id]["actions"].append(
+                        {"action": action, "time": time}
+                    )
 
                     # Add container type information if available
-                    if 'types' in event['PDV']:
-                        container_data[container_id]['types'] = list(event['PDV']['types'].keys())
+                    if "types" in event["PDV"]:
+                        container_data[container_id]["types"] = list(
+                            event["PDV"]["types"].keys()
+                        )
 
             # Calculate metrics for each container
             container_metrics = []
             for container_id, data in container_data.items():
                 metrics = {
-                    'container_id': container_id,
-                    'types': ', '.join(data.get('types', [])),
+                    "container_id": container_id,
+                    "types": ", ".join(data.get("types", [])),
                 }
 
                 # Calculate processing time if IN and OUT actions exist
-                actions = sorted(data['actions'], key=lambda x: x['time'])
-                in_time = next((a['time'] for a in actions if a['action'] == 'IN'), None)
-                out_time = next((a['time'] for a in actions if a['action'] == 'OUT'), None)
+                actions = sorted(data["actions"], key=lambda x: x["time"])
+                in_time = next(
+                    (a["time"] for a in actions if a["action"] == "IN"), None
+                )
+                out_time = next(
+                    (a["time"] for a in actions if a["action"] == "OUT"), None
+                )
 
                 if in_time is not None and out_time is not None:
-                    metrics['processing_time'] = out_time - in_time
+                    metrics["processing_time"] = out_time - in_time
 
                 # Calculate queue time if QUEUED and IN actions exist
-                queued_time = next((a['time'] for a in actions if a['action'] == 'QUEUED'), None)
+                queued_time = next(
+                    (a["time"] for a in actions if a["action"] == "QUEUED"), None
+                )
                 if queued_time is not None and in_time is not None:
-                    metrics['queue_time'] = in_time - queued_time
+                    metrics["queue_time"] = in_time - queued_time
 
                 container_metrics.append(metrics)
 
             return container_metrics
         except Exception as e:
-            print(f"Error getting container metrics: {e}")
+            log_console(f"Error getting container metrics: {e}", logger_console=True)
             return []
 
     def create_line_chart(
@@ -683,13 +750,12 @@ class Component(ABC):
         series_list = []
         for series_item in series_data:
             data_points = []
-            for point in series_item.get('data', []):
-                data_points.append(DataPoint(x=point.get('x', 0), y=point.get('y', 0)))
+            for point in series_item.get("data", []):
+                data_points.append(DataPoint(x=point.get("x", 0), y=point.get("y", 0)))
 
-            series_list.append(Series(
-                name=series_item.get('name', 'Series'),
-                data=data_points
-            ))
+            series_list.append(
+                Series(name=series_item.get("name", "Series"), data=data_points)
+            )
 
         # Create and return the chart
         return ChartBuilder.create_line_chart(
@@ -699,7 +765,7 @@ class Component(ABC):
             y_axis_label=y_axis_label,
             x_axis_label=x_axis_label,
             cols=cols,
-            rows=rows
+            rows=rows,
         )
 
     def create_bar_chart(
@@ -755,13 +821,12 @@ class Component(ABC):
         series_list = []
         for series_item in series_data:
             data_points = []
-            for point in series_item.get('data', []):
-                data_points.append(DataPoint(x=point.get('x', ''), y=point.get('y', 0)))
+            for point in series_item.get("data", []):
+                data_points.append(DataPoint(x=point.get("x", ""), y=point.get("y", 0)))
 
-            series_list.append(Series(
-                name=series_item.get('name', 'Series'),
-                data=data_points
-            ))
+            series_list.append(
+                Series(name=series_item.get("name", "Series"), data=data_points)
+            )
 
         # Set layout and bar type
         layout = BarLayout.VERTICAL if vertical else BarLayout.HORIZONTAL
@@ -777,7 +842,7 @@ class Component(ABC):
             layout=layout,
             bar_type=bar_type,
             cols=cols,
-            rows=rows
+            rows=rows,
         )
 
     def create_pie_chart(
@@ -818,7 +883,9 @@ class Component(ABC):
         # Convert data to Series format
         data_points = []
         for item in data:
-            data_points.append(DataPoint(x=item.get('name', ''), y=item.get('value', 0)))
+            data_points.append(
+                DataPoint(x=item.get("name", ""), y=item.get("value", 0))
+            )
 
         series = Series(name="Data", data=data_points)
 
@@ -828,7 +895,7 @@ class Component(ABC):
             description=description,
             series=[series],
             cols=cols,
-            rows=rows
+            rows=rows,
         )
 
     def create_card(
@@ -886,7 +953,7 @@ class Component(ABC):
             valueFormatting=value_formatting,
             valuePrefix=prefix,
             valueSuffix=suffix,
-            size=size
+            size=size,
         )
 
     def create_table(
@@ -935,7 +1002,7 @@ class Component(ABC):
             description=description,
             column_order=column_order,
             column_labels=column_labels,
-            exclude_columns=exclude_columns
+            exclude_columns=exclude_columns,
         )
 
     # Container Management Helpers
@@ -959,20 +1026,29 @@ class Component(ABC):
             temp = component.get_container_data(container, 'Water', 'temperature')
         """
         if container is None or not isinstance(container, GenContainer):
-            print(f"Warning: Invalid container provided to get_container_data")
+            log_console(
+                f"Warning: Invalid container provided to get_container_data",
+                logger_console=True,
+            )
             return None
 
         if gen_type not in container.Data:
-            print(f"Warning: GenType '{gen_type}' not found in container")
+            log_console(
+                f"Warning: GenType '{gen_type}' not found in container",
+                logger_console=True,
+            )
             return None
 
         try:
             return container.Data[gen_type].get_value(attribute)
         except KeyError:
-            print(f"Warning: Attribute '{attribute}' not found in GenType '{gen_type}'")
+            log_console(
+                f"Warning: Attribute '{attribute}' not found in GenType '{gen_type}'",
+                logger_console=True,
+            )
             return None
         except Exception as e:
-            print(f"Error getting container data: {e}")
+            log_console(f"Error getting container data: {e}", logger_console=True)
             return None
 
     def set_container_data(
@@ -995,21 +1071,30 @@ class Component(ABC):
             component.set_container_data(container, 'Water', 'temperature', 25)
         """
         if container is None or not isinstance(container, GenContainer):
-            print(f"Warning: Invalid container provided to set_container_data")
+            log_console(
+                f"Warning: Invalid container provided to set_container_data",
+                logger_console=True,
+            )
             return False
 
         if gen_type not in container.Data:
-            print(f"Warning: GenType '{gen_type}' not found in container")
+            log_console(
+                f"Warning: GenType '{gen_type}' not found in container",
+                logger_console=True,
+            )
             return False
 
         try:
             container.Data[gen_type].update_value(attribute, value)
             return True
         except KeyError:
-            print(f"Warning: Attribute '{attribute}' not found in GenType '{gen_type}'")
+            log_console(
+                f"Warning: Attribute '{attribute}' not found in GenType '{gen_type}'",
+                logger_console=True,
+            )
             return False
         except Exception as e:
-            print(f"Error setting container data: {e}")
+            log_console(f"Error setting container data: {e}", logger_console=True)
             return False
 
     def copy_container(self, container: GenContainer) -> Optional[GenContainer]:
@@ -1027,13 +1112,16 @@ class Component(ABC):
             new_container = component.copy_container(original_container)
         """
         if container is None or not isinstance(container, GenContainer):
-            print(f"Warning: Invalid container provided to copy_container")
+            log_console(
+                f"Warning: Invalid container provided to copy_container",
+                logger_console=True,
+            )
             return None
 
         try:
             return copy.deepcopy(container)
         except Exception as e:
-            print(f"Error copying container: {e}")
+            log_console(f"Error copying container: {e}", logger_console=True)
             return None
 
     def merge_container_data(
@@ -1055,7 +1143,10 @@ class Component(ABC):
             component.merge_container_data(container1, container2)
         """
         if not all(isinstance(c, GenContainer) for c in [target, source]):
-            print(f"Warning: Invalid containers provided to merge_container_data")
+            log_console(
+                f"Warning: Invalid containers provided to merge_container_data",
+                logger_console=True,
+            )
             return False
 
         try:
@@ -1079,7 +1170,7 @@ class Component(ABC):
 
             return True
         except Exception as e:
-            print(f"Error merging container data: {e}")
+            log_console(f"Error merging container data: {e}", logger_console=True)
             return False
 
     # Simulation Flow Control Helpers
@@ -1201,13 +1292,18 @@ class Component(ABC):
             component.send_to_component(container, 'resource1', 'Water-in')
         """
         if container is None or not isinstance(container, GenContainer):
-            print(f"Warning: Invalid container provided to send_to_component")
+            log_console(
+                f"Warning: Invalid container provided to send_to_component",
+                logger_console=True,
+            )
             return False
 
         # Get the target component
         target_comp = self.get_component_by_id(comp_id)
         if target_comp is None:
-            print(f"Warning: Target component '{comp_id}' not found")
+            log_console(
+                f"Warning: Target component '{comp_id}' not found", logger_console=True
+            )
             return False
 
         # Set the target component and handler
@@ -1220,8 +1316,9 @@ class Component(ABC):
             if len(gen_types) == 1:
                 container.targetHandler = f"{gen_types[0]}-in"
             else:
-                print(
-                    f"Warning: No handler specified and multiple GenTypes in container"
+                log_console(
+                    f"Warning: No handler specified and multiple GenTypes in container",
+                    logger_console=True,
                 )
                 return False
 
@@ -1230,7 +1327,9 @@ class Component(ABC):
             self.env.process(target_comp.run(container))
             return True
         except Exception as e:
-            print(f"Error sending container to component: {e}")
+            log_console(
+                f"Error sending container to component: {e}", logger_console=True
+            )
             return False
 
     # Data Storage and Retrieval Helpers
@@ -1254,7 +1353,7 @@ class Component(ABC):
             self.var.set(key, value)
             return True
         except Exception as e:
-            print(f"Error storing data: {e}")
+            log_console(f"Error storing data: {e}", logger_console=True)
             return False
 
     def get_data(self, key: str, default: Any = None) -> Any:
@@ -1385,7 +1484,9 @@ class Component(ABC):
             },
         )
 
-    def run_ml_model(self, model_name: str, input_data: Any, model_dir: str = None) -> Any:
+    def run_ml_model(
+        self, model_name: str, input_data: Any, model_dir: str = None
+    ) -> Any:
         """
         Load and run a machine learning model with the provided input data.
 
@@ -1439,7 +1540,7 @@ class Component(ABC):
             model = None
 
             # Look for .pkl or .joblib files (scikit-learn, general pickle)
-            for ext in ['.pkl', '.joblib', '.pickle']:
+            for ext in [".pkl", ".joblib", ".pickle"]:
                 path = os.path.join(model_dir, f"{model_name}{ext}")
                 if os.path.exists(path):
                     model_path = path
@@ -1447,11 +1548,13 @@ class Component(ABC):
 
             # Look for saved model directories (TensorFlow)
             tf_path = os.path.join(model_dir, model_name)
-            if os.path.isdir(tf_path) and os.path.exists(os.path.join(tf_path, 'saved_model.pb')):
+            if os.path.isdir(tf_path) and os.path.exists(
+                os.path.join(tf_path, "saved_model.pb")
+            ):
                 model_path = tf_path
 
             # Look for .pt or .pth files (PyTorch)
-            for ext in ['.pt', '.pth']:
+            for ext in [".pt", ".pth"]:
                 path = os.path.join(model_dir, f"{model_name}{ext}")
                 if os.path.exists(path):
                     model_path = path
@@ -1463,34 +1566,46 @@ class Component(ABC):
                 model_path = py_path
 
             if model_path is None:
-                print(f"Error: Model '{model_name}' not found in directory '{model_dir}'")
+                print(
+                    f"Error: Model '{model_name}' not found in directory '{model_dir}'"
+                )
                 return None
 
             # Load the model based on file type
-            if model_path.endswith('.pkl') or model_path.endswith('.pickle'):
+            if model_path.endswith(".pkl") or model_path.endswith(".pickle"):
                 import pickle
-                with open(model_path, 'rb') as f:
+
+                with open(model_path, "rb") as f:
                     model = pickle.load(f)
-            elif model_path.endswith('.joblib'):
+            elif model_path.endswith(".joblib"):
                 import joblib
+
                 model = joblib.load(model_path)
-            elif model_path.endswith('.pt') or model_path.endswith('.pth'):
+            elif model_path.endswith(".pt") or model_path.endswith(".pth"):
                 # Check if PyTorch is available
                 if importlib.util.find_spec("torch") is not None:
                     import torch
+
                     model = torch.load(model_path)
                 else:
-                    print("Error: PyTorch is not installed but required for .pt/.pth models")
+                    print(
+                        "Error: PyTorch is not installed but required for .pt/.pth models"
+                    )
                     return None
-            elif os.path.isdir(model_path) and os.path.exists(os.path.join(model_path, 'saved_model.pb')):
+            elif os.path.isdir(model_path) and os.path.exists(
+                os.path.join(model_path, "saved_model.pb")
+            ):
                 # Check if TensorFlow is available
                 if importlib.util.find_spec("tensorflow") is not None:
                     import tensorflow as tf
+
                     model = tf.saved_model.load(model_path)
                 else:
-                    print("Error: TensorFlow is not installed but required for saved_model.pb models")
+                    print(
+                        "Error: TensorFlow is not installed but required for saved_model.pb models"
+                    )
                     return None
-            elif model_path.endswith('.py'):
+            elif model_path.endswith(".py"):
                 # Add the models directory to the Python path temporarily
                 sys.path.insert(0, os.path.dirname(model_path))
 
@@ -1499,7 +1614,7 @@ class Component(ABC):
                 module = importlib.import_module(module_name)
 
                 # Look for predict function
-                if hasattr(module, 'predict'):
+                if hasattr(module, "predict"):
                     # Call the predict function directly
                     result = module.predict(input_data)
 
@@ -1518,7 +1633,9 @@ class Component(ABC):
 
                     return result
                 else:
-                    print(f"Error: Module '{module_name}' does not have a 'predict' function")
+                    print(
+                        f"Error: Module '{module_name}' does not have a 'predict' function"
+                    )
 
                     # Remove the added path
                     sys.path.pop(0)
@@ -1528,12 +1645,14 @@ class Component(ABC):
                 return None
 
             # Run the model
-            if hasattr(model, 'predict'):
+            if hasattr(model, "predict"):
                 result = model.predict(input_data)
             elif callable(model):
                 result = model(input_data)
             else:
-                print(f"Error: Model '{model_name}' does not have a predict method or is not callable")
+                print(
+                    f"Error: Model '{model_name}' does not have a predict method or is not callable"
+                )
                 return None
 
             # Log successful prediction
@@ -1729,7 +1848,7 @@ class Component(ABC):
         output = ComponentOutput(
             id=self.compId,
             name=f"{self.category.capitalize()} {self.compId}",
-            type=self.category
+            type=self.category,
         )
 
         # First, check if the user has defined custom visualization methods
@@ -1742,11 +1861,13 @@ class Component(ABC):
                 charts = output_charts_func(self)
                 if charts and isinstance(charts, list):
                     for chart in charts:
-                        if hasattr(chart, 'type') and chart.type in ['chart', 'card']:
+                        if hasattr(chart, "type") and chart.type in ["chart", "card"]:
                             output.add_chart(chart)
                 print(f"Custom charts generated for component {self.compId}")
             except Exception as e:
-                print(f"Error executing outputCharts method for component {self.compId}: {e}")
+                print(
+                    f"Error executing outputCharts method for component {self.compId}: {e}"
+                )
 
         # Check for outputTable method in the event code
         output_table_func = self.executor.execute_event_function("outputTable")
@@ -1756,11 +1877,13 @@ class Component(ABC):
                 tables = output_table_func(self)
                 if tables and isinstance(tables, list):
                     for table in tables:
-                        if isinstance(table, dict) and 'data' in table:
+                        if isinstance(table, dict) and "data" in table:
                             output.add_table(table)
                 print(f"Custom tables generated for component {self.compId}")
             except Exception as e:
-                print(f"Error executing outputTable method for component {self.compId}: {e}")
+                print(
+                    f"Error executing outputTable method for component {self.compId}: {e}"
+                )
 
         # If no custom visualizations were defined or they didn't produce any output,
         # fall back to the analytics system
@@ -2571,6 +2694,131 @@ class Resource(Component):
                 print(f"Error marking processing start: {e}")
 
         return container
+
+    def get_queue_length(self) -> int:
+        """
+        Get the current queue length.
+
+        Returns:
+            The current queue length
+
+        Example:
+            # Get the current queue length
+            queue_length = component.get_queue_length()
+        """
+        return len(self.resource.queue)
+
+    def send_to_pool(self, inputContainer: GenContainer) -> Optional[GenContainer]:
+        """
+        Routes a container to the target component with the smallest queue length.
+
+        This method finds all possible target components and their handlers using
+        the find_all_connection_targets method, checks their queue lengths, and
+        routes the container to the component with the smallest queue length.
+
+        Args:
+            inputContainer: The GenContainer to route
+
+        Returns:
+            The updated GenContainer with targetComp and targetHandler set to the
+            component with the smallest queue length, or None if no valid targets found
+
+        Example:
+            # Route a container to the resource with the smallest queue
+            container = component.send_to_pool(container)
+        """
+        log_console(f">>>>>{inputContainer}", True)
+        # Set default target component if not specified
+        if inputContainer.targetComp is None:
+            inputContainer.targetComp = self.compId
+
+        # Return None if target handler is not specified
+        if inputContainer.targetHandler is None:
+            log_console(
+                f"Warning: Target handler is None in send_to_pool for container {inputContainer.containerId}",
+                logger_console=True,
+            )
+            return None
+
+        # Find all possible target components and their handlers
+        targets = self.workflow.find_all_connection_targets(
+            inputContainer.targetComp, inputContainer.targetHandler
+        )
+
+        # Return the original container if no targets found
+        if not targets:
+            log_console(
+                f"No targets found for component {inputContainer.targetComp} and handler {inputContainer.targetHandler}",
+                logger_console=True,
+            )
+            return inputContainer
+
+        # Track the component with the smallest queue length
+        min_queue_length = float("inf")
+        selected_target = None
+
+        # Check each target component's queue length
+        for target_comp_id, target_handler in targets:
+            try:
+                # Get the target component from the registry
+                target_comp = self.comp_from_registery(target_comp_id)
+
+                # Skip if component not found
+                if target_comp is None:
+                    log_console(
+                        f"Target component {target_comp_id} not found in registry",
+                        logger_console=True,
+                    )
+                    continue
+
+                # Check if the component has a get_queue_length method
+                if hasattr(target_comp, "get_queue_length") and callable(
+                    getattr(target_comp, "get_queue_length")
+                ):
+                    queue_length = target_comp.get_queue_length()
+
+                    # Log the queue length for debugging
+                    log_console(
+                        f"Component {target_comp_id} has queue length {queue_length}",
+                        logger_console=True,
+                    )
+
+                    # Update the selected target if this one has a smaller queue
+                    if queue_length < min_queue_length:
+                        min_queue_length = queue_length
+                        selected_target = (target_comp_id, target_handler)
+                else:
+                    log_console(
+                        f"Component {target_comp_id} does not have a get_queue_length method",
+                        logger_console=True,
+                    )
+            except Exception as e:
+                # Log any errors but continue checking other targets
+                log_console(
+                    f"Error checking queue length for component {target_comp_id}: {str(e)}",
+                    logger_console=True,
+                )
+
+        # Set the target component and handler to the one with the smallest queue length
+        if selected_target:
+            inputContainer.targetComp = selected_target[0]
+            inputContainer.targetHandler = selected_target[1]
+
+            # Log the selected target for debugging
+            log_console(
+                f"Selected target component {selected_target[0]} with handler {selected_target[1]} (queue length: {min_queue_length})",
+                logger_console=True,
+            )
+        else:
+            # If no valid target found, log a warning
+            log_console(
+                "No valid target with get_queue_length method found, keeping original target",
+                logger_console=True,
+            )
+
+        inputContainer.Flag = "SKIP_TARGET"
+        log_console(f"RREERE{inputContainer}", True)
+        return inputContainer
 
     def run(self, input: Optional[GenContainer]) -> TypingGen[Any, Any, Any]:
         """

@@ -7,6 +7,18 @@ from typing import Dict, Any, Optional, List, Set, Tuple, Union
 import numpy as np
 
 
+def log_console(message: str, logger_console: bool = False) -> None:
+    """
+    Utility function to control console output.
+
+    Args:
+        message: The message to print
+        logger_console: Whether to print the message to the console (default: False)
+    """
+    if logger_console:
+        print(message)
+
+
 class CSVScraper:
     """
     A class to scrape and analyze CSV data using DuckDB, particularly for processing
@@ -28,70 +40,56 @@ class CSVScraper:
         self.load_data()
 
     def load_data(self) -> None:
-        """
-        Load the CSV data and prepare it for querying.
-        Enhanced with better error handling and data validation.
-        """
+        """Load the CSV data and prepare it for querying."""
         try:
-            # Check if file exists
-            if not os.path.exists(self.csv_filepath):
-                print(f"Warning: CSV file not found at {self.csv_filepath}")
-                self.df = pd.DataFrame()  # Create empty DataFrame
-                return
+            # First, read the CSV file without parsing the JSON columns
+            self.df = pd.read_csv(self.csv_filepath)
 
-            # Read CSV with error handling
-            try:
-                self.df = pd.read_csv(self.csv_filepath)
-            except pd.errors.EmptyDataError:
-                print(f"Warning: CSV file is empty: {self.csv_filepath}")
-                self.df = pd.DataFrame()
-                return
-            except Exception as e:
-                print(f"Error reading CSV file: {e}")
-                self.df = pd.DataFrame()
-                return
+            # Define a safer JSON parsing function
+            def safe_parse_json(text):
+                if not isinstance(text, str):
+                    return text
 
-            # Check if DataFrame is empty
-            if self.df.empty:
-                print("Warning: No data found in CSV file")
-                return
-
-            # Ensure required columns exist
-            required_columns = ["time", "component_id", "component_type", "action", "values", "PDV"]
-            missing_columns = [col for col in required_columns if col not in self.df.columns]
-
-            if missing_columns:
-                print(f"Warning: Missing required columns: {missing_columns}")
-                # Add missing columns with default values
-                for col in missing_columns:
-                    self.df[col] = None
-
-            # Parse the JSON strings in values and PDV columns with better error handling
-            def safe_parse_json(x):
-                if not isinstance(x, str):
-                    return x
                 try:
-                    return json.loads(x.replace("'", '"'))
-                except (json.JSONDecodeError, AttributeError):
-                    return {}
+                    # Try direct json.loads first
+                    return json.loads(text)
+                except json.JSONDecodeError:
+                    try:
+                        # Try replacing single quotes with double quotes
+                        return json.loads(text.replace("'", '"'))
+                    except json.JSONDecodeError:
+                        try:
+                            # Try using ast.literal_eval as a fallback
+                            import ast
 
-            self.df["values"] = self.df["values"].apply(safe_parse_json)
-            self.df["PDV"] = self.df["PDV"].apply(safe_parse_json)
+                            return ast.literal_eval(text)
+                        except (ValueError, SyntaxError):
+                            # If all parsing attempts fail, return the original string
+                            print(
+                                f"Warning: Failed to parse JSON-like string: {text[:50]}..."
+                            )
+                            return text
+
+            # Apply the safe parsing function to both columns
+            if "values" in self.df.columns:
+                self.df["values"] = self.df["values"].apply(safe_parse_json)
+
+            if "PDV" in self.df.columns:
+                self.df["PDV"] = self.df["PDV"].apply(safe_parse_json)
 
             # Extract component IDs and types for easier access
             self.components_data = self._extract_components_data()
             self.containers_data = self._extract_containers_data()
 
             # Register the DataFrame as a view in DuckDB
-            try:
-                self.conn.register("csv_data", self.df)
-                print(f"Data loaded successfully: {len(self.df)} rows")
-            except Exception as e:
-                print(f"Warning: Could not register DataFrame with DuckDB: {e}")
-
+            self.conn.register("csv_data", self.df)
+            print(f"Data loaded successfully: {len(self.df)} rows")
         except Exception as e:
             print(f"Error loading data: {e}")
-            self.df = pd.DataFrame()  # Create empty DataFrame as fallback
+            import traceback
+
+            traceback.print_exc()  # Print the full traceback for debugging
+            raise
 
     def _extract_components_info(self) -> None:
         """Extract information about unique components and their actions"""
@@ -254,11 +252,16 @@ class CSVScraper:
 
             result = self.conn.execute(query).fetchdf()
             container_ids = result["container_id"].tolist()
-            print(f"Found {len(container_ids)} unique container IDs using direct query")
+            log_console(
+                f"Found {len(container_ids)} unique container IDs using direct query",
+                logger_console=False,
+            )
             return container_ids
 
         except Exception as e:
-            print(f"Error getting unique container IDs: {e}")
+            log_console(
+                f"Error getting unique container IDs: {e}", logger_console=False
+            )
 
             # Fallback method using Python
             container_ids = set()
@@ -266,7 +269,10 @@ class CSVScraper:
                 if isinstance(row.get("PDV"), dict) and "containerId" in row["PDV"]:
                     container_ids.add(row["PDV"]["containerId"])
 
-            print(f"Found {len(container_ids)} unique container IDs using fallback method")
+            log_console(
+                f"Found {len(container_ids)} unique container IDs using fallback method",
+                logger_console=False,
+            )
             return list(container_ids)
 
     def get_container_stats(self) -> pd.DataFrame:
@@ -507,7 +513,7 @@ class CSVScraper:
         try:
             return self.conn.execute(query).fetchdf()
         except Exception as e:
-            print(f"Query error: {e}")
+            log_console(f"Query error: {e}", logger_console=False)
             raise
 
     def close(self) -> None:
@@ -712,7 +718,9 @@ class CSVScraper:
 
         try:
             # First, ensure we can extract container IDs properly
-            print("Extracting container IDs from CSV data...")
+            log_console(
+                "Extracting container IDs from CSV data...", logger_console=False
+            )
 
             # Query to get basic container statistics with better error handling
             # Use string replacement to handle both single and double quotes in JSON
@@ -797,14 +805,19 @@ class CSVScraper:
                             "first_seen": first_seen,
                             "last_seen": last_seen,
                             "lifespan": lifespan,
-                            "component_interactions": components["component_id"].tolist(),
+                            "component_interactions": components[
+                                "component_id"
+                            ].tolist(),
                             "component_interaction_count": len(components),
                             "actions": actions["action"].tolist(),
                             "action_count": len(actions),
                         }
                     )
                 except Exception as e:
-                    print(f"Warning: Error processing container: {e}")
+                    log_console(
+                        f"Warning: Error processing container: {e}",
+                        logger_console=False,
+                    )
                     continue
 
             # Create a safe result dictionary with proper fallbacks
@@ -833,7 +846,7 @@ class CSVScraper:
             return result
 
         except Exception as e:
-            print(f"Error in count_containers_duckdb: {e}")
+            log_console(f"Error in count_containers_duckdb: {e}", logger_console=False)
             return {"error": str(e), "total_containers": 0}
 
     def _extract_components_data(self) -> Dict[str, Dict[str, Any]]:
@@ -873,7 +886,9 @@ class CSVScraper:
                 elif isinstance(row["values"], str):
                     # Try to parse string as JSON if it's not already a dict
                     try:
-                        action_data["values"] = json.loads(row["values"].replace("'", '"'))
+                        action_data["values"] = json.loads(
+                            row["values"].replace("'", '"')
+                        )
                     except (json.JSONDecodeError, AttributeError):
                         action_data["values"] = {}
                 else:
@@ -883,7 +898,14 @@ class CSVScraper:
 
             # Add any additional fields that might be present
             for key, value in row.items():
-                if key not in ["time", "component_id", "component_type", "action", "values", "PDV"]:
+                if key not in [
+                    "time",
+                    "component_id",
+                    "component_type",
+                    "action",
+                    "values",
+                    "PDV",
+                ]:
                     if value is not None:
                         action_data[key] = value
 
@@ -929,7 +951,11 @@ class CSVScraper:
                         pdv_data = None
 
             # Skip if no valid PDV data or no containerId
-            if not pdv_data or not isinstance(pdv_data, dict) or "containerId" not in pdv_data:
+            if (
+                not pdv_data
+                or not isinstance(pdv_data, dict)
+                or "containerId" not in pdv_data
+            ):
                 continue
 
             container_id = pdv_data["containerId"]
@@ -946,12 +972,17 @@ class CSVScraper:
                 }
             else:
                 # Update last_seen time if this row has a later timestamp
-                if "time" in row and row["time"] > containers[container_id]["last_seen"]:
+                if (
+                    "time" in row
+                    and row["time"] > containers[container_id]["last_seen"]
+                ):
                     containers[container_id]["last_seen"] = row["time"]
 
             # Add component to the container's interacted components (with safe extraction)
             if "component_id" in row and row["component_id"]:
-                containers[container_id]["components_interacted"].add(row["component_id"])
+                containers[container_id]["components_interacted"].add(
+                    row["component_id"]
+                )
 
             # Add to timeline with safe extraction
             timeline_entry = {
@@ -980,9 +1011,16 @@ class CSVScraper:
 
                             # Extract attribute values
                             if isinstance(type_data["attributes"], dict):
-                                for attr_name, attr_data in type_data["attributes"].items():
-                                    if isinstance(attr_data, dict) and "value" in attr_data:
-                                        containers[container_id]["attributes"][type_name][attr_name] = attr_data["value"]
+                                for attr_name, attr_data in type_data[
+                                    "attributes"
+                                ].items():
+                                    if (
+                                        isinstance(attr_data, dict)
+                                        and "value" in attr_data
+                                    ):
+                                        containers[container_id]["attributes"][
+                                            type_name
+                                        ][attr_name] = attr_data["value"]
 
         return containers
 
@@ -1085,17 +1123,10 @@ class CSVScraper:
                 "min": round(min(all_times), 2),
                 "max": round(max(all_times), 2),
                 "count": len(all_times),
-                "times": all_times
+                "times": all_times,
             }
         else:
-            return {
-                "mean": 0,
-                "median": 0,
-                "min": 0,
-                "max": 0,
-                "count": 0,
-                "times": []
-            }
+            return {"mean": 0, "median": 0, "min": 0, "max": 0, "count": 0, "times": []}
 
     def calculate_processing_time(
         self, component_id: Optional[str] = None
@@ -1199,7 +1230,10 @@ class CSVScraper:
                             if isinstance(pdv, dict) and "containerId" in pdv:
                                 container_id = pdv["containerId"]
 
-                            if container_id is not None and container_id in in_container_ids:
+                            if (
+                                container_id is not None
+                                and container_id in in_container_ids
+                            ):
                                 in_action = in_container_ids[container_id]
                                 # Only pair if OUT comes after IN
                                 if action["time"] > in_action["time"]:
@@ -1215,11 +1249,17 @@ class CSVScraper:
 
                 # If we found IN/OUT pairs, use those times
                 if in_out_times:
-                    print(f"Using {len(in_out_times)} IN/OUT pairs for processing time calculation for {comp_id}")
+                    log_console(
+                        f"Using {len(in_out_times)} IN/OUT pairs for processing time calculation for {comp_id}",
+                        logger_console=False,
+                    )
                     times = in_out_times
                 else:
                     # Fallback to ENTER/Exit pairs if no IN/OUT pairs were found
-                    print(f"No IN/OUT pairs found for {comp_id}, falling back to ENTER/Exit pairs")
+                    log_console(
+                        f"No IN/OUT pairs found for {comp_id}, falling back to ENTER/Exit pairs",
+                        logger_console=False,
+                    )
                     enter_exit_pairs = []
                     current_enter = None
 
@@ -1244,7 +1284,7 @@ class CSVScraper:
                     "min": round(min(times), 2),
                     "max": round(max(times), 2),
                     "count": len(times),
-                    "times": times  # Store the individual times for aggregation
+                    "times": times,  # Store the individual times for aggregation
                 }
             else:
                 processing_times[comp_id] = {
@@ -1253,7 +1293,7 @@ class CSVScraper:
                     "min": 0,
                     "max": 0,
                     "count": 0,
-                    "times": []
+                    "times": [],
                 }
 
         return (
@@ -1698,11 +1738,15 @@ class CSVScraper:
 
             # Track when containers enter processing (IN action)
             if action == "IN":
-                container_events.append({"time": time, "event": "enter", "container_id": container_id})
+                container_events.append(
+                    {"time": time, "event": "enter", "container_id": container_id}
+                )
 
             # Track when containers exit processing (OUT action)
             elif action == "OUT":
-                container_events.append({"time": time, "event": "exit", "container_id": container_id})
+                container_events.append(
+                    {"time": time, "event": "exit", "container_id": container_id}
+                )
 
         # Sort events by time
         container_events.sort(key=lambda x: x["time"])
@@ -1742,15 +1786,16 @@ class CSVScraper:
             "timeline": timeline,
             "container_counts": container_counts,
             "data_points": data_points,
-            "max_count": max(container_counts.values()) if container_counts else 0
+            "max_count": max(container_counts.values()) if container_counts else 0,
         }
 
     def get_gentype_distribution(self) -> Dict[str, Any]:
         """
         Analyze the distribution of GenTypes in the simulation.
 
-        This method identifies all GenTypes created during the simulation and
-        calculates their percentage distribution.
+        This method identifies all unique containers and their GenTypes during the simulation
+        and calculates their percentage distribution. It counts each container only once
+        to provide an accurate representation of the GenType distribution.
 
         Returns:
             Dictionary with GenType distribution data
@@ -1760,13 +1805,18 @@ class CSVScraper:
 
         print("Analyzing GenType distribution...")
 
-        # Track GenType occurrences
-        gentype_counts = {}
+        # Track unique containers and their GenTypes
+        container_gentypes = {}  # Maps container IDs to their GenType
 
-        # Process all rows to identify GenTypes
+        # Process all rows to identify unique containers and their GenTypes
         for _, row in self.df.iterrows():
             # Skip rows without PDV
             if not isinstance(row["PDV"], dict) or "types" not in row["PDV"]:
+                continue
+
+            # Get container ID
+            container_id = row["PDV"].get("containerId")
+            if not container_id:
                 continue
 
             # Extract types data
@@ -1782,9 +1832,10 @@ class CSVScraper:
                     else:
                         actual_type_name = type_name
 
-                    if actual_type_name not in gentype_counts:
-                        gentype_counts[actual_type_name] = 0
-                    gentype_counts[actual_type_name] += 1
+                    # Store the GenType for this container
+                    container_gentypes[container_id] = actual_type_name
+                    # We only need one GenType per container, so break after finding the first one
+                    break
             elif isinstance(types_data, list):
                 # Format: [{"name": "type1", ...}, {"name": "type2", ...}]
                 for type_item in types_data:
@@ -1792,12 +1843,20 @@ class CSVScraper:
                         # Try different possible field names for type name
                         type_name = type_item.get("name") or type_item.get("typeName")
                         if type_name:
-                            if type_name not in gentype_counts:
-                                gentype_counts[type_name] = 0
-                            gentype_counts[type_name] += 1
+                            # Store the GenType for this container
+                            container_gentypes[container_id] = type_name
+                            # We only need one GenType per container, so break after finding the first one
+                            break
 
-        # Calculate total count
-        total_count = sum(gentype_counts.values())
+        # Count GenTypes based on unique containers
+        gentype_counts = {}
+        for gentype in container_gentypes.values():
+            if gentype not in gentype_counts:
+                gentype_counts[gentype] = 0
+            gentype_counts[gentype] += 1
+
+        # Calculate total count of unique containers
+        total_count = len(container_gentypes)
 
         # Calculate percentages
         gentype_percentages = {}
@@ -1806,13 +1865,20 @@ class CSVScraper:
             gentype_percentages[type_name] = round(percentage, 2)
 
         # Format data for pie chart
-        data_points = [{"x": type_name, "y": percentage} for type_name, percentage in gentype_percentages.items()]
+        data_points = [
+            {"x": type_name, "y": percentage}
+            for type_name, percentage in gentype_percentages.items()
+        ]
+
+        print(f"Found {total_count} unique containers with the following GenType distribution:")
+        for type_name, count in gentype_counts.items():
+            print(f"  {type_name}: {count} containers ({gentype_percentages[type_name]}%)")
 
         return {
             "counts": gentype_counts,
             "percentages": gentype_percentages,
             "data_points": data_points,
-            "total_count": total_count
+            "total_count": total_count,
         }
 
     def get_component_processing_time_chart_data(self) -> Dict[str, Any]:
@@ -1868,7 +1934,9 @@ class CSVScraper:
                 "name": display_name,
             }
 
-            print(f"Initialized component: {display_name} (ID: {comp_id}, Type: {comp_type})")
+            print(
+                f"Initialized component: {display_name} (ID: {comp_id}, Type: {comp_type})"
+            )
 
             # Track component types
             if comp_type not in result["component_types"]:
@@ -1919,7 +1987,9 @@ class CSVScraper:
                 # Count IN and OUT actions for debugging
                 in_count = len(comp_data[comp_data["action"] == "IN"])
                 out_count = len(comp_data[comp_data["action"] == "OUT"])
-                print(f"Component {comp_id} has {in_count} IN actions and {out_count} OUT actions")
+                print(
+                    f"Component {comp_id} has {in_count} IN actions and {out_count} OUT actions"
+                )
 
                 # First pass: collect all IN actions with their input_count and container_id
                 for _, row in comp_data.iterrows():
@@ -1942,10 +2012,16 @@ class CSVScraper:
                     container_in_times[container_id] = row["time"]
 
                     if input_count is not None:
-                        container_in_input_counts[(container_id, input_count)] = row["time"]
-                        print(f"Recorded IN action for container {container_id} with input_count {input_count} at time {row['time']}")
+                        container_in_input_counts[(container_id, input_count)] = row[
+                            "time"
+                        ]
+                        print(
+                            f"Recorded IN action for container {container_id} with input_count {input_count} at time {row['time']}"
+                        )
                     else:
-                        print(f"Recorded IN action for container {container_id} without input_count at time {row['time']}")
+                        print(
+                            f"Recorded IN action for container {container_id} without input_count at time {row['time']}"
+                        )
 
                 # Second pass: match OUT actions with IN actions
                 matched_pairs = 0
@@ -1967,7 +2043,10 @@ class CSVScraper:
 
                     # Try to match by container_id and input_count first (more precise)
                     matched = False
-                    if input_count is not None and (container_id, input_count) in container_in_input_counts:
+                    if (
+                        input_count is not None
+                        and (container_id, input_count) in container_in_input_counts
+                    ):
                         in_time = container_in_input_counts[(container_id, input_count)]
                         out_time = row["time"]
 
@@ -1976,17 +2055,21 @@ class CSVScraper:
                             processing_time = out_time - in_time
                             matched_pairs += 1
 
-                            print(f"Matched OUT action for container {container_id} with input_count {input_count} - processing time: {processing_time}")
+                            print(
+                                f"Matched OUT action for container {container_id} with input_count {input_count} - processing time: {processing_time}"
+                            )
 
                             # Add data point
-                            result["components"][comp_id]["processing_data"].append({
-                                "time": in_time,  # Use IN time as the reference point
-                                "processing_time": processing_time,
-                                "container_id": container_id,
-                                "action": "PROCESS",  # Custom action to represent processing
-                                "exit_time": out_time,
-                                "input_count": input_count
-                            })
+                            result["components"][comp_id]["processing_data"].append(
+                                {
+                                    "time": in_time,  # Use IN time as the reference point
+                                    "processing_time": processing_time,
+                                    "container_id": container_id,
+                                    "action": "PROCESS",  # Custom action to represent processing
+                                    "exit_time": out_time,
+                                    "input_count": input_count,
+                                }
+                            )
 
                             # Remove from tracking to avoid duplicate matches
                             del container_in_input_counts[(container_id, input_count)]
@@ -2005,21 +2088,27 @@ class CSVScraper:
                             processing_time = out_time - in_time
                             matched_pairs += 1
 
-                            print(f"Matched OUT action for container {container_id} by container ID only - processing time: {processing_time}")
+                            print(
+                                f"Matched OUT action for container {container_id} by container ID only - processing time: {processing_time}"
+                            )
 
                             # Add data point
-                            result["components"][comp_id]["processing_data"].append({
-                                "time": in_time,  # Use IN time as the reference point
-                                "processing_time": processing_time,
-                                "container_id": container_id,
-                                "action": "PROCESS",  # Custom action to represent processing
-                                "exit_time": out_time
-                            })
+                            result["components"][comp_id]["processing_data"].append(
+                                {
+                                    "time": in_time,  # Use IN time as the reference point
+                                    "processing_time": processing_time,
+                                    "container_id": container_id,
+                                    "action": "PROCESS",  # Custom action to represent processing
+                                    "exit_time": out_time,
+                                }
+                            )
 
                             # Remove from tracking
                             del container_in_times[container_id]
 
-                print(f"Successfully matched {matched_pairs} IN/OUT pairs for component {comp_id}")
+                print(
+                    f"Successfully matched {matched_pairs} IN/OUT pairs for component {comp_id}"
+                )
 
                 # If no IN/OUT pairs were found, fallback to ENTER/Exit
                 if not result["components"][comp_id]["processing_data"]:
@@ -2135,7 +2224,12 @@ class CSVScraper:
                 try:
                     start_idx = all_times.index(in_time)
                     # Ensure out_time is within the timeline range
-                    end_idx = min(all_times.index(out_time) if out_time in all_times else len(all_times)-1, len(all_times)-1)
+                    end_idx = min(
+                        all_times.index(out_time)
+                        if out_time in all_times
+                        else len(all_times) - 1,
+                        len(all_times) - 1,
+                    )
 
                     # Mark the component as processing during this period
                     for i in range(start_idx, end_idx + 1):
@@ -2144,11 +2238,17 @@ class CSVScraper:
                         # Track which container is being processed
                         if i not in component_states[comp_id]["active_containers"]:
                             component_states[comp_id]["active_containers"][i] = []
-                        component_states[comp_id]["active_containers"][i].append(container_id)
+                        component_states[comp_id]["active_containers"][i].append(
+                            container_id
+                        )
 
-                    print(f"  Marked processing from time {in_time} to {out_time} for container {container_id}")
+                    print(
+                        f"  Marked processing from time {in_time} to {out_time} for container {container_id}"
+                    )
                 except ValueError as e:
-                    print(f"  Warning: Could not mark processing time for {comp_id}: {e}")
+                    print(
+                        f"  Warning: Could not mark processing time for {comp_id}: {e}"
+                    )
 
         # Create datasets for continuous processing state visualization
         for comp_id, state_data in component_states.items():
@@ -2166,10 +2266,7 @@ class CSVScraper:
         result["continuous_data"] = component_states
 
         # Create a new format for the continuous processing time chart
-        result["continuous_chart_data"] = {
-            "timeline": all_times,
-            "components": []
-        }
+        result["continuous_chart_data"] = {"timeline": all_times, "components": []}
 
         # Group by component type for the continuous chart
         for comp_type, comp_ids in result["component_types"].items():
@@ -2201,10 +2298,7 @@ class CSVScraper:
 
         # Sort and deduplicate discrete times
         discrete_times = sorted(list(set(discrete_times)))
-        result["discrete_chart_data"] = {
-            "timeline": discrete_times,
-            "components": []
-        }
+        result["discrete_chart_data"] = {"timeline": discrete_times, "components": []}
 
         # Group by component type for the discrete chart
         for comp_type, comp_ids in result["component_types"].items():

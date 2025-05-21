@@ -1,0 +1,21 @@
+{
+    "counts": {
+        "soda": 10,
+        "soda_bottle": 10
+    },
+    "percentages": {
+        "soda": 50.0,
+        "soda_bottle": 50.0
+    },
+    "data_points": [
+        {
+            "x": "soda",
+            "y": 50.0
+        },
+        {
+            "x": "soda_bottle",
+            "y": 50.0
+        }
+    ],
+    "total_count": 20
+}
